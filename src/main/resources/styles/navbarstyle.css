@@ -1,0 +1,231 @@
+/* Container for the entire header */
+.header-container {
+    -fx-background-color: white;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 0 0 1 0; /* Bottom border only */
+    -fx-padding: 0 40;
+}
+/* The base button style */
+.primary-btn {
+    -fx-background-color: linear-gradient(to bottom right, #4f46e5, #3b82f6);
+    -fx-background-radius: 8px;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-transition: all 0.3s ease-in-out;
+}
+
+/* When you hover the mouse over the button */
+.primary-btn:hover {
+    -fx-background-color: linear-gradient(to bottom right, #4338ca, #2563eb);
+    /* Subtle glow effect */
+    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.4), 10, 0, 0, 4);
+}
+
+/* When the button is actually clicked */
+.primary-btn:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+.root {
+    -fx-background-color: #F4F7FB;
+}
+.mesh-gradient {
+    -fx-background-color:
+            radial-gradient(focus-angle 0deg, focus-distance 0%, center 20% 20%, radius 70%, rgba(92, 137, 255, 0.12), transparent),
+            radial-gradient(focus-angle 0deg, focus-distance 0%, center 80% 80%, radius 70%, rgba(147, 51, 234, 0.08), transparent),
+            radial-gradient(focus-angle 0deg, focus-distance 0%, center 10% 90%, radius 50%, rgba(249, 168, 37, 0.07), transparent);
+}
+/* Logo styling */
+.header-logo-img {
+    -fx-cursor: hand;
+}
+
+/* Navigation Links */
+.nav-link {
+    -fx-text-fill: #4A5568;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 5 10;
+    -fx-transition: all 0.2s;
+}
+
+.nav-link:hover {
+    -fx-text-fill: #5C89FF; /* Matches your primary accent color */
+}
+
+/* Active state for the current page */
+.nav-link-active {
+    -fx-text-fill: #5C89FF;
+    -fx-border-color: #5C89FF;
+    -fx-border-width: 0 0 2 0; /* Bottom indicator */
+}
+
+/* Notification Bell icon */
+.notification-icon {
+    -fx-fill: #333333;
+    -fx-cursor: hand;
+}
+
+.notification-badge {
+    -fx-background-color: #DC3545;
+    -fx-background-radius: 50;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 5;
+}
+
+/* Profile Image Circle */
+.profile-img-container {
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1;
+    -fx-overflow: hidden;
+}
+
+/* Sign In / Action Buttons */
+.signin-btn {
+    -fx-background-color: #5C89FF;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-font-family: "Segoe UI Bold";
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+
+.signin-btn:hover {
+    -fx-background-color: #4A7AFF;
+}
+
+.logout-btn {
+    -fx-text-fill: #E53E3E;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-cursor: hand;
+}
+/* Remove the grey background and border */
+.nav-menu-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0; /* Align perfectly with other labels */
+    -fx-text-fill: #4A5568;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+
+}
+
+.nav-menu-button > .label {
+    -fx-text-fill: #4A5568;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+}
+
+.nav-menu-button .arrow-button {
+    -fx-padding: 0;
+}
+.nav-menu-button .arrow {
+    -fx-background-color: transparent;
+    -fx-shape: "";
+}
+
+/* Hover effect to match your other nav links */
+.nav-menu-button:hover {
+    -fx-text-fill: #5C89FF;
+}
+
+.nav-menu-button:hover > .label {
+    -fx-text-fill: #5C89FF;
+}
+
+.nav-menu-button:showing > .label,
+.nav-menu-button:armed > .label,
+.nav-menu-button:pressed > .label {
+    -fx-text-fill: #5C89FF;
+}
+
+.nav-menu-button:focused > .label {
+    -fx-text-fill: #4A5568;
+}
+
+.nav-menu-button .context-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 14px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-padding: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.12), 20, 0, 0, 8);
+}
+
+.nav-menu-button .menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10px;
+    -fx-padding: 10 16;
+}
+
+.nav-menu-button .menu-item .label {
+    -fx-text-fill: #334155;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+}
+
+.nav-menu-button .menu-item:focused,
+.nav-menu-button .menu-item:hover {
+    -fx-background-color: #EEF2FF;
+    -fx-background-radius: 10px;
+}
+
+.nav-menu-button .menu-item:focused .label,
+.nav-menu-button .menu-item:hover .label {
+    -fx-text-fill: #4F46E5;
+}
+
+.scroll-pane,
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: rgba(214, 226, 243, 0.85);
+    -fx-background-radius: 999;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: linear-gradient(to bottom, #8fb3ef 0%, #6f99e7 100%);
+    -fx-background-radius: 999;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #7ea7eb 0%, #5f8ddf 100%);
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-padding: 2;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: #7f97b8;
+    -fx-padding: 0.22em;
+}
