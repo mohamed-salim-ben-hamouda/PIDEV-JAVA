@@ -65,7 +65,7 @@ public class BaseController implements Initializable {
     @FXML public void loadLogin() { loadViewFront("client/User/login"); }
 
     @FXML public void loadCourses() { loadViewFront("client/CoursesView"); }
-    @FXML public void loadChallenge() { loadViewFront("client/Challenge"); }
+    @FXML public void loadChallenge() { loadViewFront("client/Challenge/Challenge"); }
     @FXML public void loadGroups() { loadViewFront("client/GroupsView"); }
     @FXML public void loadJobs() { loadViewFront("client/JobsView"); }
     @FXML public void loadMyCV() { loadViewFront("client/MyCVView"); }

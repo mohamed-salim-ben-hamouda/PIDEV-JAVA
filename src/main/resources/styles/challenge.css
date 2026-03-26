@@ -1,0 +1,198 @@
+.challenge-page {
+    -fx-background-color: transparent;
+}
+
+.challenge-list-column,
+.challenge-form-column {
+    -fx-alignment: TOP_LEFT;
+}
+
+.page-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.main-card {
+    -fx-background-color: white;
+    -fx-background-radius: 24px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 24px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.06), 24, 0, 0, 10);
+}
+
+.challenge-card {
+    -fx-background-color: white;
+    -fx-background-radius: 22px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 22px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.05), 18, 0, 0, 8);
+}
+
+.challenge-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.12), 24, 0, 0, 10);
+    -fx-border-color: #c7d2fe;
+}
+
+.challenge-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1e293b;
+}
+
+.input-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #475569;
+}
+
+.meta-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.modern-input {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #dbe3ef;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 10 12;
+}
+
+.modern-input:focused {
+    -fx-background-color: white;
+    -fx-border-color: #818cf8;
+}
+
+.primary-btn {
+    -fx-background-color: #6366f1;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12px;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #4f46e5;
+}
+
+.action-btn-outline {
+    -fx-background-color: #eef2ff;
+    -fx-background-radius: 999px;
+    -fx-border-color: #c7d2fe;
+    -fx-border-radius: 999px;
+    -fx-text-fill: #4f46e5;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 6 14;
+}
+
+.action-btn-outline:hover {
+    -fx-background-color: #6366f1;
+    -fx-border-color: #6366f1;
+    -fx-text-fill: white;
+}
+
+.action-btn-delete {
+    -fx-background-color: #fef2f2;
+    -fx-background-radius: 999px;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 999px;
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 6 14;
+}
+
+.action-btn-delete:hover {
+    -fx-background-color: #ef4444;
+    -fx-border-color: #ef4444;
+    -fx-text-fill: white;
+}
+
+.file-link-btn {
+    -fx-background-color: #eff6ff;
+    -fx-background-radius: 999px;
+    -fx-border-color: #bfdbfe;
+    -fx-border-radius: 999px;
+    -fx-border-width: 1px;
+    -fx-text-fill: #2563eb;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 6 12;
+}
+
+.file-link-btn:hover {
+    -fx-background-color: #2563eb;
+    -fx-border-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.transparent-scroll,
+.transparent-scroll .viewport {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.my-custom-alert {
+    -fx-background-color: white;
+    -fx-background-radius: 24px;
+    -fx-border-radius: 24px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px;
+    -fx-padding: 22px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.12), 30, 0, 0, 16);
+}
+
+.my-custom-alert:header *.header-panel {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 8 0;
+}
+
+.my-custom-alert:header *.header-panel *.label {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.my-custom-alert .content.label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 6 0 20 0;
+}
+
+.my-custom-alert .button-bar {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 4 0 0 0;
+}
+
+.my-custom-alert .button {
+    -fx-background-color: #eef2ff;
+    -fx-text-fill: #4f46e5;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12px;
+    -fx-border-color: #c7d2fe;
+    -fx-border-radius: 12px;
+    -fx-padding: 10 22;
+    -fx-cursor: hand;
+}
+
+.my-custom-alert .button:hover {
+    -fx-background-color: #e0e7ff;
+}
+
+.my-custom-alert .alert-primary-btn {
+    -fx-background-color: #6366f1;
+    -fx-text-fill: white;
+    -fx-border-color: #6366f1;
+}
+
+.my-custom-alert .alert-primary-btn:hover {
+    -fx-background-color: #4f46e5;
+    -fx-border-color: #4f46e5;
+}
