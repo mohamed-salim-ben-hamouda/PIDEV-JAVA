@@ -28,6 +28,7 @@
     -fx-border-color: #e2e8f0;
     -fx-border-radius: 22px;
     -fx-border-width: 1px;
+    -fx-padding: 18px 20px 16px 20px;
     -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.05), 18, 0, 0, 8);
 }
 
@@ -40,6 +41,17 @@
     -fx-font-size: 22px;
     -fx-font-weight: 800;
     -fx-text-fill: #1e293b;
+}
+
+.challenge-description {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #334155;
+    -fx-line-spacing: 2px;
+}
+
+.challenge-meta {
+    -fx-padding: 2px 0 0 0;
 }
 
 .input-label {
@@ -119,6 +131,7 @@
     -fx-border-color: #bfdbfe;
     -fx-border-radius: 999px;
     -fx-border-width: 1px;
+    -fx-alignment: CENTER_LEFT;
     -fx-text-fill: #2563eb;
     -fx-font-size: 11px;
     -fx-font-weight: 700;

@@ -8,6 +8,7 @@ import com.pidev.Services.Challenge.Interfaces.IChallenge;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import com.pidev.models.Challenge;
 
@@ -41,7 +42,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
             st.setString(9, c.getContent());
 
             st.setInt(10, 1);
-            st.setInt(11, 2);
+            st.setInt(11, 1);
             st.executeUpdate();
 
 
@@ -52,7 +53,26 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
 
     @Override
     public void update(Challenge c) {
-
+        String query="UPDATE challenge SET title=?,description=?,target_skill=?," +
+                "difficulty=?,min_group_nbr=?,max_group_nbr=?,dead_line=?,content=? WHERE id=?";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setString(1,c.getTitle());
+            ps.setString(2,c.getDescription());
+            ps.setString(3,c.getTargetSkill());
+            ps.setString(4,c.getDifficulty());
+            ps.setInt(5,c.getMinGroupNbr());
+            ps.setInt(6,c.getMaxGroupNbr());
+            if (c.getDeadLine() != null) {
+                ps.setTimestamp(7, Timestamp.valueOf(c.getDeadLine()));
+            } else {
+                ps.setNull(7, Types.TIMESTAMP);
+            }
+            ps.setString(8, c.getContent());
+            ps.setInt(9,c.getId());
+            ps.executeUpdate();
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override

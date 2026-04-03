@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20.0" styleClass="main-card" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.ChallengeEditController">
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <GridPane hgap="20.0" vgap="15.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
+        </columnConstraints>
+
+        <!-- Row 0: Title and Difficulty -->
+        <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Title" styleClass="input-label"/>
+            <TextField fx:id="titleEdit" styleClass="modern-input" promptText="Challenge Title"/>
+        </VBox>
+
+        <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Difficulty" styleClass="input-label"/>
+            <ComboBox fx:id="difficultyEdit" maxWidth="Infinity" styleClass="modern-input"/>
+        </VBox>
+
+        <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Target Skill" styleClass="input-label"/>
+            <TextField fx:id="skillEdit" styleClass="modern-input" promptText="e.g. Java Development"/>
+        </VBox>
+
+        <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Min / Max Group Number" styleClass="input-label"/>
+            <HBox spacing="10.0">
+                <TextField fx:id="minGroupEdit" HBox.hgrow="ALWAYS" styleClass="modern-input" promptText="Min"/>
+                <TextField fx:id="maxGroupEdit" HBox.hgrow="ALWAYS" styleClass="modern-input" promptText="Max"/>
+            </HBox>
+        </VBox>
+
+        <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+            <Label text="Deadline" styleClass="input-label"/>
+            <DatePicker fx:id="deadlineEdit" maxWidth="Infinity" styleClass="modern-input"/>
+        </VBox>
+
+        <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Description (text)" styleClass="input-label"/>
+            <TextArea fx:id="descriptionEdit" prefHeight="100.0" styleClass="modern-input" wrapText="true"/>
+        </VBox>
+
+        <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Label text="Replace PDF (optional)" styleClass="input-label"/>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="modern-input" prefHeight="100.0">
+                <Button text="Choisir un fichier" onAction="#onChooseFile" styleClass="action-btn-outline"/>
+                <Label fx:id="fileNameLabel" text="Aucun fichier choisi" styleClass="meta-text"/>
+            </HBox>
+        </VBox>
+    </GridPane>
+
+    <Button fx:id="updateBtn" onAction="#OnEdit" maxWidth="Infinity" text="Update Challenge" styleClass="primary-btn">
+        <VBox.margin>
+            <Insets top="10"/>
+        </VBox.margin>
+    </Button>
+</VBox>
