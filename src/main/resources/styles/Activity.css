@@ -1,0 +1,58 @@
+/* Main Background */
+.main-container {
+    -fx-background-color: #f8fafc;
+    -fx-padding: 20;
+}
+
+/* Card Style */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-padding: 20;
+    -fx-spacing: 15;
+}
+
+/* Titles */
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a90e2;
+}
+
+.sub-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b;
+}
+
+/* Input Fields */
+.text-area, .combo-box, .text-field {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+/* Primary Blue Button */
+.button-primary {
+    -fx-background-color: #4f8cf2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
+}
+.button-primary:hover {
+    -fx-background-color: #3b82f6;
+    -fx-effect: dropshadow(three-pass-box, rgba(79, 140, 242, 0.4), 10, 0, 0, 0);
+}
+
+/* Table Style */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+}
+.table-view .column-header {
+    -fx-background-color: #f1f5f9;
+}

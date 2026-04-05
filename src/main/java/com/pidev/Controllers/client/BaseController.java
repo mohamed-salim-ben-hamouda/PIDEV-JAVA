@@ -1,5 +1,9 @@
 package com.pidev.Controllers.client;
 
+import com.pidev.Controllers.client.Challenge.Activity.ActivityController;
+import com.pidev.Services.Challenge.Classes.ServiceActivity;
+import com.pidev.models.Activity;
+import com.pidev.models.Challenge;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -17,11 +21,21 @@ public class BaseController implements Initializable {
     private MenuButton challengesMenu;
     @FXML
     private MenuButton CvMenu;
+    @FXML
+    private MenuButton ChallengesStudent;
+    private static BaseController instance;
 
+    public BaseController() {
+        instance = this;
+    }
+    public static BaseController getInstance() {
+        return instance;
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configureHoverMenu(challengesMenu);
         configureHoverMenu(CvMenu);
+        configureHoverMenu(ChallengesStudent);
     }
 
     private void configureHoverMenu(MenuButton menuButton) {
@@ -66,6 +80,32 @@ public class BaseController implements Initializable {
 
     @FXML public void loadCourses() { loadViewFront("client/CoursesView"); }
     @FXML public void loadChallenge() { loadViewFront("client/Challenge/Challenge"); }
+    @FXML public void loadActivity() { loadViewFront("client/Challenge/challengeStudent"); }
+    @FXML public void loadActivityPage(Challenge challenge, int groupId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/Activity.fxml"));
+            Parent root = loader.load();
+            ActivityController controller = loader.getController();
+            controller.initData(challenge, groupId);
+            contentArea.getChildren().setAll(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }}
+    @FXML public void handleActivityPages(){
+        ServiceActivity serviceActivity = new ServiceActivity();
+        int user_id=2;
+        Activity a= serviceActivity.findActivityInprogress(user_id);
+        if(a!=null){
+            loadActivityPage(a.getChallenge(),a.getGroup().getId());
+        }else{
+            loadActivity();
+        }
+
+    }
+
+    @FXML public void loadOldActivities() { loadViewFront("client/Challenge/OldActivities"); }
+
     @FXML public void loadGroups() { loadViewFront("client/GroupsView"); }
     @FXML public void loadJobs() { loadViewFront("client/JobsView"); }
     @FXML public void loadMyCV() { loadViewFront("client/MyCVView"); }

@@ -25,6 +25,12 @@
                                 <MenuItem text="Evaluation" />
                             </items>
                         </MenuButton>
+                        <MenuButton fx:id="ChallengesStudent" text="Activity &amp; Old_Activities" styleClass="nav-menu-button">
+                            <items>
+                                <MenuItem onAction="#handleActivityPages" text="Activity" />
+                                <MenuItem onAction="#loadOldActivities" text="Old_Activities" />
+                            </items>
+                        </MenuButton>
                         <MenuButton fx:id="CvMenu" text="Jobs &amp; CV" styleClass="nav-menu-button">
                             <items>
                                 <MenuItem onAction="#loadMyCV" text="Cv" />

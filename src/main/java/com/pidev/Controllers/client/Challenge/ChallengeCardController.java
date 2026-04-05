@@ -1,16 +1,21 @@
 package com.pidev.Controllers.client.Challenge;
 
+import com.pidev.Services.Membership.ServiceMembership;
 import com.pidev.models.Challenge;
+import com.pidev.models.Group;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import com.pidev.Services.Challenge.Classes.ServiceChallenge;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 import java.nio.file.Path;
 
@@ -26,9 +31,13 @@ public class ChallengeCardController {
     @FXML
     private Label difficultyCard;
     @FXML
-    private Button groupsBtn;
+    public Button groupsBtn;
     @FXML
-    private Button deleteBtn;
+    public Button deleteBtn;
+    @FXML
+    public Button editBtn;
+    @FXML
+    public Button participationBtn;
     @FXML
     private VBox cardRoot;
     @FXML
@@ -36,8 +45,51 @@ public class ChallengeCardController {
     @FXML
     private Button fileBtn;
     private Challenge c;
-    private Consumer<Void> onDeleteCallback;
+    private ServiceMembership groupService;
 
+    private Consumer<Void> onDeleteCallback;
+    @FXML private VBox groupSection;
+    @FXML private FlowPane groupsContainer;
+    @FXML
+    public void initialize() {
+        groupService = new ServiceMembership();
+        participationBtn.setOnAction(event -> toggleGroupSection());
+    }
+    private void toggleGroupSection() {
+        boolean isVisible = groupSection.isVisible();
+        groupSection.setVisible(!isVisible);
+        groupSection.setManaged(!isVisible);
+
+        if (!isVisible) {
+            loadUserGroups();
+        }
+    }
+    private void loadUserGroups() {
+        groupsContainer.getChildren().clear();
+        List<Group> userGroups = groupService.FindAdminGroups(2);
+        groupsContainer.getChildren().clear();
+
+        if (userGroups.isEmpty()) {
+
+            Label emptyLabel = new Label("You are not a leader of any groups");
+            emptyLabel.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+
+            groupsContainer.getChildren().add(emptyLabel);
+
+        } else {
+            try {
+                for (Group group : userGroups) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/AdminGroupCard.fxml"));
+                    VBox card = loader.load();
+                    AdminGroupCardController controller = loader.getController();
+                    controller.setGroupData(group,this.c);
+                    groupsContainer.getChildren().add(card);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public void setData(Challenge c,Consumer<Void> onDeleteCallback) {
         this.c = c;
         this.onDeleteCallback = onDeleteCallback;
@@ -87,7 +139,7 @@ public class ChallengeCardController {
 
     }
     @FXML
-    private void handleEdit() {
+    public void handleEdit() {
         try {
             if (editForm != null) {
                 cardRoot.getChildren().remove(editForm);
@@ -117,4 +169,13 @@ public class ChallengeCardController {
             e.printStackTrace();
         }
     }
+    public  void StudentCard(javafx.scene.control.Button b){
+        b.setVisible(false);
+        b.setManaged(false);
+    }
+    public  void SupervisorCard(javafx.scene.control.Button b){
+        b.setVisible(false);
+        b.setManaged(false);
+    }
+
 }

@@ -220,10 +220,11 @@ public class ChallengeController implements Initializable {
         for (Challenge c : challenges) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/ChallengeCard.fxml"));
-                VBox card = loader.load(); // load the FXML
+                VBox card = loader.load();
                 ChallengeCardController cardController = loader.getController();
-                cardController.setData(c,v -> refreshChallenges()); // pass challenge data
-                challengeListContainer.getChildren().add(card); // add card to VBox
+                cardController.setData(c,v -> refreshChallenges());
+                cardController.SupervisorCard(cardController.participationBtn);
+                challengeListContainer.getChildren().add(card);
             } catch (Exception e) {
                 e.printStackTrace();
             }

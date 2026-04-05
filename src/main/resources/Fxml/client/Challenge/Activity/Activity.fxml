@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="30" style="-fx-padding: 30;" stylesheets="@../../../../styles/challenge.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityController">
+    <children>
+
+        <!-- 1. TOP CARD: Challenge Info -->
+        <VBox fx:id="challengeListContainer" spacing="25.0" pickOnBounds="false" style="-fx-background-color: transparent;">
+            <padding>
+                <Insets bottom="20.0" left="10.0" right="18.0" top="6.0"/>
+            </padding>
+        </VBox>
+
+        <Label styleClass="page-title" text="🚀 Votre Avancement" style="-fx-font-size: 24px;" />
+
+        <!-- 2. Description de l'activité -->
+        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="📝 Description de l'activité" style="-fx-font-size: 18px;" />
+                <TextArea fx:id="activityDescArea" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez votre activité..." wrapText="true" />
+                <Button styleClass="primary-btn" text="Enregistrer Description" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <!-- 3. Problème rencontré (THE MISSING ONE) -->
+        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="⚠️ Problème rencontré" style="-fx-font-size: 18px;" />
+                <TextArea fx:id="encounteredProblemArea" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez le problème rencontré..." wrapText="true" />
+                <Button  styleClass="primary-btn" text="Enregistrer Problème" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <!-- 4. Proposez une solution -->
+        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="💡 Proposez une solution" style="-fx-font-size: 18px;" />
+                <VBox spacing="5">
+                    <Label styleClass="input-label" text="Choisir un problème à résoudre" />
+                    <ComboBox fx:id="problemCombo" styleClass="modern-input" maxWidth="Infinity" promptText="Sélectionnez un problème" />
+                </VBox>
+                <VBox spacing="5">
+                    <Label styleClass="input-label" text="Votre Solution" />
+                    <TextArea fx:id="solutionArea" styleClass="modern-input" prefHeight="80.0" promptText="Expliquez votre approche..." wrapText="true" />
+                </VBox>
+                <Button  styleClass="primary-btn" text="Enregistrer Solution" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <!-- 5. Soumission finale -->
+        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="📤 Soumission finale" style="-fx-font-size: 18px;" />
+                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
+                    <children>
+                        <Button  styleClass="action-btn-outline" text="Choisir un fichier" />
+                        <Label fx:id="fileNameLabel" styleClass="meta-text" text="Aucun fichier (PDF, ZIP)" />
+                    </children>
+                </HBox>
+                <Button  styleClass="primary-btn" text="Soumettre le Travail" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <!-- 6. BOTTOM SECTION: Tables Tracking -->
+        <VBox spacing="20" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="📊 Suivi de l'activité" />
+
+                <VBox spacing="10">
+                    <Label styleClass="input-label" text="📋 Historique des étapes" />
+                    <TableView fx:id="descTable" prefHeight="180.0" style="-fx-background-radius: 12;">
+                        <columns>
+                            <TableColumn fx:id="descIdCol" prefWidth="60.0" text="ID" />
+                            <TableColumn fx:id="descTextCol" prefWidth="600.0" text="Description de l'étape" />
+                            <TableColumn fx:id="descActionCol" prefWidth="150.0" text="Actions" />
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label styleClass="input-label" text="⚠️ Problèmes &amp; Solutions" />
+                    <TableView fx:id="problemTable" prefHeight="180.0" style="-fx-background-radius: 12;">
+                        <columns>
+                            <TableColumn fx:id="probNameCol" prefWidth="250.0" text="Problème" />
+                            <TableColumn fx:id="solTextCol" prefWidth="410.0" text="Solution validée" />
+                            <TableColumn fx:id="probActionCol" prefWidth="150.0" text="Actions" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </children>
+        </VBox>
+
+    </children>
+</VBox>

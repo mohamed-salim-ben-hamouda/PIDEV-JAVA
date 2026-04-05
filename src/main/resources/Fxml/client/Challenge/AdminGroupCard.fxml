@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox prefWidth="180.0" spacing="12.0"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #f0f4f8; -fx-border-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.AdminGroupCardController"
+stylesheets="@../../../styles/challenge.css">
+    <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+    </padding>
+    <children>
+        <Label fx:id="groupNameLabel" style="-fx-font-size: 13; -fx-font-weight: 500;" text="👥 Group Name" textFill="#4a5568" />
+        <Button fx:id="chooseBtn"
+                styleClass="action-btn-outline"
+                onAction="#OnChoose"
+                text="Choose" maxWidth="Infinity" />
+    </children>
+</VBox>
