@@ -7,7 +7,6 @@
 <VBox spacing="30" style="-fx-padding: 30;" stylesheets="@../../../../styles/challenge.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityController">
     <children>
 
-        <!-- 1. TOP CARD: Challenge Info -->
         <VBox fx:id="challengeListContainer" spacing="25.0" pickOnBounds="false" style="-fx-background-color: transparent;">
             <padding>
                 <Insets bottom="20.0" left="10.0" right="18.0" top="6.0"/>
@@ -16,21 +15,19 @@
 
         <Label styleClass="page-title" text="🚀 Votre Avancement" style="-fx-font-size: 24px;" />
 
-        <!-- 2. Description de l'activité -->
         <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="📝 Description de l'activité" style="-fx-font-size: 18px;" />
-                <TextArea fx:id="activityDescArea" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez votre activité..." wrapText="true" />
-                <Button styleClass="primary-btn" text="Enregistrer Description" prefWidth="200" />
+                <TextArea fx:id="activity_desc" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez votre activité..." wrapText="true" />
+                <Button onAction="#OnMemberActivity" styleClass="primary-btn" text="Enregistrer Description" prefWidth="200" />
             </children>
         </VBox>
 
-        <!-- 3. Problème rencontré (THE MISSING ONE) -->
         <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="⚠️ Problème rencontré" style="-fx-font-size: 18px;" />
-                <TextArea fx:id="encounteredProblemArea" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez le problème rencontré..." wrapText="true" />
-                <Button  styleClass="primary-btn" text="Enregistrer Problème" prefWidth="200" />
+                <TextArea fx:id="Problem_grp" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez le problème rencontré..." wrapText="true" />
+                <Button onAction="#OnProblem" styleClass="primary-btn" text="Enregistrer Problème" prefWidth="200" />
             </children>
         </VBox>
 

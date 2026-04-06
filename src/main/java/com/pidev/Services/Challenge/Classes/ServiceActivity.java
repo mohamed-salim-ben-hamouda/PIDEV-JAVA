@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 
 public class ServiceActivity implements IActivity {
@@ -23,11 +24,19 @@ public class ServiceActivity implements IActivity {
     public void StartActivity(Activity a, Challenge c, Group g) {
         String query = "INSERT INTO ACTIVITY (id_challenge_id,group_id_id,status) " +
                 "VALUES (?,?,?)";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, c.getId());
             ps.setInt(2, g.getId());
             ps.setString(3,"in_progress");
             ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    a.setId(keys.getInt(1));
+                } else {
+                    throw new SQLException("Activity created but no generated ID was returned.");
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -35,7 +44,7 @@ public class ServiceActivity implements IActivity {
     }
     @Override
     public Activity findActivityInprogress(int id){
-        String query = "SELECT a.status, a.id_challenge_id, a.group_id_id, c.* FROM activity a " +
+        String query = "SELECT a.id,a.status, a.id_challenge_id, a.group_id_id, c.* FROM activity a " +
                 "JOIN challenge c ON c.id = a.id_challenge_id " +
                 "JOIN membership m ON m.group_id_id = a.group_id_id " +
                 "WHERE m.user_id_id = ? " +
@@ -47,6 +56,7 @@ public class ServiceActivity implements IActivity {
             if(rs.next()){
                 Activity activity = new Activity();
                 activity.setStatus(rs.getString("status"));
+                activity.setId(rs.getInt("id"));
                 Group Group = new Group();
                 Group.setId(rs.getInt("group_id_id"));
                 activity.setGroup(Group);

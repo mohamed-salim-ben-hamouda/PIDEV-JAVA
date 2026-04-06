@@ -34,6 +34,11 @@ public class AdminGroupCardController {
         Group g = new Group();
         g.setId(groupId);
         serviceAct.StartActivity(a, c, g);
-        BaseController.getInstance().loadActivityPage(c,g.getId());
+        Integer activityId = a.getId();
+        if (activityId == null) {
+            System.out.println("OnChoose: activityId is null after StartActivity; navigation canceled.");
+            return;
+        }
+        BaseController.getInstance().loadActivityPage(c, g.getId(), activityId);
     }
 }
