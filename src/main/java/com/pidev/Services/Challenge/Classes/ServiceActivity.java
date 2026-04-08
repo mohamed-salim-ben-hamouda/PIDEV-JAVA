@@ -7,6 +7,8 @@ import com.pidev.models.Group;
 import com.pidev.utils.DataSource;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ServiceActivity implements IActivity {
@@ -119,5 +121,25 @@ public class ServiceActivity implements IActivity {
             throw new RuntimeException(e);
         }
     }
+    public List<Group> findGroupsInActivity(int id_challenge){
+        List<Group> gr = new ArrayList<>();
+        String query = "SELECT DISTINCT g.id, g.name FROM `group` g " +
+                "JOIN activity a ON a.group_id_id = g.id " +
+                "WHERE a.id_challenge_id = ?";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setInt(1,id_challenge);
+            ResultSet rs=ps.executeQuery();
+            while (rs.next()){
+                Group g=new Group();
+                g.setId(rs.getInt("id"));
+                g.setName(rs.getString("name"));
+                gr.add(g);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return gr;
+    }
+
 
 }

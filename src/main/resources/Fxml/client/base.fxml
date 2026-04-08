@@ -22,7 +22,7 @@
                         <MenuButton fx:id="challengesMenu" text="Challenge &amp; Evaluation" styleClass="nav-menu-button">
                             <items>
                                 <MenuItem onAction="#loadChallenge" text="Challenge" />
-                                <MenuItem text="Evaluation" />
+                                <MenuItem onAction="#loadEvaluation" text="Evaluation" />
                             </items>
                         </MenuButton>
                         <MenuButton fx:id="ChallengesStudent" text="Activity &amp; Old_Activities" styleClass="nav-menu-button">

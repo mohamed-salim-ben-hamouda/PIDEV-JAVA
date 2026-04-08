@@ -3,8 +3,10 @@ package com.pidev.Services.Challenge.Interfaces;
 
 import com.pidev.models.Challenge;
 
+import java.util.List;
+
 public interface IChallenge {
-    Challenge find_challenge(int id);
+    List<Challenge> findChallengeWithActivities();
 
 
 }

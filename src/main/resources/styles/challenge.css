@@ -302,6 +302,62 @@
     -fx-background-color: #a5b4fc;
 }
 
+/* ---------- CardView (Table replacement) ---------- */
+
+.card-surface {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 16px;
+    -fx-border-width: 1px;
+}
+
+.card-header {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 16px 16px 0 0;
+    -fx-padding: 10 12;
+}
+
+.card-header-text {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.card-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.card-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.card-row {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #eef2f7 transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.card-row:hover {
+    -fx-background-color: #eef2ff;
+}
+
+.card-text {
+    -fx-text-fill: #334155;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+/* ---------- Section headings ---------- */
+
+.section-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-padding: 10 0 0 0;
+}
+
 .my-custom-alert .alert-primary-btn {
     -fx-background-color: #6366f1;
     -fx-text-fill: white;
@@ -311,4 +367,21 @@
 .my-custom-alert .alert-primary-btn:hover {
     -fx-background-color: #4f46e5;
     -fx-border-color: #4f46e5;
+}
+.svg-icon {
+    -fx-fill: linear-gradient(to bottom, #6366f1, #a5b4fc);
+}
+/* This makes the group look like the white bars in your target image */
+.evaluation-row-item {
+    -fx-background-color: white;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-border-color: #f1f5f9;
+    -fx-border-radius: 15px;
+    -fx-border-width: 1px;
+}
+
+/* Ensure the container doesn't squash them */
+#groupsListContainer {
+    -fx-alignment: TOP_CENTER;
 }

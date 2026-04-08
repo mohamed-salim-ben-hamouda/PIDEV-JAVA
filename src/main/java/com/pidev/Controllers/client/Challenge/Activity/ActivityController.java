@@ -9,7 +9,6 @@ import com.pidev.models.Activity;
 import com.pidev.models.Challenge;
 import com.pidev.models.MemberActivity;
 import com.pidev.models.ProblemSolution;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -48,27 +46,17 @@ public class ActivityController {
     @FXML
     private Label fileNameLabel;
     @FXML
-    private TableView<ProblemSolution> problemSolutionTable;
-    @FXML
-    private TableColumn<ProblemSolution,String> problemCol;
-    @FXML
-    private TableColumn<ProblemSolution,String> solutionCol;
-    @FXML
-    private TableColumn<ProblemSolution,Void> probActionCol;
-    @FXML
     private VBox editOverlayHost;
     @FXML
-    private TableView<MemberActivity> descTable;
-    @FXML
-    private TableColumn<MemberActivity,Integer> descIdCol;
-    @FXML
-    private TableColumn<MemberActivity,String> nameUser;
-    @FXML
-    private TableColumn<MemberActivity,String> descTextCol;
-    @FXML
-    private TableColumn<MemberActivity,Void> descActionCol;
-    @FXML
     private VBox editMemberOverlayHost;
+    @FXML
+    private VBox memberActivityCards;
+    @FXML
+    private Label memberEmptyLabel;
+    @FXML
+    private VBox problemSolutionCards;
+    @FXML
+    private Label psEmptyLabel;
     @FXML
     private VBox DescriptionContainer;
     private ServiceActivity serviceActivity = new ServiceActivity();
@@ -89,8 +77,8 @@ public class ActivityController {
         solutionContainer.setVisible(false);
         solutionContainer.setManaged(false);
         String css = getClass().getResource("/styles/challenge.css").toExternalForm();
-        initTable(this.act_id);
-        initMemberActivityTable(this.act_id);
+        initProblemSolutionCards(this.act_id);
+        initMemberActivityCards(this.act_id);
         UserPermissions();
         renderChallengeHeader();
         loadProblems();
@@ -123,7 +111,7 @@ public class ActivityController {
             int user_id = 2;
             serviceMember.addMemberActivity(ma, act_id, user_id);
             activity_desc.clear();
-            refreshMemberTable(act_id);
+            refreshMemberCards(act_id);
             descriptionVisibility();
         } catch (Exception e) {
             System.err.println("Failed to save member activity: " + e.getMessage());
@@ -131,35 +119,35 @@ public class ActivityController {
 
     }
 
-    public void initMemberActivityTable(int activityId) {
-        if (descIdCol != null) {
-            descIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        }
-        if (descTextCol != null) {
-            descTextCol.setCellValueFactory(new PropertyValueFactory<>("activityDescription"));
-        }
-        if (nameUser != null) {
-            nameUser.setCellValueFactory(cellData ->
-                    new SimpleStringProperty(cellData.getValue() != null && cellData.getValue().getUser() != null
-                            ? cellData.getValue().getUser().getDisplayName()
-                            : "-")
-            );
-        }
-
-        if (descActionCol != null) {
-            descActionCol.setCellFactory(param -> new ActionCell<>(
-                    this::handleEditMember,
-                    this::handleDeleteMember
-            ));
-        }
-
-        refreshMemberTable(activityId);
+    public void initMemberActivityCards(int activityId) {
+        refreshMemberCards(activityId);
     }
 
-    private void refreshMemberTable(int activityId) {
-        int user_id=2;
-        List<MemberActivity> list = serviceMember.display(activityId,user_id);
-        descTable.setItems(FXCollections.observableArrayList(list));
+    private void refreshMemberCards(int activityId) {
+        int user_id = 2;
+        List<MemberActivity> list = serviceMember.display(activityId, user_id);
+
+        if (memberEmptyLabel != null) {
+            boolean empty = list == null || list.isEmpty();
+            memberEmptyLabel.setVisible(empty);
+            memberEmptyLabel.setManaged(empty);
+        }
+
+        if (memberActivityCards == null) return;
+        memberActivityCards.getChildren().clear();
+
+        if (list == null) return;
+        for (MemberActivity memberActivity : list) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/MemberActivityCard.fxml"));
+                Parent card = loader.load();
+                MemberActivityCardController ctrl = loader.getController();
+                ctrl.setData(memberActivity, this::handleEditMember, this::handleDeleteMember);
+                memberActivityCards.getChildren().add(card);
+            } catch (IOException e) {
+                System.err.println("Failed to load member activity card: " + e.getMessage());
+            }
+        }
     }
 
     private void handleEditMember(MemberActivity selected) {
@@ -175,18 +163,13 @@ public class ActivityController {
         }
 
         editingMemberActivity = selected;
-        int index = (descTable == null || descTable.getItems() == null) ? -1 : descTable.getItems().indexOf(selected);
-        if (index >= 0) {
-            descTable.scrollTo(index);
-            descTable.getSelectionModel().select(index);
-        }
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/EditMemberActivity.fxml"));
             Parent content = loader.load();
             content.getStylesheets().add(getClass().getResource("/styles/challenge.css").toExternalForm());
-            if (content instanceof Region region && descTable != null) {
-                region.prefWidthProperty().bind(descTable.widthProperty().subtract(30));
+            if (content instanceof Region region) {
+                region.setMaxWidth(Double.MAX_VALUE);
             }
 
             EditMemberActivityController overlayController = loader.getController();
@@ -194,7 +177,7 @@ public class ActivityController {
             overlayController.setOnSave(updated -> {
                 try {
                     serviceMember.update(updated);
-                    refreshMemberTable(act_id);
+                    refreshMemberCards(act_id);
                 } catch (Exception e) {
                     System.err.println("Failed to update member activity: " + e.getMessage());
                 } finally {
@@ -226,7 +209,7 @@ public class ActivityController {
             if (editingMemberActivity != null && editingMemberActivity.getId().equals(selected.getId())) {
                 hideEditMemberOverlay();
             }
-            refreshMemberTable(act_id);
+            refreshMemberCards(act_id);
             descriptionVisibility();
         } catch (Exception e) {
             System.err.println("Failed to delete member activity: " + e.getMessage());
@@ -247,7 +230,7 @@ public class ActivityController {
                     problemCombo.setItems(FXCollections.observableArrayList());
                 }
                 problemCombo.getItems().add(p);
-                refreshTable(act_id);
+                refreshProblemSolutionCards(act_id);
             }
         } catch (Exception e) {
             System.err.println("Failed to save problem: " + e.getMessage());
@@ -274,7 +257,7 @@ public class ActivityController {
             solution_desc.clear();
             problemCombo.getSelectionModel().clearSelection();
             loadProblems();
-            refreshTable(act_id);
+            refreshProblemSolutionCards(act_id);
         } catch (Exception e) {
             System.err.println("Failed to save solution: " + e.getMessage());
         }
@@ -320,31 +303,39 @@ public class ActivityController {
 
     }
 
-    public void initTable(int activityId) {
-        problemCol.setCellValueFactory(new PropertyValueFactory<>("problemDescription"));
-        solutionCol.setCellValueFactory(cellData ->
-                new SimpleStringProperty(dashIfBlank(cellData.getValue() == null ? null : cellData.getValue().getGroupSolution()))
-        );
-
-        probActionCol.setCellFactory(param -> new ActionCell<>(
-                this::handleEditAction,
-                this::handleDeleteAction
-        ));
-
-        refreshTable(activityId);
+    public void initProblemSolutionCards(int activityId) {
+        refreshProblemSolutionCards(activityId);
     }
 
-    private static String dashIfBlank(String value) {
-        return (value == null || value.isBlank()) ? "-" : value;
+    private void refreshProblemSolutionCards(int activityId) {
+        List<ProblemSolution> list = serviceProblem.display(activityId);
+
+        if (psEmptyLabel != null) {
+            boolean empty = list == null || list.isEmpty();
+            psEmptyLabel.setVisible(empty);
+            psEmptyLabel.setManaged(empty);
+        }
+
+        if (problemSolutionCards == null) return;
+        problemSolutionCards.getChildren().clear();
+
+        if (list == null) return;
+        for (ProblemSolution ps : list) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/ProblemSolutionCard.fxml"));
+                Parent card = loader.load();
+                ProblemSolutionCardController ctrl = loader.getController();
+                ctrl.setData(ps, this::handleEditAction, this::handleDeleteAction);
+                problemSolutionCards.getChildren().add(card);
+            } catch (IOException e) {
+                System.err.println("Failed to load problem/solution card: " + e.getMessage());
+            }
+        }
     }
 
     private void handleEditAction(ProblemSolution selected) {
         if (selected == null) return;
         if (editOverlayHost == null) return;
-
-        if (problemSolutionTable != null) {
-            problemSolutionTable.getSelectionModel().select(selected);
-        }
 
         if (editingProblemSolution != null
                 && editingProblemSolution.getId() == selected.getId()
@@ -354,19 +345,13 @@ public class ActivityController {
         }
 
         editingProblemSolution = selected;
-        int index = (problemSolutionTable == null || problemSolutionTable.getItems() == null)
-                ? -1
-                : problemSolutionTable.getItems().indexOf(selected);
-        if (index >= 0) {
-            problemSolutionTable.scrollTo(index);
-        }
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/EditProblemActivity.fxml"));
             Parent content = loader.load();
             content.getStylesheets().add(getClass().getResource("/styles/challenge.css").toExternalForm());
-            if (content instanceof Region region && problemSolutionTable != null) {
-                region.prefWidthProperty().bind(problemSolutionTable.widthProperty().subtract(30));
+            if (content instanceof Region region) {
+                region.setMaxWidth(Double.MAX_VALUE);
             }
 
             EditProblemSolutionController overlayController = loader.getController();
@@ -374,7 +359,7 @@ public class ActivityController {
             overlayController.setOnSave(updated -> {
                 try {
                     serviceProblem.update(updated);
-                    refreshTable(act_id);
+                    refreshProblemSolutionCards(act_id);
                 } catch (Exception e) {
                     System.err.println("Failed to update problem/solution: " + e.getMessage());
                 } finally {
@@ -406,16 +391,11 @@ public class ActivityController {
             if (editingProblemSolution != null && editingProblemSolution.getId() == selected.getId()) {
                 hideEditOverlay();
             }
-            refreshTable(act_id);
+            refreshProblemSolutionCards(act_id);
             loadProblems();
         } catch (Exception e) {
             System.err.println("Failed to delete problem/solution: " + e.getMessage());
         }
-    }
-    public void refreshTable(int activityId) {
-        List<ProblemSolution> list = serviceProblem.display(activityId);
-
-        problemSolutionTable.setItems(FXCollections.observableArrayList(list));
     }
     public void descriptionVisibility(){
         int user_id=2;

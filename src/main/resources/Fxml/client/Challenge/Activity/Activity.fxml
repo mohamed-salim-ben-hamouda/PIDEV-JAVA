@@ -67,24 +67,61 @@
 
                 <VBox spacing="10">
                     <Label styleClass="input-label" text="📋 Historique des étapes" />
-                    <TableView fx:id="descTable" prefHeight="90.0" styleClass="modern-table">
-                        <columns>
-                            <TableColumn fx:id="descTextCol" prefWidth="1100.0" text="Description de l'étape" />
-                            <TableColumn fx:id="descActionCol" prefWidth="240" text="Actions" />
-                        </columns>
-                    </TableView>
+                    <VBox styleClass="card-surface" spacing="0">
+                        <children>
+                            <GridPane styleClass="card-header">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="80.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="20.0" hgrow="NEVER" />
+                                </columnConstraints>
+                                <children>
+                                    <Label GridPane.columnIndex="0" styleClass="card-header-text" text="Description de l'étape" />
+                                    <Label GridPane.columnIndex="1" styleClass="card-header-text" text="Actions" />
+                                </children>
+                            </GridPane>
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="110.0" styleClass="card-scroll">
+                                <content>
+                                    <VBox spacing="0">
+                                        <children>
+                                            <Label fx:id="memberEmptyLabel" styleClass="meta-text" text="Aucun contenu" visible="false" managed="false" />
+                                            <VBox fx:id="memberActivityCards" spacing="0" />
+                                        </children>
+                                    </VBox>
+                                </content>
+                            </ScrollPane>
+                        </children>
+                    </VBox>
                     <VBox fx:id="editMemberOverlayHost" managed="false" spacing="10" visible="false" />
                 </VBox>
 
                 <VBox spacing="10">
                     <Label styleClass="input-label" text="⚠️ Problems &amp; Solutions" />
-                    <TableView fx:id="problemSolutionTable" prefHeight="180.0" styleClass="modern-table">
-                        <columns>
-                            <TableColumn fx:id="problemCol" prefWidth="555" text="Problème" />
-                            <TableColumn fx:id="solutionCol" prefWidth="555" text="Solution validée" />
-                            <TableColumn fx:id="probActionCol" prefWidth="220.0" text="Actions" />
-                        </columns>
-                    </TableView>
+                    <VBox styleClass="card-surface" spacing="0">
+                        <children>
+                            <GridPane styleClass="card-header">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="42.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="42.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="16.0" hgrow="NEVER" />
+                                </columnConstraints>
+                                <children>
+                                    <Label GridPane.columnIndex="0" styleClass="card-header-text" text="Problème" />
+                                    <Label GridPane.columnIndex="1" styleClass="card-header-text" text="Solution validée" />
+                                    <Label GridPane.columnIndex="2" styleClass="card-header-text" text="Actions" />
+                                </children>
+                            </GridPane>
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="220.0" styleClass="card-scroll">
+                                <content>
+                                    <VBox spacing="0">
+                                        <children>
+                                            <Label fx:id="psEmptyLabel" styleClass="meta-text" text="Aucun contenu" visible="false" managed="false" />
+                                            <VBox fx:id="problemSolutionCards" spacing="0" />
+                                        </children>
+                                    </VBox>
+                                </content>
+                            </ScrollPane>
+                        </children>
+                    </VBox>
                     <VBox fx:id="editOverlayHost" managed="false" spacing="10" visible="false" />
                 </VBox>
             </children>

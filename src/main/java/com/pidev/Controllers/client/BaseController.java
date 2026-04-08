@@ -103,6 +103,8 @@ public class BaseController implements Initializable {
     public void loadChallenge() {
         loadViewFront("client/Challenge/Challenge");
     }
+    @FXML
+    public void loadEvaluation(){loadViewFront("client/Challenge/Evaluation/SelectToEvaluate");}
 
     @FXML
     public void loadActivity() {

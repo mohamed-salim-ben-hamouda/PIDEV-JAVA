@@ -12,6 +12,7 @@ import java.sql.Types;
 
 import com.pidev.models.Challenge;
 
+import javax.management.Query;
 import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -125,7 +126,22 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     }
 
     @Override
-    public Challenge find_challenge(int id) {
-        return null;
+    public List<Challenge> findChallengeWithActivities()
+    {
+        List<Challenge> c=new ArrayList<>();
+        String query="SELECT DISTINCT c.id , c.title FROM challenge c " +
+                "JOIN activity a ON a.id_challenge_id=c.id";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ResultSet rs =ps.executeQuery();
+            while(rs.next()){
+                Challenge ch = new Challenge();
+                ch.setId(rs.getInt("id"));
+                ch.setTitle(rs.getString("title"));
+                c.add(ch);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return c;
     }
 }
