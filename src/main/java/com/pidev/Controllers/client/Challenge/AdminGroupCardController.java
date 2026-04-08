@@ -27,6 +27,14 @@ public class AdminGroupCardController {
         this.groupId = g.getId();
         this.c=c;
         this.groupNameLabel.setText("👥 " + g.getName());
+        boolean isLocked =serviceAct.isActivityPassedByGrp(this.groupId,this.c.getId());
+        if (isLocked){
+            chooseBtn.setDisable(false);
+        }else{
+            chooseBtn.setDisable(true);
+            chooseBtn.setText("Already Passed");
+            chooseBtn.setStyle("-fx-background-color: #bdc3c7; -fx-text-fill: white;");
+        }
     }
     @FXML
     private void OnChoose(ActionEvent event) {

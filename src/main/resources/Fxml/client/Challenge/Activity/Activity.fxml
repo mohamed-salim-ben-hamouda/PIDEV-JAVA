@@ -15,7 +15,7 @@
 
         <Label styleClass="page-title" text="🚀 Votre Avancement" style="-fx-font-size: 24px;" />
 
-        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+        <VBox fx:id="DescriptionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="📝 Description de l'activité" style="-fx-font-size: 18px;" />
                 <TextArea fx:id="activity_desc" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez votre activité..." wrapText="true" />
@@ -32,7 +32,7 @@
         </VBox>
 
         <!-- 4. Proposez une solution -->
-        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+        <VBox fx:id="solutionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="💡 Proposez une solution" style="-fx-font-size: 18px;" />
                 <VBox spacing="5">
@@ -41,51 +41,51 @@
                 </VBox>
                 <VBox spacing="5">
                     <Label styleClass="input-label" text="Votre Solution" />
-                    <TextArea fx:id="solutionArea" styleClass="modern-input" prefHeight="80.0" promptText="Expliquez votre approche..." wrapText="true" />
+                    <TextArea fx:id="solution_desc" styleClass="modern-input" prefHeight="80.0" promptText="Expliquez votre approche..." wrapText="true" />
                 </VBox>
-                <Button  styleClass="primary-btn" text="Enregistrer Solution" prefWidth="200" />
+                <Button onAction="#OnSolution" styleClass="primary-btn" text="Enregistrer Solution" prefWidth="200" />
             </children>
         </VBox>
 
         <!-- 5. Soumission finale -->
-        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+        <VBox fx:id="submissionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="📤 Soumission finale" style="-fx-font-size: 18px;" />
                 <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
                     <children>
-                        <Button  styleClass="action-btn-outline" text="Choisir un fichier" />
+                        <Button onAction="#onChooseFile" styleClass="action-btn-outline" text="Choisir un fichier" />
                         <Label fx:id="fileNameLabel" styleClass="meta-text" text="Aucun fichier (PDF, ZIP)" />
                     </children>
                 </HBox>
-                <Button  styleClass="primary-btn" text="Soumettre le Travail" prefWidth="200" />
+                <Button onAction="#onSubmission" styleClass="primary-btn" text="Soumettre le Travail" prefWidth="200" />
             </children>
         </VBox>
 
-        <!-- 6. BOTTOM SECTION: Tables Tracking -->
         <VBox spacing="20" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="📊 Suivi de l'activité" />
 
                 <VBox spacing="10">
                     <Label styleClass="input-label" text="📋 Historique des étapes" />
-                    <TableView fx:id="descTable" prefHeight="180.0" style="-fx-background-radius: 12;">
+                    <TableView fx:id="descTable" prefHeight="90.0" styleClass="modern-table">
                         <columns>
-                            <TableColumn fx:id="descIdCol" prefWidth="60.0" text="ID" />
-                            <TableColumn fx:id="descTextCol" prefWidth="600.0" text="Description de l'étape" />
-                            <TableColumn fx:id="descActionCol" prefWidth="150.0" text="Actions" />
+                            <TableColumn fx:id="descTextCol" prefWidth="1100.0" text="Description de l'étape" />
+                            <TableColumn fx:id="descActionCol" prefWidth="240" text="Actions" />
                         </columns>
                     </TableView>
+                    <VBox fx:id="editMemberOverlayHost" managed="false" spacing="10" visible="false" />
                 </VBox>
 
                 <VBox spacing="10">
-                    <Label styleClass="input-label" text="⚠️ Problèmes &amp; Solutions" />
-                    <TableView fx:id="problemTable" prefHeight="180.0" style="-fx-background-radius: 12;">
+                    <Label styleClass="input-label" text="⚠️ Problems &amp; Solutions" />
+                    <TableView fx:id="problemSolutionTable" prefHeight="180.0" styleClass="modern-table">
                         <columns>
-                            <TableColumn fx:id="probNameCol" prefWidth="250.0" text="Problème" />
-                            <TableColumn fx:id="solTextCol" prefWidth="410.0" text="Solution validée" />
-                            <TableColumn fx:id="probActionCol" prefWidth="150.0" text="Actions" />
+                            <TableColumn fx:id="problemCol" prefWidth="555" text="Problème" />
+                            <TableColumn fx:id="solutionCol" prefWidth="555" text="Solution validée" />
+                            <TableColumn fx:id="probActionCol" prefWidth="220.0" text="Actions" />
                         </columns>
                     </TableView>
+                    <VBox fx:id="editOverlayHost" managed="false" spacing="10" visible="false" />
                 </VBox>
             </children>
         </VBox>

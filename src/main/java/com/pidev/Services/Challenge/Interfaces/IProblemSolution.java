@@ -9,4 +9,7 @@ public interface IProblemSolution {
     int addProblem(ProblemSolution p, int a);
     void addSolutionGrp(ProblemSolution p);
     List<ProblemSolution> displayProblems(int a);
+    List<ProblemSolution> display(int a);
+    void update(ProblemSolution p);
+    void delete(int id);
 }

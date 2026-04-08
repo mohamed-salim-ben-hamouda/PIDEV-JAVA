@@ -6,11 +6,7 @@ import com.pidev.models.Challenge;
 import com.pidev.models.Group;
 import com.pidev.utils.DataSource;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 
 public class ServiceActivity implements IActivity {
@@ -75,7 +71,53 @@ public class ServiceActivity implements IActivity {
             e.printStackTrace();
         }
         return null;
+    }
+    @Override
+    public boolean isUserLeader(int group_id,int user_id){
+        String query="SELECT role FROM membership WHERE group_id_id=? AND user_id_id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)) {
+            ps.setInt(1,group_id);
+            ps.setInt(2,user_id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String role = rs.getString("role");
+                return "leader".equalsIgnoreCase(role);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
+        return false;
+    }
+    @Override
+    public void submissionfile(Activity a){
+        String query="UPDATE activity SET submission_file=? ,submission_date=?, status=? WHERE id=?";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setString(1,a.getSubmissionFile());
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            ps.setTimestamp(2, now);
+            ps.setString(3,"submitted");
+            ps.setInt(4,a.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public boolean isActivityPassedByGrp(int group_id,int challenge_id){
+        String query="SELECT status FROM activity WHERE group_id_id=? AND id_challenge_id=?";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setInt(1,group_id);
+            ps.setInt(2,challenge_id);
+            ResultSet rs=ps.executeQuery();
+            if(rs.next()){
+                String status =rs.getString("status");
+                return "in_progress".equalsIgnoreCase(status);
+            }else{
+                return true;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

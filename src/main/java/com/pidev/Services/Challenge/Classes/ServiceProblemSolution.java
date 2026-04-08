@@ -49,7 +49,7 @@ public class ServiceProblemSolution implements IProblemSolution {
     @Override
     public List<ProblemSolution> displayProblems(int act){
         List<ProblemSolution> p=new ArrayList<>();
-        String query="SELECT * FROM problem_solution WHERE activity_id_id=?";
+        String query="SELECT * FROM problem_solution WHERE activity_id_id=? AND group_solution IS NULL ";
         try (PreparedStatement ps=connection.prepareStatement(query)){
             ps.setInt(1,act);
             ResultSet rs = ps.executeQuery();
@@ -63,5 +63,48 @@ public class ServiceProblemSolution implements IProblemSolution {
             throw new RuntimeException(e);
         }
         return p;
+    }
+    @Override
+    public List<ProblemSolution> display(int activity_id){
+        List<ProblemSolution> p = new ArrayList<>();
+        String query = "SELECT * FROM problem_solution WHERE activity_id_id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setInt(1,activity_id);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                ProblemSolution prob = new ProblemSolution();
+                prob.setId(rs.getInt("id"));
+                prob.setProblemDescription(rs.getString("problem_description"));
+                prob.setGroupSolution(rs.getString("group_solution"));
+                p.add(prob);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return p;
+    }
+
+    @Override
+    public void update(ProblemSolution p) {
+        String query = "UPDATE problem_solution SET problem_description=?, group_solution=? WHERE id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, p.getProblemDescription());
+            ps.setString(2, p.getGroupSolution());
+            ps.setInt(3, p.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating problem/solution: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void delete(int id) {
+        String query = "DELETE FROM problem_solution WHERE id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting problem/solution: " + e.getMessage(), e);
+        }
     }
 }
