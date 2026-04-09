@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" styleClass="form-scroll" stylesheets="@../../styles/management.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.admin.SponsorFormController">
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="20.0" styleClass="content-page">
+            <children>
+                <VBox spacing="30.0" styleClass="form-container">
+                    <children>
+                        <Label fx:id="formTitle" styleClass="form-title" text="Add New Sponsor" />
+
+                        <VBox spacing="15.0">
+                            <children>
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Sponsor Name" />
+                                        <TextField fx:id="nameField" promptText="Enter sponsor name" styleClass="form-control" />
+                                        <Label fx:id="nameError" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Description" />
+                                        <TextArea fx:id="descriptionArea" prefHeight="120.0" promptText="Enter sponsor description" styleClass="form-control" wrapText="true" />
+                                        <Label fx:id="descriptionError" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Sponsor Logo" />
+                                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                                            <children>
+                                                <Button mnemonicParsing="false" onAction="#handleUploadImage" styleClass="btn-secondary" text="Choose Logo">
+                                                    <graphic>
+                                                        <FontIcon iconLiteral="fas-upload" />
+                                                    </graphic>
+                                                </Button>
+                                                <Label fx:id="fileNameLabel" text="No file selected" styleClass="file-name-label" />
+                                                <ImageView fx:id="imagePreview" fitHeight="80.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" styleClass="image-preview-rounded" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="logoUrlError" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Website URL" />
+                                        <TextField fx:id="websiteUrlField" promptText="http://..." styleClass="form-control" />
+                                        <Label fx:id="websiteUrlError" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0" styleClass="form-actions">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#cancel" styleClass="btn-secondary" text="Cancel" />
+                                <Button mnemonicParsing="false" onAction="#save" styleClass="action-btn-primary" text="Save Sponsor" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+            </padding>
+        </VBox>
+    </content>
+</ScrollPane>

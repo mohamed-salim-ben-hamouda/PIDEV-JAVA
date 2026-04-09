@@ -23,7 +23,22 @@ public class BaseController implements Initializable {
 
     @FXML
     public void loadDashboard() {
-        loadView("dashboard");
+        loadView("stats_dashboard");
+    }
+
+    @FXML
+    public void loadHackathons() {
+        loadView("hackathon_list");
+    }
+
+    @FXML
+    public void loadSponsors() {
+        loadView("sponsor_list");
+    }
+
+    @FXML
+    public void loadSponsorHackathons() {
+        loadView("sponsor_hackathon_list");
     }
 
     @FXML

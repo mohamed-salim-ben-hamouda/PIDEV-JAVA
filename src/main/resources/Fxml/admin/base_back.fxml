@@ -120,9 +120,27 @@
                                     </graphic>
                                 </Button>
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Hackathons">
+                                        onAction="#loadHackathons" styleClass="menu-item" text="Hackathons">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-flag-checkered" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadSponsors" styleClass="menu-item" text="Sponsors">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-handshake" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadSponsorHackathons" styleClass="menu-item" text="Assigned Sponsors">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-link" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadDashboard" styleClass="menu-item" text="Statistics Overview">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-chart-pie" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
                             </children>
