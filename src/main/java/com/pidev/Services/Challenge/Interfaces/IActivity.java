@@ -14,5 +14,5 @@ public interface IActivity {
     boolean isActivityPassedByGrp(int g,int c);
     List<Group> findGroupsInActivity(int c);
     Activity findActivityByChallengeAndGrp(Challenge c,Group g);
-
+    void updateActivityStatus(Activity a);
 }

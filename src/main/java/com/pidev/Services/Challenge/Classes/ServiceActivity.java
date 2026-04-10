@@ -210,6 +210,17 @@ public class ServiceActivity implements IActivity {
         }
         return null;
     }
+    public void updateActivityStatus(Activity a){
+        String query="UPDATE activity SET status=? WHERE id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setString(1,"evaluated");
+            ps.setInt(2,a.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 
 }

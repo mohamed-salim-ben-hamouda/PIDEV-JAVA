@@ -40,4 +40,35 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return false;
     }
+    public void updateEvaluation(Evaluation e){
+        String query="UPDATE evaluation SET group_score=? , feedback=? , status=? WHERE id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setDouble(1,e.getGroupScore());
+            ps.setString(2,e.getFeedback());
+            ps.setString(3,"finished");
+            ps.setLong(4,e.getId());
+            ps.executeUpdate();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    public Evaluation findEvaluation(int activity_id){
+        String query="SELECT * FROM evaluation WHERE activity_id_id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setInt(1,activity_id);
+            ResultSet rs= ps.executeQuery();
+            if(rs.next()){
+                Evaluation e =new Evaluation();
+                e.setId(rs.getLong("id"));
+                e.setGroupScore(rs.getDouble("group_score"));
+                e.setFeedback(rs.getString("feedback"));
+
+                return e;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 }
