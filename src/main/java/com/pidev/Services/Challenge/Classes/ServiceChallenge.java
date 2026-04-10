@@ -129,7 +129,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     public List<Challenge> findChallengeWithActivities()
     {
         List<Challenge> c=new ArrayList<>();
-        String query="SELECT DISTINCT c.id , c.title FROM challenge c " +
+        String query="SELECT DISTINCT c.id , c.title , c.description FROM challenge c " +
                 "JOIN activity a ON a.id_challenge_id=c.id";
         try(PreparedStatement ps=connection.prepareStatement(query)){
             ResultSet rs =ps.executeQuery();
@@ -137,6 +137,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
                 Challenge ch = new Challenge();
                 ch.setId(rs.getInt("id"));
                 ch.setTitle(rs.getString("title"));
+                ch.setDescription(rs.getString("description"));
                 c.add(ch);
             }
         } catch (Exception e) {

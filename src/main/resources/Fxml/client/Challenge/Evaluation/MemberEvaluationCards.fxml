@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox spacing="15" alignment="CENTER_LEFT" styleClass="evaluation-row-item"
+      style="-fx-padding: 15; -fx-background-color: #f8fafc; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Evaluation.MemberEvaluationCardsController">
+
+    <VBox HBox.hgrow="ALWAYS" spacing="2">
+        <Label fx:id="memberName" text="Member Name" style="-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 14px;"/>
+        <Label fx:id="activityDesc" text="Activity: -" style="-fx-text-fill: #64748b; -fx-font-size: 12px;"/>
+    </VBox>
+
+    <Region HBox.hgrow="ALWAYS" />
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <TextField fx:id="scoreInput" promptText="0-20" prefWidth="70"
+                   style="-fx-background-color: white; -fx-border-color: #cbd5e1; -fx-border-radius: 5; -fx-padding: 8;"/>
+        <Button fx:id="submitBtn" text="Submit Score" onAction="#OnScoreSubmit"
+                style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;"/>
+    </HBox>
+</HBox>

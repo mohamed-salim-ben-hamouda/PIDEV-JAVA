@@ -13,7 +13,6 @@
     </stylesheets>
 
     <content>
-        <!-- The main container holding everything in a single column -->
         <VBox fx:id="mainContentContainer" alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: transparent;">
             <children>
                 <VBox alignment="CENTER" spacing="5.0">

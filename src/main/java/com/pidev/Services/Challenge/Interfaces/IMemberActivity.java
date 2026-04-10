@@ -1,6 +1,7 @@
 package com.pidev.Services.Challenge.Interfaces;
 
 import com.pidev.models.Activity;
+import com.pidev.models.Group;
 import com.pidev.models.MemberActivity;
 
 import java.util.List;
@@ -11,5 +12,7 @@ public interface IMemberActivity {
     void delete(int id);
     void update(MemberActivity m);
     boolean findDescription(int a,int u);
-
+    List<MemberActivity> getAllGroupMembersForActivity(Group group, Activity activityId);
+    void updateIndivScore(MemberActivity m,double score);
+    boolean IsIndivScore(MemberActivity m);
 }

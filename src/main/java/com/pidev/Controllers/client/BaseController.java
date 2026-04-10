@@ -1,6 +1,7 @@
 package com.pidev.Controllers.client;
 
 import com.pidev.Controllers.client.Challenge.Activity.ActivityController;
+import com.pidev.Controllers.client.Challenge.Evaluation.EvaluationMainController;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.models.Activity;
 import com.pidev.models.Challenge;
@@ -58,14 +59,15 @@ public class BaseController implements Initializable {
     }
 
 
-    private void loadViewFront(String fxmlName) {
+    private Object loadViewFront(String fxmlName) {
         try {
-            Parent view = FXMLLoader.load(getClass().getResource("/Fxml/" + fxmlName + ".fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/" + fxmlName + ".fxml"));            Parent view = loader.load();
             contentArea.getChildren().setAll(view);
-
+            return loader.getController();
         } catch (IOException e) {
             System.err.println("Error: Could not load " + fxmlName + ". Check the path.");
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -143,7 +145,10 @@ public class BaseController implements Initializable {
     public void loadOldActivities() {
         loadViewFront("client/Challenge/OldActivities");
     }
+    @FXML
+    public EvaluationMainController loadEvaluationMainPage() {
 
+        return (EvaluationMainController) loadViewFront("client/Challenge/Evaluation/Evaluation");    }
     @FXML
     public void loadGroups() {
         loadViewFront("client/GroupsView");

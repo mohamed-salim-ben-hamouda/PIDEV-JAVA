@@ -13,5 +13,6 @@ public interface IActivity {
     void submissionfile(Activity a);
     boolean isActivityPassedByGrp(int g,int c);
     List<Group> findGroupsInActivity(int c);
+    Activity findActivityByChallengeAndGrp(Challenge c,Group g);
 
 }

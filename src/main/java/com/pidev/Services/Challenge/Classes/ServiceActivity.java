@@ -7,6 +7,7 @@ import com.pidev.models.Group;
 import com.pidev.utils.DataSource;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,6 +140,75 @@ public class ServiceActivity implements IActivity {
             throw new RuntimeException(e);
         }
         return gr;
+    }
+    public String ActivityStatus(int challenge_id,int group_id){
+        String status = null ;
+        String query="Select status FROM activity WHERE id_challenge_id = ? AND group_id_id=?";
+        try(PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setInt(1,challenge_id);
+            ps.setInt(2,group_id);
+            ResultSet rs=ps.executeQuery();
+            if(rs.next()){
+                status=rs.getString("status");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return status;
+    }
+
+    public Activity findActivityByChallengeAndGroup(int challengeId, int groupId) {
+        String query = "SELECT id, status, submission_file, submission_date " +
+                "FROM activity WHERE id_challenge_id = ? AND group_id_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, challengeId);
+            ps.setInt(2, groupId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Activity activity = new Activity();
+                activity.setId(rs.getInt("id"));
+                activity.setStatus(rs.getString("status"));
+                activity.setSubmissionFile(rs.getString("submission_file"));
+
+                Timestamp ts = rs.getTimestamp("submission_date");
+                if (ts != null) {
+                    LocalDateTime ldt = ts.toLocalDateTime();
+                    activity.setSubmissionDate(ldt);
+                }
+
+                Group group = new Group();
+                group.setId(groupId);
+                activity.setGroup(group);
+
+                Challenge challenge = new Challenge();
+                challenge.setId(challengeId);
+                activity.setChallenge(challenge);
+
+                return activity;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public Activity findActivityByChallengeAndGrp(Challenge c,Group g){
+        String query="SELECT * FROM activity WHERE id_challenge_id=? AND group_id_id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setInt(1,c.getId());
+            ps.setInt(2,g.getId());
+            ResultSet rs=ps.executeQuery();
+            if(rs.next()){
+                Activity a =new Activity();
+                a.setId(rs.getInt("id"));
+                a.setSubmissionFile(rs.getString("submission_file"));
+                a.setStatus(rs.getString("status"));
+                a.setSubmissionDate(rs.getTimestamp("submission_date") != null ? rs.getTimestamp("submission_date").toLocalDateTime() : null);
+                return a;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
 

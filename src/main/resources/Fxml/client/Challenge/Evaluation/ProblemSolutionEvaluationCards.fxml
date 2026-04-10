@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" styleClass="main-card"
+      style="-fx-padding: 25; -fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-border-width: 1;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Evaluation.ProblemSolutionEvaluationCardsController">
+
+    <VBox spacing="8">
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <StackPane style="-fx-background-color: #f1f5f9; -fx-background-radius: 50%; -fx-min-width: 30; -fx-min-height: 30;">
+                <Label fx:id="problemIndex" text="1" style="-fx-font-weight: bold; -fx-text-fill: #64748b;"/>
+            </StackPane>
+            <Label text="Problem Statement" style="-fx-font-weight: 800; -fx-font-size: 16px; -fx-text-fill: #0f172a;"/>
+        </HBox>
+        <Label fx:id="problemDescription" text="Description of the problem goes here..."
+               wrapText="true" style="-fx-text-fill: #475569; -fx-font-size: 14px; -fx-padding: 0 0 0 42;"/>
+    </VBox>
+
+    <Separator style="-fx-opacity: 0.5;"/>
+
+    <GridPane hgap="20" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50" />
+            <ColumnConstraints percentWidth="50" />
+        </columnConstraints>
+
+        <VBox spacing="8" GridPane.columnIndex="0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 10;">
+            <Label text="GROUP SOLUTION" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #94a3b8; -fx-letter-spacing: 1px;"/>
+            <Label fx:id="groupSolution" text="No solution provided" wrapText="true"
+                   style="-fx-text-fill: #1e293b; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <VBox spacing="8" GridPane.columnIndex="1" style="-fx-background-color: #f0f9ff; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #bae6fd; -fx-border-width: 1; -fx-border-radius: 10;">
+            <Label text="YOUR SOLUTION" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0369a1; -fx-letter-spacing: 1px;"/>
+            <Label fx:id="supervisorSolution" text="-" wrapText="true"
+                   style="-fx-text-fill: #0369a1; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+        </VBox>
+    </GridPane>
+
+    <VBox spacing="8">
+        <Label text="Edit Supervisor Solution" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #64748b;"/>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="solutionInput" promptText="Type the correct solution here..."
+                       styleClass="modern-input" HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: #ffffff; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-padding: 10;"/>
+            <Button fx:id="AddSolutionBtn" onAction="#OnAddSolution" text="Save Solution"
+                    style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+        </HBox>
+    </VBox>
+
+</VBox>

@@ -12,4 +12,6 @@ public interface IProblemSolution {
     List<ProblemSolution> display(int a);
     void update(ProblemSolution p);
     void delete(int id);
+    void updateSupervisorSolution(ProblemSolution p);
+    boolean isSupervisorSolution(ProblemSolution p);
 }

@@ -17,7 +17,7 @@
                 <Font name="System Bold" size="16.0" />
             </font>
         </Label>
-        <Button fx:id="seeActivityBtn" mnemonicParsing="false" style="-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-weight: bold;" text="See Activity">
+        <Button fx:id="seeActivityBtn" mnemonicParsing="false" styleClass="action-btn-outline" text="See Activity">
             <padding>
                 <Insets bottom="8.0" left="18.0" right="18.0" top="8.0" />
             </padding>

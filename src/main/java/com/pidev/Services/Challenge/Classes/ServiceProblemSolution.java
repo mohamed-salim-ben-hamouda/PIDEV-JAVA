@@ -76,6 +76,7 @@ public class ServiceProblemSolution implements IProblemSolution {
                 prob.setId(rs.getInt("id"));
                 prob.setProblemDescription(rs.getString("problem_description"));
                 prob.setGroupSolution(rs.getString("group_solution"));
+                prob.setSupervisorSolution(rs.getString("supervisor_solution"));
                 p.add(prob);
             }
         } catch (Exception e) {
@@ -106,5 +107,29 @@ public class ServiceProblemSolution implements IProblemSolution {
         } catch (Exception e) {
             throw new RuntimeException("Error deleting problem/solution: " + e.getMessage(), e);
         }
+    }
+    public void updateSupervisorSolution(ProblemSolution p){
+        String query="UPDATE problem_solution SET supervisor_solution=? WHERE id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setString(1,p.getSupervisorSolution());
+            ps.setInt(2,p.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public boolean isSupervisorSolution(ProblemSolution p){
+        String query ="SELECT supervisor_solution FROM problem_solution WHERE id=?";
+        try(PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setInt(1,p.getId());
+            ResultSet rs=ps.executeQuery();
+            if(rs.next()){
+                String solution = rs.getString("supervisor_solution");
+                return solution != null && !solution.trim().isEmpty();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return false;
     }
 }
