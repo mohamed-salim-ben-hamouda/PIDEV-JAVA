@@ -8,6 +8,8 @@ public class SponsorHackathon {
     private Double contributionValue;
 
     public SponsorHackathon() {
+        this.contributionType = "";
+        this.contributionValue = 0.0;
     }
 
     public SponsorHackathon(Integer id) {

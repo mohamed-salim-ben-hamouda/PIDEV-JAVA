@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -33,6 +34,22 @@
                                         <Label styleClass="form-label" text="Select Sponsor" />
                                         <ComboBox fx:id="sponsorCombo" maxWidth="1.7976931348623157E308" promptText="Choose a sponsor" styleClass="form-control" />
                                         <Label fx:id="sponsorError" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Contribution Type" />
+                                        <TextField fx:id="typeField" promptText="e.g. Financial, Technical Support, Prizes" styleClass="form-control" />
+                                        <Label fx:id="typeError" styleClass="error-label" visible="false" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="form-label" text="Contribution Value ($)" />
+                                        <TextField fx:id="valueField" promptText="0.00" styleClass="form-control" />
+                                        <Label fx:id="valueError" styleClass="error-label" visible="false" />
                                     </children>
                                 </VBox>
                             </children>

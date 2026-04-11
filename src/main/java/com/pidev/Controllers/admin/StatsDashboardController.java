@@ -27,6 +27,9 @@ public class StatsDashboardController implements Initializable {
     private ServiceSponsor serviceS = new ServiceSponsor();
     private ServiceSponsorHackathon serviceSH = new ServiceSponsorHackathon();
 
+    /**
+     * Initialise le tableau de bord des statistiques en chargeant tous les graphiques et compteurs.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadSummaryStats();
@@ -35,6 +38,9 @@ public class StatsDashboardController implements Initializable {
         loadActivityLineChart();
     }
 
+    /**
+     * Charge les compteurs globaux (Total Hackathons, Sponsors et Affectations).
+     */
     private void loadSummaryStats() {
         List<Hackathon> hackathons = serviceH.getAll();
         List<Sponsor> sponsors = serviceS.getAll();
@@ -45,6 +51,9 @@ public class StatsDashboardController implements Initializable {
         totalAssignmentsLabel.setText(String.valueOf(relations.size()));
     }
 
+    /**
+     * Génère un diagramme circulaire (Pie Chart) montrant la répartition des hackathons par thème.
+     */
     private void loadThemePieChart() {
         Map<String, Long> themeCounts = serviceH.getAll().stream()
                 .collect(Collectors.groupingBy(Hackathon::getTheme, Collectors.counting()));
@@ -55,13 +64,16 @@ public class StatsDashboardController implements Initializable {
         });
     }
 
+    /**
+     * Génère un diagramme en barres (Bar Chart) montrant le nombre de sponsors par hackathon.
+     */
     private void loadSponsorBarChart() {
         List<SponsorHackathon> relations = serviceSH.getAll();
         Map<String, Long> sponsorsPerHackathon = relations.stream()
                 .collect(Collectors.groupingBy(sh -> sh.getHackathon().getTitle(), Collectors.counting()));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Number of Sponsors");
+        series.setName("Nombre de Sponsors");
 
         sponsorsPerHackathon.forEach((title, count) -> {
             series.getData().add(new XYChart.Data<>(title, count));
@@ -71,9 +83,13 @@ public class StatsDashboardController implements Initializable {
         sponsorBarChart.getData().add(series);
     }
 
+    /**
+     * Génère un graphique linéaire (Line Chart) montrant l'activité des lancements de hackathons par date.
+     */
     private void loadActivityLineChart() {
         List<Hackathon> hackathons = serviceH.getAll();
-        // Group by creation date (or start date if preferred)
+        
+        // Grouper les hackathons par date de début (formatée en Mois Jour)
         Map<String, Long> activityByDate = hackathons.stream()
                 .sorted(Comparator.comparing(Hackathon::getStartAt))
                 .collect(Collectors.groupingBy(
@@ -83,7 +99,7 @@ public class StatsDashboardController implements Initializable {
                 ));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Hackathons Starting");
+        series.setName("Hackathons Débutant");
 
         activityByDate.forEach((date, count) -> {
             series.getData().add(new XYChart.Data<>(date, count));

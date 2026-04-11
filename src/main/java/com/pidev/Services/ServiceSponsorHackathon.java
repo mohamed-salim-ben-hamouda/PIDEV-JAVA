@@ -23,8 +23,12 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sh.getSponsor().getId());
             pst.setInt(2, sh.getHackathon().getId());
-            pst.setString(3, sh.getContributionType());
-            pst.setDouble(4, sh.getContributionValue());
+            pst.setString(3, sh.getContributionType() != null ? sh.getContributionType() : "");
+            if (sh.getContributionValue() != null) {
+                pst.setDouble(4, sh.getContributionValue());
+            } else {
+                pst.setNull(4, Types.DOUBLE);
+            }
             pst.executeUpdate();
             System.out.println("SponsorHackathon relation added!");
         } catch (SQLException e) {
@@ -38,8 +42,12 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sh.getSponsor().getId());
             pst.setInt(2, sh.getHackathon().getId());
-            pst.setString(3, sh.getContributionType());
-            pst.setDouble(4, sh.getContributionValue());
+            pst.setString(3, sh.getContributionType() != null ? sh.getContributionType() : "");
+            if (sh.getContributionValue() != null) {
+                pst.setDouble(4, sh.getContributionValue());
+            } else {
+                pst.setNull(4, Types.DOUBLE);
+            }
             pst.setInt(5, sh.getId());
             pst.executeUpdate();
             System.out.println("SponsorHackathon relation updated!");
@@ -63,7 +71,10 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
     @Override
     public List<SponsorHackathon> getAll() {
         List<SponsorHackathon> list = new ArrayList<>();
-        String query = "SELECT * FROM sponsor_hackathon";
+        String query = "SELECT sh.*, s.name as sponsor_name, h.title as hackathon_title " +
+                       "FROM sponsor_hackathon sh " +
+                       "JOIN sponsor s ON sh.sponsor_id = s.id " +
+                       "JOIN hackathon h ON sh.hackathon_id = h.id";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
             while (rs.next()) {
@@ -77,7 +88,11 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
 
     @Override
     public SponsorHackathon getById(int id) {
-        String query = "SELECT * FROM sponsor_hackathon WHERE id=?";
+        String query = "SELECT sh.*, s.name as sponsor_name, h.title as hackathon_title " +
+                       "FROM sponsor_hackathon sh " +
+                       "JOIN sponsor s ON sh.sponsor_id = s.id " +
+                       "JOIN hackathon h ON sh.hackathon_id = h.id " +
+                       "WHERE sh.id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, id);
             try (ResultSet rs = pst.executeQuery()) {
@@ -94,8 +109,15 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
     private SponsorHackathon mapResultSetToSponsorHackathon(ResultSet rs) throws SQLException {
         SponsorHackathon sh = new SponsorHackathon();
         sh.setId(rs.getInt("id"));
-        sh.setSponsor(new Sponsor(rs.getInt("sponsor_id")));
-        sh.setHackathon(new Hackathon(rs.getInt("hackathon_id")));
+        
+        Sponsor s = new Sponsor(rs.getInt("sponsor_id"));
+        try { s.setName(rs.getString("sponsor_name")); } catch (SQLException e) { /* Column might not exist in all queries */ }
+        sh.setSponsor(s);
+        
+        Hackathon h = new Hackathon(rs.getInt("hackathon_id"));
+        try { h.setTitle(rs.getString("hackathon_title")); } catch (SQLException e) { /* Column might not exist in all queries */ }
+        sh.setHackathon(h);
+        
         sh.setContributionType(rs.getString("contribution_type"));
         sh.setContributionValue(rs.getDouble("contribution_value"));
         return sh;
@@ -103,7 +125,11 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
 
     public List<SponsorHackathon> getByHackathon(int hackathonId) {
         List<SponsorHackathon> list = new ArrayList<>();
-        String query = "SELECT * FROM sponsor_hackathon WHERE hackathon_id=?";
+        String query = "SELECT sh.*, s.name as sponsor_name, h.title as hackathon_title " +
+                       "FROM sponsor_hackathon sh " +
+                       "JOIN sponsor s ON sh.sponsor_id = s.id " +
+                       "JOIN hackathon h ON sh.hackathon_id = h.id " +
+                       "WHERE sh.hackathon_id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, hackathonId);
             try (ResultSet rs = pst.executeQuery()) {
