@@ -385,3 +385,41 @@
 #groupsListContainer {
     -fx-alignment: TOP_CENTER;
 }
+/* Improve the main card shadow and border */
+.challenge-card {
+    -fx-background-color: white;
+    -fx-background-radius: 28px; /* Rounder corners */
+    -fx-padding: 30px; /* More internal breathing room */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 20, 0, 0, 10);
+    -fx-border-color: #f1f5f9;
+}
+
+/* The Submission/Evaluation containers */
+.inner-section-container {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px; /* Increased padding */
+    -fx-spacing: 12px;
+}
+
+/* Specific button style for the "Open" button to match image */
+.open-btn {
+    -fx-background-color: #6366f1;
+    -fx-text-fill: white;
+    -fx-background-radius: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18;
+}
+
+/* Labels */
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1e293b;
+}
+
+.status-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}

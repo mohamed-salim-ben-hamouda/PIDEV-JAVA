@@ -34,14 +34,14 @@
         </VBox>
 
         <VBox spacing="8" GridPane.columnIndex="1" style="-fx-background-color: #f0f9ff; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #bae6fd; -fx-border-width: 1; -fx-border-radius: 10;">
-            <Label text="YOUR SOLUTION" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0369a1; -fx-letter-spacing: 1px;"/>
+            <Label fx:id="sup_solution" text="YOUR SOLUTION" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #0369a1; -fx-letter-spacing: 1px;"/>
             <Label fx:id="supervisorSolution" text="-" wrapText="true"
                    style="-fx-text-fill: #0369a1; -fx-font-weight: bold; -fx-font-size: 13px;"/>
         </VBox>
     </GridPane>
 
     <VBox spacing="8">
-        <Label text="Edit Supervisor Solution" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #64748b;"/>
+        <Label fx:id="edit_text" text="Edit Supervisor Solution" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #64748b;"/>
         <HBox spacing="10" alignment="CENTER_LEFT">
             <TextField fx:id="solutionInput" promptText="Type the correct solution here..."
                        styleClass="modern-input" HBox.hgrow="ALWAYS"

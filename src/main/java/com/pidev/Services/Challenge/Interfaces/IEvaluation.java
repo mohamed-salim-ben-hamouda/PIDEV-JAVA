@@ -8,4 +8,5 @@ public interface IEvaluation {
     boolean isEvaluation(int a);
     void updateEvaluation(Evaluation e);
     Evaluation findEvaluation(int a);
+    double SelectGrpScore(int e);
 }

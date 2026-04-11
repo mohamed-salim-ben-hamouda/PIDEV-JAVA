@@ -164,4 +164,23 @@ public class ServiceMemberActivity implements IMemberActivity {
 
         return false;
     }
+    public double SelectIndivScore(int user_id,int activity_id){
+        String query="SELECT indiv_score FROM member_activity " +
+                "WHERE id_activity_id=? AND user_id_id=?";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ps.setInt(1,activity_id);
+            ps.setInt(2,user_id);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                double score = rs.getDouble("indiv_score");
+                if(rs.wasNull()){
+                    return 0;
+                }
+               return score;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
+    }
 }

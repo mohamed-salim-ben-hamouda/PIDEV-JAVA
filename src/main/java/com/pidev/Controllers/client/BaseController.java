@@ -2,6 +2,7 @@ package com.pidev.Controllers.client;
 
 import com.pidev.Controllers.client.Challenge.Activity.ActivityController;
 import com.pidev.Controllers.client.Challenge.Evaluation.EvaluationMainController;
+import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationController;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.models.Activity;
 import com.pidev.models.Challenge;
@@ -143,12 +144,16 @@ public class BaseController implements Initializable {
 
     @FXML
     public void loadOldActivities() {
-        loadViewFront("client/Challenge/OldActivities");
+        loadViewFront("client/Challenge/Activity/SelectOldActivities");
     }
     @FXML
     public EvaluationMainController loadEvaluationMainPage() {
 
         return (EvaluationMainController) loadViewFront("client/Challenge/Evaluation/Evaluation");    }
+    @FXML
+    public StudentEvaluationController loadStudentEvaluation(){
+        return (StudentEvaluationController) loadViewFront("client/Challenge/Evaluation/StudentEvaluation");
+    }
     @FXML
     public void loadGroups() {
         loadViewFront("client/GroupsView");

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<VBox prefWidth="350.0" spacing="15" styleClass="challenge-card"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.OldActivitiesCardsController">
+    <children>
+        <VBox alignment="CENTER" spacing="5">
+            <ImageView fx:id="trophyImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../../../../images/trophy.jpg" />
+                </image>
+            </ImageView>
+            <Label fx:id="titleChallenge" styleClass="challenge-title" text="Challenge Title" />
+            <Label fx:id="metaLabel" styleClass="meta-text" text="Deadline • Difficulty" />
+            <Label fx:id="descriptionChallenge" alignment="CENTER" styleClass="challenge-description" text="Description..." wrapText="true" />
+        </VBox>
+
+        <Separator />
+
+        <VBox spacing="10">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label style="-fx-font-size: 18px;" text="📄" />
+                <Label styleClass="section-title" text="Your Submitted Activity" />
+            </HBox>
+            <VBox alignment="CENTER" spacing="12" styleClass="inner-section-container">
+                <children>
+                    <Label styleClass="input-label" text="Submission Summary" />
+                    <Button fx:id="openButton" styleClass="open-btn" text="📂 Open" />
+                    <Label fx:id="submissionActivity" styleClass="meta-text" text="Submitted on: Date" />
+                </children>
+            </VBox>
+        </VBox>
+
+        <VBox spacing="10">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label style="-fx-font-size: 18px;" text="📝" />
+                <Label styleClass="section-title" text="Evaluation" />
+            </HBox>
+            <VBox alignment="CENTER" spacing="10" styleClass="inner-section-container">
+                <Label fx:id="statusAct" styleClass="status-label" text="Status: pending" />
+                <HBox alignment="CENTER" spacing="10">
+                    <Button fx:id="feedbackButton" styleClass="action-btn-outline" text="Pre Feedback" />
+                    <Button fx:id="evaluationBtn" onAction="#OnEvaluation" styleClass="primary-btn" text="See Evaluation" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </children>
+</VBox>

@@ -20,6 +20,10 @@ public class ProblemSolutionEvaluationCardsController {
     private TextField solutionInput;
     @FXML
     private Button AddSolutionBtn;
+    @FXML
+    private Label sup_solution;
+    @FXML
+    private Label edit_text;
     private ProblemSolution p;
     private ServiceProblemSolution serviceP = new ServiceProblemSolution();
     private Runnable onUpdateCallback;
@@ -60,6 +64,15 @@ public class ProblemSolutionEvaluationCardsController {
             }
         }
 
+    }
+    public void SetForStudent(){
+        AddSolutionBtn.setVisible(false);
+        AddSolutionBtn.setManaged(false);
+        solutionInput.setVisible(false);
+        solutionInput.setManaged(false);
+        edit_text.setVisible(false);
+        edit_text.setManaged(false);
+        sup_solution.setText("Supervisor_solution");
     }
 
 
