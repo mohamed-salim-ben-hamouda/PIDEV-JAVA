@@ -199,7 +199,7 @@ public class ServiceMemberActivity implements IMemberActivity {
                 m_activity.setId(rs.getInt("id"));
 
                 String desc = rs.getString("activity_description");
-                m_activity.setActivityDescription(desc != null ? desc : ""); 
+                m_activity.setActivityDescription(desc != null ? desc : "");
 
                 User u = new User();
                 u.setNom(rs.getString("nom"));

@@ -3,14 +3,14 @@
 <?import javafx.scene.layout.*?>
 
 <VBox spacing="10" xmlns:fx="http://javafx.com/fxml/1"
-      style="-fx-padding: 12; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0;"
+      style="-fx-padding: 25; -fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-border-width: 1;"
       fx:controller="com.pidev.Controllers.client.Challenge.Activity.MembersActivityModifCardsController">
 
     <HBox alignment="CENTER_LEFT" spacing="10">
         <VBox HBox.hgrow="ALWAYS">
-            <Label fx:id="userName" text="User: John Doe" style="-fx-font-weight: 800; -fx-font-size: 13;"/>
+            <Label fx:id="userName" text="User: " style="-fx-font-weight: 800; -fx-font-size: 13;"/>
         </VBox>
-        <Button fx:id="EditBtn" text="Update Activity"
+        <Button fx:id="EditBtn" onAction="#onUpdateMA" text="Update Activity"
                 style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10;"/>
     </HBox>
 

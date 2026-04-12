@@ -16,4 +16,5 @@ public interface IActivity {
     Activity findActivityByChallengeAndGrp(Challenge c,Group g);
     void updateActivityStatus(Activity a);
     List<Activity> getOldActivitiesForUser(int userId);
+    void updateActivityFile(Activity a);
 }

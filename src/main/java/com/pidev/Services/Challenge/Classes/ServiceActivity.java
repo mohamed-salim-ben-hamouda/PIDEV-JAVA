@@ -277,6 +277,16 @@ public class ServiceActivity implements IActivity {
         }
         return list;
     }
+    public void updateActivityFile(Activity a){
+       String query = "UPDATE activity SET submission_file = ? WHERE id=?";
+       try (PreparedStatement ps=connection.prepareStatement(query)){
+           ps.setString(1,a.getSubmissionFile());
+           ps.setInt(2,a.getId());
+           ps.executeUpdate();
+       } catch (Exception e) {
+           throw new RuntimeException(e);
+       }
+    }
 
 
 }

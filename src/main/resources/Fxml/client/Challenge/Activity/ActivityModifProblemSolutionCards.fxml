@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityModifProblemSolutionCardsController"
+      style="-fx-padding: 25; -fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-border-width: 1;">
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <VBox spacing="2" minWidth="150" maxWidth="200">
+            <Label text="Problem Statement:" style="-fx-font-weight: bold; -fx-font-size: 10; -fx-text-fill: #0369a1;"/>
+        </VBox>
+        <TextArea fx:id="probModif" prefHeight="40" promptText="Edit Problem..." wrapText="true" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <VBox spacing="2" minWidth="150" maxWidth="200">
+            <Label text="Solution:" style="-fx-font-weight: bold; -fx-font-size: 10; -fx-text-fill: #0369a1;"/>
+        </VBox>
+        <TextArea fx:id="solModif" prefHeight="40" promptText="Edit Solution..." wrapText="true" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button  fx:id="ModifProbSol" onAction="#onUpdatePS" text="Update Row"
+                style="-fx-background-color: #0369a1; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>
