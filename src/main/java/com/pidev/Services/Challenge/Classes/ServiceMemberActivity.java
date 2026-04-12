@@ -183,4 +183,34 @@ public class ServiceMemberActivity implements IMemberActivity {
         }
         return 0;
     }
+    public List<MemberActivity> SelectMActivity(int activity_id) {
+        List<MemberActivity> list = new ArrayList<>();
+        String query = "SELECT ma.*, u.nom, u.prenom " +
+                "FROM member_activity ma " +
+                "JOIN user u ON ma.user_id_id = u.id " +
+                "WHERE ma.id_activity_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, activity_id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                MemberActivity m_activity = new MemberActivity();
+                m_activity.setId(rs.getInt("id"));
+
+                String desc = rs.getString("activity_description");
+                m_activity.setActivityDescription(desc != null ? desc : ""); 
+
+                User u = new User();
+                u.setNom(rs.getString("nom"));
+                u.setPrenom(rs.getString("prenom"));
+
+                m_activity.setUser(u);
+                list.add(m_activity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

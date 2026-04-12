@@ -36,7 +36,13 @@
                 <Label fx:id="activityIdLabel" text="Activity #-" styleClass="section-title"/>
                 <HBox spacing="5">
                     <Label text="Submission File:" style="-fx-font-weight: bold;"/>
-                    <Label fx:id="submissionFileLabel" text="Not submitted" styleClass="meta-text"/>
+                    <Button fx:id="fileBtn"
+                            maxWidth="340.0"
+                            minWidth="0.0"
+                            text="View File"
+                            textOverrun="ELLIPSIS"
+                            styleClass="file-link-btn"
+                            onAction="#openPdfSubmission"/>
                 </HBox>
             </VBox>
             <VBox spacing="15">

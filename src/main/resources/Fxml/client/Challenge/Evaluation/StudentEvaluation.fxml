@@ -50,7 +50,7 @@
                                     <Label fx:id="activityId" text="Activity ID: 90" styleClass="meta-text"
                                            style="-fx-font-size: 14;"/>
                                     <Button text="Open Submission" styleClass="primary-btn"
-                                            style="-fx-padding: 10 25; -fx-font-size: 14;" onAction="#openPdfSubmession"/>
+                                            style="-fx-padding: 10 25; -fx-font-size: 14;" onAction="#openPdfSubmission"/>
                                     <Label fx:id="submittedDate" text="Submitted on: 2026-05-05"
                                            styleClass="status-label" style="-fx-font-size: 13;"/>
                                 </VBox>

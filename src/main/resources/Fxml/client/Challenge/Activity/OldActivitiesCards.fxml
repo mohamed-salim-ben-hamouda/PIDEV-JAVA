@@ -43,7 +43,7 @@
             <VBox alignment="CENTER" spacing="10" styleClass="inner-section-container">
                 <Label fx:id="statusAct" styleClass="status-label" text="Status: pending" />
                 <HBox alignment="CENTER" spacing="10">
-                    <Button fx:id="feedbackButton" styleClass="action-btn-outline" text="Pre Feedback" />
+                    <Button fx:id="ModifyBtn" onAction="#OnModif" styleClass="action-btn-outline" text="modify" />
                     <Button fx:id="evaluationBtn" onAction="#OnEvaluation" styleClass="primary-btn" text="See Evaluation" />
                 </HBox>
             </VBox>

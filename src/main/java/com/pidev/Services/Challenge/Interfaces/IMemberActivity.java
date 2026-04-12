@@ -16,4 +16,5 @@ public interface IMemberActivity {
     void updateIndivScore(MemberActivity m,double score);
     boolean IsIndivScore(MemberActivity m);
     double SelectIndivScore(int u,int a);
+    List<MemberActivity> SelectMActivity(int a);
 }

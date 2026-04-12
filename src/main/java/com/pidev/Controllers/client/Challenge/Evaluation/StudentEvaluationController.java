@@ -109,13 +109,13 @@ public class StudentEvaluationController {
     }
 
     @FXML
-    public void openPdfSubmession(){
+    public void openPdfSubmission(){
         if(a == null || a.getSubmissionFile() == null || a.getSubmissionFile().isBlank()){
             showError("No Submission file is available for this activity yet.");
             return;
         }
         try {
-            OpenPdfUtil.openPdfInApp(a.getSubmissionFile(), "Feedback PDF Viewer");
+            OpenPdfUtil.openPdfInApp(a.getSubmissionFile(), "Submission PDF");
         } catch (IOException ex) {
             showError("Could not open submission PDF:\n" + ex.getMessage());
         }
@@ -129,7 +129,7 @@ public class StudentEvaluationController {
         }
 
         try {
-            OpenPdfUtil.openPdfInApp(e.getFeedback(), "Feedback PDF Viewer");
+            OpenPdfUtil.openPdfInApp(e.getFeedback(), "Feedback PDF");
         } catch (Exception ex) {
             showError("Could not open feedback PDF:\n" + ex.getMessage());
         }

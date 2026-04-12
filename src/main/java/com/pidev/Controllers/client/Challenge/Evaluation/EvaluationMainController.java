@@ -6,6 +6,7 @@ import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.Services.Challenge.Classes.ServiceProblemSolution;
 import com.pidev.models.*;
+import com.pidev.utils.OpenPdfUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,8 +41,7 @@ public class EvaluationMainController {
     private Label challengeDescriptionLabel;
     @FXML
     private Label activityIdLabel;
-    @FXML
-    private Label submissionFileLabel;
+   
     @FXML
     private VBox evaluationContent;
     @FXML
@@ -79,7 +80,6 @@ public class EvaluationMainController {
 
         if (activity != null) {
             activityIdLabel.setText("Activity #" + activity.getId());
-            submissionFileLabel.setText(activity.getSubmissionFile());
             boolean isEvaluation = serviceEval.isEvaluation(activity.getId());
             if (!isEvaluation) {
                 evaluationContent.setVisible(false);
@@ -222,6 +222,25 @@ public class EvaluationMainController {
             throw new RuntimeException(e);
         }
 
+    }
+    @FXML
+    public void openPdfSubmission(){
+        if(a == null || a.getSubmissionFile() == null || a.getSubmissionFile().isBlank()){
+            showError("No Submission file is available for this activity yet.");
+            return;
+        }
+        try {
+            OpenPdfUtil.openPdfInApp(a.getSubmissionFile(), "Submission PDF");
+        } catch (IOException ex) {
+            showError("Could not open submission PDF:\n" + ex.getMessage());
+        }
+    }
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Open PDF");
+        alert.setHeaderText("Unable to open feedback PDF");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 

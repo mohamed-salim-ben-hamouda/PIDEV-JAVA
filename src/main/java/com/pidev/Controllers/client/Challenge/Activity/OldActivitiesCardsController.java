@@ -3,10 +3,8 @@ package com.pidev.Controllers.client.Challenge.Activity;
 import com.pidev.Controllers.client.BaseController;
 import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationController;
 import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
-import com.pidev.models.Activity;
-import com.pidev.models.Challenge;
-import com.pidev.models.Evaluation;
-import com.pidev.models.Group;
+import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
+import com.pidev.models.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 public class OldActivitiesCardsController {
@@ -35,6 +34,7 @@ public class OldActivitiesCardsController {
     @FXML
     private Button evaluationBtn;
     private ServiceEvaluation serviceEva = new ServiceEvaluation();
+    private ServiceMemberActivity serviceMA = new ServiceMemberActivity();
 
     public void setData(Activity a) {
         this.a = a;
@@ -71,11 +71,17 @@ public class OldActivitiesCardsController {
         }
     }
     public void OnEvaluation(){
-        Evaluation e = serviceEva.findEvaluation(a.getId());
+       Evaluation e = serviceEva.findEvaluation(a.getId());
         StudentEvaluationController StEvaCntrl = BaseController.getInstance().loadStudentEvaluation();
         if (StEvaCntrl != null){
             StEvaCntrl.setData(e,a);
 
+        }
+    }
+    public void OnModif(){
+        ModifyActivityController ModifActCntrl = BaseController.getInstance().loadModifyActivity();
+        if(ModifActCntrl != null){
+            ModifActCntrl.initData(a);
         }
     }
 }

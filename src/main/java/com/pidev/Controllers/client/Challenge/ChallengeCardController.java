@@ -3,6 +3,7 @@ package com.pidev.Controllers.client.Challenge;
 import com.pidev.Services.Membership.ServiceMembership;
 import com.pidev.models.Challenge;
 import com.pidev.models.Group;
+import com.pidev.utils.OpenPdfUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -176,6 +177,26 @@ public class ChallengeCardController {
     public  void SupervisorCard(javafx.scene.control.Button b){
         b.setVisible(false);
         b.setManaged(false);
+    }
+    @FXML
+    public void openPdfChallenge(){
+        if(c == null || c.getContent() == null || c.getContent().isBlank()){
+            showError("No Submission file is available for this activity yet.");
+            return;
+        }
+        try {
+            OpenPdfUtil.openPdfInApp(c.getContent(), "Challenge PDF");
+        } catch (IOException ex) {
+            showError("Could not open challenge PDF:\n" + ex.getMessage());
+        }
+
+    }
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Open PDF");
+        alert.setHeaderText("Unable to open PDF");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }

@@ -7,7 +7,7 @@
       maxWidth="Infinity"
       stylesheets="@../../../styles/challenge.css"
       spacing="12.0" styleClass="challenge-card"
-      fx:id="cardRoot" >
+      fx:id="cardRoot">
 
     <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="challenge-card-header">
         <Label fx:id="titleCard"
@@ -21,7 +21,7 @@
             <Button fx:id="groupsBtn" text="Groups" styleClass="action-btn-outline"/>
             <Button fx:id="participationBtn" text="choose your group" styleClass="primary-btn"/>
             <Button fx:id="deleteBtn" text="Delete" onAction="#OnDelete" styleClass="action-btn-delete"/>
-            <Button fx:id="editBtn" text="Edit" onAction="#handleEdit"  styleClass="action-btn-outline"/>
+            <Button fx:id="editBtn" text="Edit" onAction="#handleEdit" styleClass="action-btn-outline"/>
         </HBox>
     </HBox>
 
@@ -36,7 +36,8 @@
                 minWidth="0.0"
                 text="View File"
                 textOverrun="ELLIPSIS"
-                styleClass="file-link-btn"/>
+                styleClass="file-link-btn"
+                onAction="#openPdfChallenge"/>
     </HBox>
     <Separator opacity="0.5"/>
     <FlowPane hgap="14.0" vgap="8.0" styleClass="challenge-meta">
@@ -44,9 +45,11 @@
         <Label fx:id="targetSkillCard" text="Target Skill: -" styleClass="meta-text"/>
         <Label fx:id="difficultyCard" text="Difficulty: -" styleClass="meta-text"/>
     </FlowPane>
-    <VBox fx:id="groupSection" managed="false" visible="false" spacing="10.0" style="-fx-padding: 15 0 0 0; -fx-border-color: #eef2ff; -fx-border-width: 1 0 0 0;">
+    <VBox fx:id="groupSection" managed="false" visible="false" spacing="10.0"
+          style="-fx-padding: 15 0 0 0; -fx-border-color: #eef2ff; -fx-border-width: 1 0 0 0;">
         <children>
-            <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="Choisissez un groupe (Leader)" textFill="#2d3748" />
+            <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="Choisissez un groupe (Leader)"
+                   textFill="#2d3748"/>
             <FlowPane fx:id="groupsContainer" hgap="15.0" vgap="15.0">
             </FlowPane>
         </children>
