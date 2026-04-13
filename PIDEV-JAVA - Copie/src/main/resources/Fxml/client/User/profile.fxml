@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefWidth="800.0" spacing="20.0" stylesheets="@../../../styles/login-style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.User.ProfileController">
+    <padding>
+        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+    </padding>
+
+    <VBox alignment="CENTER" maxWidth="500.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);" styleClass="main-card">
+        <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+        </padding>
+
+        <Label text="Mon Profil">
+            <font>
+                <Font name="Segoe UI Bold" size="24.0" />
+            </font>
+        </Label>
+
+        <!-- Avatar Section -->
+        <VBox alignment="CENTER" spacing="10.0">
+            <!-- fallback style if no image is loaded -->
+            <ImageView fx:id="profileImage" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" style="-fx-background-color: #e2e8f0;"/>
+            <Button onAction="#handleUploadPhoto" style="-fx-background-color: #e2e8f0; -fx-text-fill: #475569; -fx-background-radius: 5; -fx-font-weight: bold; -fx-cursor: hand;" text="Changer la photo" />
+        </VBox>
+
+        <Separator prefWidth="200.0" />
+
+        <VBox spacing="15.0" styleClass="input-container">
+            <VBox>
+                <Label text="Nom &amp; Prénom" textFill="#5d5b5b" />
+                <HBox spacing="10.0">
+                    <TextField fx:id="nomField" prefHeight="40.0" promptText="Nom" HBox.hgrow="ALWAYS" />
+                    <TextField fx:id="prenomField" prefHeight="40.0" promptText="Prénom" HBox.hgrow="ALWAYS" />
+                </HBox>
+            </VBox>
+
+            <VBox>
+                <Label text="Email" textFill="#5d5b5b" />
+                <TextField fx:id="emailField" prefHeight="40.0" promptText="Email" />
+            </VBox>
+            
+            <VBox>
+                <Label text="Nouveau Mot de Passe (Laisser vide pour ignorer)" textFill="#5d5b5b" />
+                <PasswordField fx:id="passwordField" prefHeight="40.0" promptText="........" />
+            </VBox>
+        </VBox>
+
+        <Button onAction="#handleUpdateProfile" prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Sauvegarder les modifications">
+            <VBox.margin>
+                <Insets top="10.0" />
+            </VBox.margin>
+        </Button>
+
+        <Button onAction="#handleLogout" prefHeight="45.0" prefWidth="354.0" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 5; -fx-font-weight: bold; -fx-cursor: hand;" text="Se déconnecter">
+            <VBox.margin>
+                <Insets top="5.0" />
+            </VBox.margin>
+        </Button>
+    </VBox>
+</VBox>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dashboard-scroll"
+            stylesheets="@../../styles/dashboard.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.admin.UserManagementController">
+    <content>
+        <VBox spacing="20.0" styleClass="dashboard-page">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <FontIcon iconLiteral="fas-users" styleClass="section-title-icon" />
+                        <Label styleClass="management-title" text="Gestion des Utilisateurs" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="15.0" styleClass="management-panel">
+                    <children>
+                        <GridPane hgap="15.0" vgap="10.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <VBox spacing="5.0">
+                                    <Label text="Nom" />
+                                    <TextField fx:id="nomField" promptText="Nom" />
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1">
+                                    <Label text="Prénom" />
+                                    <TextField fx:id="prenomField" promptText="Prénom" />
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="2">
+                                    <Label text="Email" />
+                                    <TextField fx:id="emailField" promptText="Email" />
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.rowIndex="1">
+                                    <Label text="Mot de passe" />
+                                    <PasswordField fx:id="passwdField" promptText="Mot de passe" />
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Rôle" />
+                                    <ComboBox fx:id="roleComboBox" prefWidth="150.0" promptText="Sélectionner un rôle" />
+                                </VBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                    <Label text="Date de naissance" />
+                                    <DatePicker fx:id="dateNaissancePicker" promptText="Date de naissance" />
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <HBox spacing="10.0">
+                            <children>
+                                <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddUser" styleClass="action-btn-primary" text="Ajouter">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-plus" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="updateButton" mnemonicParsing="false" onAction="#handleUpdateUser" styleClass="action-btn-outline" text="Modifier">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-edit" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#handleDeleteUser" styleClass="action-btn-outline" text="Supprimer" style="-fx-text-fill: red;">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-trash" style="-fx-icon-color: red;" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearFields" styleClass="action-btn-outline" text="Vider">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-eraser" />
+                                    </graphic>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <ListView fx:id="userListView" prefHeight="400.0" minHeight="300.0" VBox.vgrow="ALWAYS" />
+
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" styleClass="dashboard-scroll"
+            stylesheets="@../../styles/dashboard.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.admin.ArchivedUsersController">
+    <content>
+        <VBox spacing="20.0" styleClass="dashboard-page">
+            <children>
+                <!-- Header Row -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #1e293b;" text="Utilisateurs Archivés" />
+                    </children>
+                </HBox>
+
+                <!-- Search Bar -->
+                <TextField fx:id="searchField" promptText="Rechercher des utilisateurs archivés..." styleClass="search-field" />
+
+                <!-- Archived Users Table -->
+                <TableView fx:id="archivedUserTableView" VBox.vgrow="ALWAYS" minHeight="400.0" styleClass="users-table" />
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

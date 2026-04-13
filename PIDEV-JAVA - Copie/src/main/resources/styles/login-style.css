@@ -1,0 +1,178 @@
+/* Custom properties */
+* {
+    -fx-accent-color: #5C89FF;
+    -fx-focus-color: transparent;
+}
+
+.root {
+    -fx-background-color: #F4F7FB;
+}
+
+/* NEW: The Background Mesh Gradient */
+
+
+/* The white card container */
+.main-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    /* Softened the shadow slightly to blend better with the mesh */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 30, 0, 0, 10);
+}
+
+/* Input container layout and default labels */
+.input-container .label {
+    -fx-font-family: "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 8 0;
+}
+
+/* Common text input styling */
+.text-field, .password-field {
+    -fx-background-color: #E8F0FE;
+    -fx-background-radius: 10;
+    -fx-padding: 0 15;
+    -fx-prompt-text-fill: #A0A0A0;
+    -fx-text-fill: #333333;
+    -fx-font-family: "Segoe UI";
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-background-color: #DFEAFB;
+    -fx-border-color: #5C89FF;
+    -fx-border-radius: 10;
+}
+
+/* CheckBox styling */
+.check-box .box {
+    -fx-background-color: transparent;
+    -fx-border-color: #DEDEDE;
+    -fx-border-radius: 4;
+    -fx-padding: 2;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #5C89FF;
+    -fx-border-color: #5C89FF;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+/* Link Label */
+.link-label {
+    -fx-font-family: "Segoe UI";
+    -fx-cursor: hand;
+}
+.link-label:hover {
+    -fx-underline: true;
+}
+
+/* Toggle container background */
+.toggle-container {
+    -fx-background-color: #EBF2FA;
+    -fx-background-radius: 50;
+    -fx-padding: 2;
+}
+
+/* Common toggle button styling */
+.toggle-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+    -fx-text-fill: #333333;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14;
+    -fx-padding: 10 20;
+}
+
+/* Hover effect for toggle buttons */
+.toggle-btn:hover {
+    -fx-background-color: #DBE5EF;
+}
+
+/* Active state of toggle buttons */
+.toggle-btn.active {
+    -fx-background-color: #5C89FF;
+    -fx-text-fill: white;
+}
+.toggle-btn.active:hover {
+    -fx-background-color: #4A7AFF;
+}
+
+/* Inactive state */
+.toggle-btn.inactive {
+    -fx-background-color: transparent;
+    -fx-text-fill: #5D5B5B;
+}
+
+/* Common properties for main buttons */
+.primary-btn, .biometrics-btn, .faceid-btn {
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Bold";
+    -fx-font-size: 14;
+    -fx-alignment: center;
+}
+
+/* Main Login Button */
+.primary-btn {
+    -fx-background-color: #5C89FF;
+}
+.primary-btn:hover {
+    -fx-background-color: #4A7AFF;
+}
+
+/* Biometrics Button */
+.biometrics-btn {
+    -fx-background-color: #F9A825;
+}
+.biometrics-btn:hover {
+    -fx-background-color: #F57F17;
+}
+
+/* FaceID Button */
+.faceid-btn {
+    -fx-background-color: #9333EA;
+}
+.faceid-btn:hover {
+    -fx-background-color: #7E22CE;
+}
+
+/* Icons inside buttons */
+.font-icon {
+    -fx-fill: white;
+    -fx-padding: 0 8 0 0;
+}
+/* Styles the main box */
+.combo-box {
+    -fx-background-color: #E8F0FE;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-padding: 2;
+}
+
+/* Styles the text inside the box */
+.combo-box .list-cell {
+    -fx-text-fill: #5d5b5b;
+    -fx-padding: 5 10 5 10;
+}
+
+/* Styles the arrow button area */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/* Styles the actual arrow icon */
+.combo-box .arrow {
+    -fx-background-color: #5c89ff;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+/* Styles the dropdown list that pops out */
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}

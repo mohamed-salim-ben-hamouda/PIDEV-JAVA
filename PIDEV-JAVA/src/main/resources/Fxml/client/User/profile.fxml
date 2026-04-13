@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<HBox prefWidth="900.0" stylesheets="@../../../styles/profile.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.User.ProfileController">
+    <!-- Left Sidebar -->
+    <VBox prefWidth="200.0" spacing="5.0" styleClass="profile-sidebar">
+        <padding><Insets bottom="20.0" left="15.0" right="15.0" top="30.0" /></padding>
+        <children>
+            <ImageView fitHeight="40.0" preserveRatio="true">
+                <Image url="@../../../images/logo.png" />
+            </ImageView>
+            <Label style="-fx-font-size: 11px; -fx-text-fill: #94a3b8;" text="Student" />
+            <Region prefHeight="20.0" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-btn-active" text="Overview" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-btn" text="Personal Info" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-btn" text="Account" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="sidebar-btn" text="Security" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" onAction="#handleLogout" styleClass="sidebar-logout-btn" text="Logout" />
+        </children>
+    </VBox>
+
+    <!-- Main Content -->
+    <VBox HBox.hgrow="ALWAYS" spacing="20.0" style="-fx-background-color: white;">
+        <padding><Insets bottom="40.0" left="50.0" right="50.0" top="40.0" /></padding>
+        <children>
+            <Label style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #1e293b;" text="Personal Information" />
+
+            <GridPane hgap="30.0" vgap="18.0">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="SOMETIMES" />
+                    <RowConstraints vgrow="SOMETIMES" />
+                    <RowConstraints vgrow="SOMETIMES" />
+                    <RowConstraints vgrow="SOMETIMES" />
+                </rowConstraints>
+                <children>
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label styleClass="profile-field-label" text="Last Name" />
+                        <TextField fx:id="nomField" promptText="Nom" styleClass="profile-textfield" />
+                    </VBox>
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label styleClass="profile-field-label" text="First Name" />
+                        <TextField fx:id="prenomField" promptText="Prénom" styleClass="profile-textfield" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label styleClass="profile-field-label" text="Education" />
+                        <TextField promptText="" styleClass="profile-textfield" editable="false" />
+                    </VBox>
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label styleClass="profile-field-label" text="Score" />
+                        <TextField promptText="0" styleClass="profile-textfield" editable="false" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <Label styleClass="profile-field-label" text="Skills" />
+                        <TextField promptText="" styleClass="profile-textfield" editable="false" />
+                    </VBox>
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Label styleClass="profile-field-label" text="Email" />
+                        <TextField fx:id="emailField" promptText="email@example.com" styleClass="profile-textfield" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                        <Label styleClass="profile-field-label" text="Role" />
+                        <TextField promptText="Student" styleClass="profile-textfield" editable="false" />
+                    </VBox>
+                    <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <Label styleClass="profile-field-label" text="Member Since" />
+                        <TextField promptText="" styleClass="profile-textfield" editable="false" />
+                    </VBox>
+                </children>
+            </GridPane>
+
+            <PasswordField fx:id="passwordField" managed="false" visible="false" />
+            <ImageView fx:id="profileImage" managed="false" visible="false" fitHeight="1" fitWidth="1" />
+
+            <Button onAction="#handleUpdateProfile" styleClass="profile-save-btn" text="Save Changes">
+                <VBox.margin><Insets top="10.0" /></VBox.margin>
+            </Button>
+        </children>
+    </VBox>
+</HBox>

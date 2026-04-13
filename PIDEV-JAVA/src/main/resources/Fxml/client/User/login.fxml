@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane prefHeight="600.0" prefWidth="900.0" styleClass="root-pane" stylesheets="@../../../styles/login-style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.User.login_Controller">
+    <children>
+        <VBox alignment="TOP_CENTER" maxWidth="400.0" maxHeight="-Infinity" spacing="10.0" styleClass="main-card" StackPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER" styleClass="toggle-container">
+                    <VBox.margin><Insets bottom="20.0" top="10.0" /></VBox.margin>
+                    <children>
+                        <Button fx:id="btnExisting" onAction="#handleToggle" prefWidth="160.0" styleClass="toggle-btn, active" text="Existing User" />
+                        <Button fx:id="btnNew" onAction="#handleToggle" prefWidth="160.0" styleClass="toggle-btn, inactive" text="New User" />
+                    </children>
+                </HBox>
+
+                <VBox fx:id="loginForm" alignment="TOP_CENTER">
+                    <children>
+                        <HBox alignment="CENTER" prefHeight="50.0">
+                            <children>
+                                <Label text="Welcome Back">
+                                    <font><Font name="Segoe UI Bold" size="24.0" /></font>
+                                </Label>
+                                <Label text=" 👋" textFill="#e7af07">
+                                    <font><Font name="Segoe UI Bold" size="24.0" /></font>
+                                </Label>
+                            </children>
+                            <VBox.margin><Insets bottom="25.0" /></VBox.margin>
+                        </HBox>
+                        <VBox styleClass="input-container">
+                            <children>
+                                <Label text="Email" textFill="#5d5b5b" />
+                                <TextField fx:id="loginEmail" prefHeight="40.0" promptText="karim@gmail.com" />
+                                <Label fx:id="loginEmailError" textFill="RED" style="-fx-font-size: 11px;" managed="false" visible="false" />
+                            </children>
+                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                        </VBox>
+                        <VBox styleClass="input-container">
+                            <children>
+                                <Label text="Password" textFill="#5d5b5b" />
+                                <PasswordField fx:id="loginPassword" prefHeight="40.0" promptText="........" />
+                                <Label fx:id="loginPasswordError" textFill="RED" style="-fx-font-size: 11px;" managed="false" visible="false" />
+                            </children>
+                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                        </VBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="26.0">
+                            <children>
+                                <CheckBox fx:id="keepSignedInCheckBox" text="Keep me signed in" textFill="#5d5b5b" />
+                                <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                        <Label styleClass="link-label" text="Forgot password?" textFill="#5c89ff" onMouseClicked="#handleForgotPassword" style="-fx-cursor: hand;" />
+                                </HBox>
+                            </children>
+                            <VBox.margin><Insets bottom="20.0" /></VBox.margin>
+                        </HBox>
+                        <Button onAction="#handleLogin" prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Login" />
+                        <HBox alignment="CENTER" prefHeight="38.0">
+                            <children><Label text="or" textFill="#8d8a8a" /></children>
+                            <VBox.margin><Insets bottom="10.0" top="10.0" /></VBox.margin>
+                        </HBox>
+                        <Button prefHeight="45.0" prefWidth="354.0" styleClass="biometrics-btn" text="Login with Biometrics">
+                            <graphic><FontIcon iconLiteral="fas-fingerprint" iconSize="16" /></graphic>
+                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                        </Button>
+                        <Button prefHeight="45.0" prefWidth="354.0" styleClass="faceid-btn" text="Login with Face ID">
+                            <graphic><FontIcon iconLiteral="fas-user-circle" iconSize="16" /></graphic>
+                        </Button>
+                    </children>
+                </VBox>
+
+                <VBox fx:id="registerForm" alignment="TOP_CENTER" managed="false" visible="false">
+                    <children>
+                        <HBox alignment="CENTER" prefHeight="50.0">
+                            <children>
+                                <Label text="Create Account">
+                                    <font><Font name="Segoe UI Bold" size="24.0" /></font>
+                                </Label>
+                                <Label text=" 🚀" textFill="#e7af07">
+                                    <font><Font name="Segoe UI Bold" size="24.0" /></font>
+                                </Label>
+                            </children>
+                            <VBox.margin><Insets bottom="25.0" /></VBox.margin>
+                        </HBox>
+                        <VBox styleClass="input-container">
+                            <children>
+                                <Label text="Account Type" textFill="#5d5b5b" />
+                                <ComboBox fx:id="regAccountType" prefHeight="40.0" prefWidth="354.0" promptText="-- Select Type --" />
+                                <Label fx:id="regAccountTypeError" textFill="RED" style="-fx-font-size: 11px;" managed="false" visible="false" />
+                            </children>
+                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                        </VBox>
+                        <VBox styleClass="input-container">
+                            <children>
+                                <Label text="Last Name / Company Name" textFill="#5d5b5b" />
+                                <TextField fx:id="regName" prefHeight="40.0" promptText="Your last name or company name" />
+                                <Label fx:id="regNameError" textFill="RED" style="-fx-font-size: 11px;" managed="false" visible="false" />
+                            </children>
+                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                        </VBox>
+                        <VBox styleClass="input-container">
+                            <children>
+                                <Label text="Email" textFill="#5d5b5b" />
+                                <TextField fx:id="regEmail" prefHeight="40.0" promptText="karim@gmail.com" />
+                                <Label fx:id="regEmailError" textFill="RED" style="-fx-font-size: 11px;" managed="false" visible="false" />
+                            </children>
+                            <VBox.margin><Insets bottom="15.0" /></VBox.margin>
+                        </VBox>
+                        <VBox styleClass="input-container">
+                            <children>
+                                <Label text="Password" textFill="#5d5b5b" />
+                                <PasswordField fx:id="regPassword" prefHeight="40.0" promptText="........" />
+                                <Label fx:id="regPasswordError" textFill="RED" style="-fx-font-size: 11px;" managed="false" visible="false" />
+                            </children>
+                            <VBox.margin><Insets bottom="25.0" /></VBox.margin>
+                        </VBox>
+                        <Button onAction="#handleRegister" prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Register" />
+                    </children>
+                </VBox>
+            </children>
+            <padding><Insets bottom="25.0" left="30.0" right="30.0" top="25.0" /></padding>
+        </VBox>
+    </children>
+</StackPane>
