@@ -43,11 +43,20 @@ public class EvaluationItemController {
         }else {
             seeActivityBtn.setDisable(false);
             seeActivityBtn.setText("Modify");
+            seeActivityBtn.setOnAction(this::OnModif);
         }
 
 
     }
     public void OnEvaluate(ActionEvent event){
+        Activity a = serviceAct.findActivityByChallengeAndGrp(challenge, group);
+        EvaluationMainController mainCtrl = BaseController.getInstance().loadEvaluationMainPage();
+        if (mainCtrl != null) {
+            mainCtrl.setData(challenge, group, a);
+        }
+
+    }
+    public void OnModif(ActionEvent event){
         Activity a = serviceAct.findActivityByChallengeAndGrp(challenge, group);
         EvaluationMainController mainCtrl = BaseController.getInstance().loadEvaluationMainPage();
         if (mainCtrl != null) {

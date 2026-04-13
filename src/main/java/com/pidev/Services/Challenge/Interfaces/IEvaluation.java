@@ -15,4 +15,5 @@ public interface IEvaluation {
     List<Evaluation> displayAll();
     List<Evaluation> displaySorted(String c);
     boolean isEvaluationStarted(int a);
+    boolean isEvaluationfinished(int e);
 }

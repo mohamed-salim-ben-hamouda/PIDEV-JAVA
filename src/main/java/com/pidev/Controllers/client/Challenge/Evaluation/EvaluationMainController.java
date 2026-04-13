@@ -54,6 +54,9 @@ public class EvaluationMainController {
     private Button fileInp;
     @FXML
     private TextField groupScoreInput;
+    @FXML
+    private Button submit_feedback;
+
     private File selectedPdf;
 
     private Challenge c;
@@ -94,6 +97,13 @@ public class EvaluationMainController {
             }
             loadProblemSolutions(a.getId());
             loadMemberActivity();
+
+        }
+        boolean eva_status=serviceEval.isEvaluationfinished(a.getId());
+        if(eva_status){
+            submit_feedback.setText("Modify Final Evaluation");
+        }else {
+            submit_feedback.setText("Submit Final Evaluation");
 
         }
     }

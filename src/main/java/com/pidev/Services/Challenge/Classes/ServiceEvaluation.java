@@ -183,4 +183,18 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return false;
     }
+    public boolean isEvaluationfinished(int activity_id){
+        String query = "SELECT COUNT(*) FROM evaluation WHERE activity_id_id=? AND status=?";
+        try (PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setInt(1,activity_id);
+            ps.setString(2,"finished");
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return rs.getInt(1)>0;
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return false;
+    }
 }

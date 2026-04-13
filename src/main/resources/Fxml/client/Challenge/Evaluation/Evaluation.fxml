@@ -81,7 +81,7 @@
                         </HBox>
                     </VBox>
                     <HBox alignment="CENTER">
-                        <Button onAction="#OnSubmit" text="Submit Final Evaluation"
+                        <Button fx:id="submit_feedback" onAction="#OnSubmit" text="Submit Final Evaluation"
                                 style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-padding: 10 25; -fx-cursor: hand;"/>
                     </HBox>
                 </VBox>
