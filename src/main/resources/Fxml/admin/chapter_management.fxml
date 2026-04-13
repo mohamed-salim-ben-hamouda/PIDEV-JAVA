@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="16.0" styleClass="admin-page" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.admin.ChapterManagementController">
+    <children>
+        <Label styleClass="admin-page-title" text="Chapter Management" />
+        <HBox spacing="10.0" styleClass="toolbar-panel">
+            <children>
+                <TextField fx:id="searchField" promptText="Search chapter title..." styleClass="search-field" HBox.hgrow="ALWAYS" />
+                <ComboBox fx:id="sortFieldCombo" onAction="#onSortChanged" prefWidth="160.0" promptText="Sort by" />
+                <ComboBox fx:id="directionCombo" onAction="#onSortChanged" prefWidth="110.0" promptText="Order" />
+                <Button onAction="#onSearch" styleClass="management-btn" text="Search" />
+                <Button onAction="#onRefresh" styleClass="management-btn" text="Refresh" />
+            </children>
+        </HBox>
+        <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+            <children>
+                <HBox spacing="15.0" styleClass="management-rail-header">
+                    <children>
+                        <Label style="-fx-min-width: 80;" styleClass="management-rail-label" text="ID" />
+                        <Label style="-fx-min-width: 200;" styleClass="management-rail-label" text="Title" />
+                        <Label style="-fx-min-width: 100;" styleClass="management-rail-label" text="Order" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Status" />
+                        <Label style="-fx-min-width: 100;" styleClass="management-rail-label" text="Min Score" />
+                    </children>
+                </HBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" styleClass="management-list">
+                    <VBox fx:id="chapterContainer" spacing="10.0" style="-fx-padding: 4 2 4 2;" />
+                </ScrollPane>
+            </children>
+        </VBox>
+        <HBox spacing="10.0" styleClass="management-button-row">
+            <children>
+                <Button onAction="#onAdd" styleClass="management-btn" text="Add" />
+                <Button onAction="#onEdit" styleClass="management-btn" text="Edit" />
+                <Button onAction="#onDelete" styleClass="management-btn" text="Delete" />
+                <Button onAction="#onRefresh" styleClass="management-btn" text="Refresh" />
+            </children>
+        </HBox>
+    </children>
+    <padding><Insets top="8.0" right="24.0" bottom="24.0" left="24.0" /></padding>
+</VBox>

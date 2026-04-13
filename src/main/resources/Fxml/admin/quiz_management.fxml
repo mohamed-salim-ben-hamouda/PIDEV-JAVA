@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+
+<VBox spacing="16.0" styleClass="admin-page" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.admin.QuizManagementController">
+    <children>
+        <Label styleClass="admin-page-title" text="Quiz Management" />
+        <HBox spacing="10.0" styleClass="toolbar-panel">
+            <children>
+                <TextField fx:id="searchField" promptText="Search quiz title..." styleClass="search-field" HBox.hgrow="ALWAYS" />
+                <ComboBox fx:id="sortFieldCombo" onAction="#onSortChanged" prefWidth="160.0" promptText="Sort by" />
+                <ComboBox fx:id="directionCombo" onAction="#onSortChanged" prefWidth="110.0" promptText="Order" />
+                <Button onAction="#onSearch" styleClass="management-btn" text="Search" />
+                <Button onAction="#onRefresh" styleClass="management-btn" text="Refresh" />
+            </children>
+        </HBox>
+        <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+            <children>
+                <HBox spacing="15.0" styleClass="management-rail-header">
+                    <children>
+                        <Label style="-fx-min-width: 80;" styleClass="management-rail-label" text="ID" />
+                        <Label style="-fx-min-width: 250;" styleClass="management-rail-label" text="Title" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Passing Score" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Max Attempts" />
+                    </children>
+                </HBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" styleClass="management-list">
+                    <VBox fx:id="quizContainer" spacing="10.0" style="-fx-padding: 4 2 4 2;" />
+                </ScrollPane>
+            </children>
+        </VBox>
+        <HBox spacing="10.0" styleClass="management-button-row">
+            <children>
+                <Button onAction="#onAdd" styleClass="management-btn" text="Ajouter" />
+                <Button onAction="#onEdit" styleClass="management-btn" text="Modifier" />
+                <Button onAction="#onDelete" styleClass="management-btn" text="Supprimer" />
+                <Button onAction="#onRefresh" styleClass="management-btn" text="Rafraichir" />
+            </children>
+        </HBox>
+    </children>
+    <padding><Insets top="8.0" right="24.0" bottom="24.0" left="24.0" /></padding>
+</VBox>

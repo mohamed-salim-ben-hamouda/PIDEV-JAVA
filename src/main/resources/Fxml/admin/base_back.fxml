@@ -60,31 +60,31 @@
 
                                 <Label styleClass="menu-section" text="Pedagogical Management" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Courses">
+                                        onAction="#loadCourses" styleClass="menu-item" text="Courses">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-book" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Chapters">
+                                        onAction="#loadChapters" styleClass="menu-item" text="Chapters">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-bookmark" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Quizzes">
+                                        onAction="#loadQuizzes" styleClass="menu-item" text="Quizzes">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-question-circle" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Questions">
+                                        onAction="#loadQuestions" styleClass="menu-item" text="Questions">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-info-circle" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Answers">
+                                        onAction="#loadAnswers" styleClass="menu-item" text="Answers">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-check" styleClass="menu-icon" />
                                     </graphic>

@@ -17,6 +17,8 @@ public class Course {
     private float validationScore;
     private String content;
     private String material;
+    private Quiz prerequisiteQuiz;
+    private List<String> sectionsToReview;
 
     private User creator;
 
@@ -25,6 +27,7 @@ public class Course {
     // Constructor
     public Course() {
         this.challenges = new ArrayList<>();
+        this.sectionsToReview = new ArrayList<>();
         this.isActive = true;
         this.difficulty = DIFFICULTY_BEGINNER;
     }
@@ -82,4 +85,10 @@ public class Course {
 
     public List<Challenge> getChallenges() { return challenges; }
     public void setChallenges(List<Challenge> challenges) { this.challenges = challenges; }
+
+    public Quiz getPrerequisiteQuiz() { return prerequisiteQuiz; }
+    public void setPrerequisiteQuiz(Quiz prerequisiteQuiz) { this.prerequisiteQuiz = prerequisiteQuiz; }
+
+    public List<String> getSectionsToReview() { return sectionsToReview; }
+    public void setSectionsToReview(List<String> sectionsToReview) { this.sectionsToReview = sectionsToReview; }
 }

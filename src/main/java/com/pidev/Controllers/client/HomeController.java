@@ -61,6 +61,27 @@ public class HomeController {
         }
     }
 
+    @FXML
+    private void goToCourses(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
+            Parent root = loader.load();
+            com.pidev.Controllers.client.BaseController controller = loader.getController();
+            controller.loadCourses();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            if (stage.getScene() == null) {
+                stage.setScene(new Scene(root));
+            } else {
+                stage.getScene().setRoot(root);
+            }
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Could not open courses module from home view.");
+            e.printStackTrace();
+        }
+    }
+
     private void switchScene(MouseEvent event, String fxmlPath) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));

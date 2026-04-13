@@ -150,31 +150,31 @@
                         <FlowPane hgap="14.0" prefWrapLength="1100.0" vgap="14.0">
                             <children>
                                 <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-primary" text="Courses">
+                                    onAction="#loadCourses" styleClass="action-btn action-btn-primary" text="Courses">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-book" styleClass="action-icon primary-action-icon" />
                                     </graphic>
                                 </Button>
                                 <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Chapters">
+                                    onAction="#loadChapters" styleClass="action-btn action-btn-outline" text="Chapters">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-bookmark" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
                                 <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Quizzes">
+                                    onAction="#loadQuizzes" styleClass="action-btn action-btn-outline" text="Quizzes">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-question-circle" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
                                 <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Questions">
+                                    onAction="#loadQuestions" styleClass="action-btn action-btn-outline" text="Questions">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-question-circle" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
                                 <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Answers">
+                                    onAction="#loadAnswers" styleClass="action-btn action-btn-outline" text="Answers">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-check-double" styleClass="action-icon outline-action-icon" />
                                     </graphic>

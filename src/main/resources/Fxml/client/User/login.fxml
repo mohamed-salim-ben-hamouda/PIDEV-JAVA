@@ -34,14 +34,16 @@
                         <VBox styleClass="input-container">
                             <children>
                                 <Label text="Email" textFill="#5d5b5b" />
-                                <TextField prefHeight="40.0" promptText="karim@gmail.com" />
+                                <TextField fx:id="emailField" prefHeight="40.0" promptText="karim@gmail.com" />
+                                <Label fx:id="emailErrorLabel" style="-fx-text-fill: #d32f2f; -fx-font-size: 11;" text="" />
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
                         <VBox styleClass="input-container">
                             <children>
                                 <Label text="Password" textFill="#5d5b5b" />
-                                <PasswordField prefHeight="40.0" promptText="........" />
+                                <PasswordField fx:id="passwordField" prefHeight="40.0" promptText="........" />
+                                <Label fx:id="passwordErrorLabel" style="-fx-text-fill: #d32f2f; -fx-font-size: 11;" text="" />
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
@@ -56,7 +58,7 @@
                             </children>
                             <VBox.margin><Insets bottom="20.0" /></VBox.margin>
                         </HBox>
-                        <Button prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Login" />
+                        <Button onAction="#handleLogin" prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Login" />
                         <HBox alignment="CENTER" prefHeight="38.0">
                             <children><Label text="or" textFill="#8d8a8a" /></children>
                             <VBox.margin><Insets bottom="10.0" top="10.0" /></VBox.margin>
@@ -88,31 +90,35 @@
                             <children>
                                 <Label text="Account Type" textFill="#5d5b5b" />
                                 <ComboBox fx:id="accountType" prefHeight="40.0" prefWidth="354.0" promptText="-- Select Type --" />
+                                <Label fx:id="accountTypeErrorLabel" style="-fx-text-fill: #d32f2f; -fx-font-size: 11;" text="" />
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
                         <VBox styleClass="input-container">
                             <children>
                                 <Label text="Last Name / Company Name" textFill="#5d5b5b" />
-                                <TextField prefHeight="40.0" promptText="Your last name or company name" />
+                                <TextField fx:id="lastNameField" prefHeight="40.0" promptText="Your last name or company name" />
+                                <Label fx:id="lastNameErrorLabel" style="-fx-text-fill: #d32f2f; -fx-font-size: 11;" text="" />
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
                         <VBox styleClass="input-container">
                             <children>
                                 <Label text="Email" textFill="#5d5b5b" />
-                                <TextField prefHeight="40.0" promptText="karim@gmail.com" />
+                                <TextField fx:id="registerEmailField" prefHeight="40.0" promptText="karim@gmail.com" />
+                                <Label fx:id="registerEmailErrorLabel" style="-fx-text-fill: #d32f2f; -fx-font-size: 11;" text="" />
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
                         <VBox styleClass="input-container">
                             <children>
                                 <Label text="Password" textFill="#5d5b5b" />
-                                <PasswordField prefHeight="40.0" promptText="........" />
+                                <PasswordField fx:id="registerPasswordField" prefHeight="40.0" promptText="........" />
+                                <Label fx:id="registerPasswordErrorLabel" style="-fx-text-fill: #d32f2f; -fx-font-size: 11;" text="" />
                             </children>
                             <VBox.margin><Insets bottom="25.0" /></VBox.margin>
                         </VBox>
-                        <Button prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Register" />
+                        <Button onAction="#handleRegister" prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Register" />
                     </children>
                 </VBox>
             </children>

@@ -40,7 +40,13 @@ public class BaseController implements Initializable {
 
     private void loadViewFront(String fxmlName) {
         try {
-            Parent view = FXMLLoader.load(getClass().getResource("/Fxml/" + fxmlName + ".fxml"));
+            java.net.URL resource = getClass().getResource("/Fxml/" + fxmlName + ".fxml");
+            if (resource == null) {
+                System.err.println("Missing FXML view: /Fxml/" + fxmlName + ".fxml");
+                return;
+            }
+
+            Parent view = FXMLLoader.load(resource);
             contentArea.getChildren().setAll(view);
 
         } catch (IOException e) {
@@ -51,7 +57,13 @@ public class BaseController implements Initializable {
 
     private void switchRoot(String fxmlName) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Fxml/" + fxmlName + ".fxml"));
+            java.net.URL resource = getClass().getResource("/Fxml/" + fxmlName + ".fxml");
+            if (resource == null) {
+                System.err.println("Missing FXML view: /Fxml/" + fxmlName + ".fxml");
+                return;
+            }
+
+            Parent root = FXMLLoader.load(resource);
             contentArea.getScene().setRoot(root);
         } catch (IOException e) {
             System.err.println("Error: Could not switch to " + fxmlName + ". Check the path.");
