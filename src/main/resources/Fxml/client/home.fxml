@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -9,7 +9,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox alignment="TOP_CENTER" spacing="0.0" stylesheets="@../../styles/home.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.HomeController">
+<VBox fx:id="homeRoot" alignment="TOP_CENTER" spacing="0.0" stylesheets="@../../styles/home.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.HomeController">
     <children>
         <VBox spacing="0.0" style="-fx-background-color: transparent;">
             <children>
@@ -18,7 +18,7 @@
                     <children>
                         <VBox spacing="25.0" HBox.hgrow="ALWAYS">
                             <Label styleClass="hero-title" text="Skill Bridge" />
-                            <Label maxWidth="500" styleClass="hero-subtitle" text="Plateforme éducative intelligente pour booster votre carrière." wrapText="true" />
+                            <Label maxWidth="500" styleClass="hero-subtitle" text="Plateforme Ã©ducative intelligente pour booster votre carriÃ¨re." wrapText="true" />
                         </VBox>
                         <ImageView fitHeight="350.0" fitWidth="450.0" preserveRatio="true">
                             <Image url="@../../images/home_pic.jpg" />
@@ -31,14 +31,14 @@
                     <Label styleClass="section-subtitle" text="EXPLOREZ" />
                     <Label styleClass="section-title" text="Nos Modules" />
                     <FlowPane alignment="CENTER" hgap="25.0" vgap="25.0">
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="👤" /><Label styleClass="member-name" text="Profile" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="📚" /><Label styleClass="member-name" text="Courses" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="🏆" /><Label styleClass="member-name" text="Challenges" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="📄" /><Label styleClass="member-name" text="Internship" /></VBox>
+                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="ðŸ‘¤" /><Label styleClass="member-name" text="Profile" /></VBox>
+                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="ðŸ“š" /><Label styleClass="member-name" text="Courses" /></VBox>
+                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="ðŸ†" /><Label styleClass="member-name" text="Challenges" /></VBox>
+                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="ðŸ“„" /><Label styleClass="member-name" text="Internship" /></VBox>
                     </FlowPane>
                     <FlowPane alignment="CENTER" hgap="25.0" vgap="25.0">
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="👥" /><Label styleClass="member-name" text="Groups" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="🏁" /><Label styleClass="member-name" text="Hackathon" /></VBox>
+                        <VBox onMouseClicked="#openGroupsFeed" style="-fx-cursor: hand;" styleClass="module-card"><Label style="-fx-font-size: 35;" text="G" /><Label styleClass="member-name" text="Groups" /></VBox>
+                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="ðŸ" /><Label styleClass="member-name" text="Hackathon" /></VBox>
                     </FlowPane>
                 </VBox>
 
@@ -54,7 +54,7 @@
                         <Label styleClass="section-subtitle" text="NOTRE HISTOIRE" />
                         <Label styleClass="section-title" text="Pourquoi Skill Bridge ?" />
                         <TextFlow lineSpacing="8.0">
-                            <Text styleClass="about-text" text="Skill Bridge est né d'une vision : créer un espace d'épanouissement. Nous connectons les étudiants avec des défis réels pour forger les talents de demain." />
+                            <Text styleClass="about-text" text="Skill Bridge est nÃ© d'une vision : crÃ©er un espace d'Ã©panouissement. Nous connectons les Ã©tudiants avec des dÃ©fis rÃ©els pour forger les talents de demain." />
                         </TextFlow>
                     </VBox>
                 </HBox>
@@ -62,8 +62,8 @@
                 <VBox alignment="CENTER" spacing="40.0" style="-fx-background-color: white;">
                     <padding><Insets bottom="20" left="50.0" right="50.0" top="80.0" /></padding>
                     <VBox alignment="CENTER" spacing="10">
-                        <Label styleClass="section-subtitle" text="L'ÉQUIPE" />
-                        <Label styleClass="section-title" text="Notre Équipe" />
+                        <Label styleClass="section-subtitle" text="L'Ã‰QUIPE" />
+                        <Label styleClass="section-title" text="Notre Ã‰quipe" />
                     </VBox>
 
                     <FlowPane alignment="CENTER" hgap="25.0" prefWrapLength="1000" vgap="35.0">
@@ -151,3 +151,6 @@
         </VBox>
     </children>
 </VBox>
+
+
+

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" stylesheets="@../../styles/feed.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.client.FeedController">
+    <content>
+        <HBox spacing="20.0" styleClass="feed-page">
+            <children>
+                <VBox prefWidth="240.0" spacing="15.0">
+                    <children>
+                        <VBox spacing="10.0" styleClass="sidebar-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="sidebar-title" text="My Groups" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button onAction="#handleOpenGroupAdd" styleClass="create-btn" text="+ New" />
+                                    </children>
+                                </HBox>
+                                <VBox fx:id="myGroupsContainer" spacing="6.0" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="sidebar-card">
+                            <children>
+                                <Label styleClass="sidebar-title" text="Explore" />
+                                <Label styleClass="group-link" text="Suggestions" />
+                                <Label styleClass="group-link" text="Trending" />
+                                <Label styleClass="group-link" text="Saved Posts" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="12.0" styleClass="quick-post-card">
+                            <children>
+                                <Label fx:id="formModeLabel" styleClass="card-title" text="Create Post" />
+                                <TextField fx:id="titleField" promptText="Post title (max 30 chars)" />
+                                <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="What's on your mind?" wrapText="true" />
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <ComboBox fx:id="visibilityCombo" prefWidth="160.0" promptText="Visibility" />
+                                        <ComboBox fx:id="statusCombo" prefWidth="160.0" promptText="Status" />
+                                    </children>
+                                </HBox>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <TextField fx:id="groupDetailsIdField" promptText="Open group by ID" />
+                                        <Button onAction="#handleOpenGroupDetails" styleClass="secondary-action" text="Open Group" />
+                                    </children>
+                                </HBox>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <TextField fx:id="attachedFileField" promptText="Attached image path/url (optional)" HBox.hgrow="ALWAYS" />
+                                        <Button onAction="#handleBrowseAttachment" styleClass="secondary-action" text="Browse..." />
+                                    </children>
+                                </HBox>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <Button fx:id="submitButton" onAction="#handleSubmitPost" styleClass="primary-action" text="Post Now" />
+                                        <Button fx:id="cancelEditButton" managed="false" onAction="#handleCancelEdit" styleClass="secondary-action" text="Cancel Edit" visible="false" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="feedbackLabel" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox fx:id="postsContainer" spacing="14.0" />
+                    </children>
+                </VBox>
+
+                <VBox prefWidth="260.0" spacing="15.0">
+                    <children>
+                        <VBox spacing="10.0" styleClass="sidebar-card">
+                            <children>
+                                <Label styleClass="sidebar-title" text="Latest News" />
+                                <Label styleClass="news-item" text="Spring Boot 3.4 roadmap updates" wrapText="true" />
+                                <Label styleClass="news-item" text="JavaFX styling tips for production UIs" wrapText="true" />
+                                <Label styleClass="news-item" text="MySQL indexing basics for feed performance" wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+        </HBox>
+    </content>
+</ScrollPane>

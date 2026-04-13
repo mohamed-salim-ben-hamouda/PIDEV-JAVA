@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" stylesheets="@../../styles/group.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.client.GroupShowController">
+    <content>
+        <VBox spacing="16.0" styleClass="group-page">
+            <children>
+                <VBox spacing="10.0" styleClass="header-card">
+                    <children>
+                        <HBox spacing="12.0" alignment="CENTER_LEFT">
+                            <children>
+                                <ImageView fx:id="groupIconView" fitWidth="64.0" fitHeight="64.0" preserveRatio="true" />
+                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label fx:id="groupNameLabel" styleClass="group-title" text="Group" />
+                                        <Label fx:id="groupMetaLabel" styleClass="post-meta" text="Type | Members" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                        <HBox spacing="10.0">
+                            <children>
+                                <Button fx:id="joinLeaveButton" onAction="#handleJoinOrLeave" styleClass="primary-action" text="Join Group" />
+                                <Button fx:id="editButton" onAction="#handleEditGroup" styleClass="secondary-action" text="Edit" />
+                                <Button onAction="#handleBackToFeed" styleClass="secondary-action" text="Back to Feed" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="feedbackLabel" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <HBox spacing="16.0">
+                    <children>
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox fx:id="postComposerCard" spacing="10.0" styleClass="sidebar-card">
+                                    <children>
+                                        <Label styleClass="card-title" text="Create Group Post" />
+                                        <TextField fx:id="postTitleField" promptText="Post title" />
+                                        <TextArea fx:id="postDescriptionArea" prefRowCount="3" promptText="Share with your group..." wrapText="true" />
+                                        <HBox spacing="8.0">
+                                            <children>
+                                                <ComboBox fx:id="postVisibilityCombo" prefWidth="180.0" promptText="Visibility" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="8.0">
+                                            <children>
+                                                <TextField fx:id="postAttachmentField" promptText="Image path/url (optional)" HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#handleBrowseGroupPostAttachment" styleClass="secondary-action" text="Browse..." />
+                                            </children>
+                                        </HBox>
+                                        <Button onAction="#handleSubmitGroupPost" styleClass="primary-action" text="Publish in Group" />
+                                    </children>
+                                </VBox>
+
+                                <Label styleClass="card-title" text="Discussion" />
+                                <VBox fx:id="postsContainer" spacing="10.0" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0" prefWidth="340.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="sidebar-card">
+                                    <children>
+                                        <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="card-title" text="Members" />
+                                                <Label fx:id="membersCountLabel" styleClass="member-count" text="0" />
+                                            </children>
+                                        </HBox>
+                                        <VBox fx:id="membersContainer" spacing="6.0" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="sidebar-card">
+                                    <children>
+                                        <Label styleClass="card-title" text="Invite New Members" />
+                                        <HBox spacing="8.0">
+                                            <children>
+                                                <TextField fx:id="memberSearchField" promptText="Search by name..." HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#handleSearchMembers" text="Search" />
+                                            </children>
+                                        </HBox>
+                                        <Button onAction="#handleOpenAddMemberView" styleClass="secondary-action" text="Open Invite Page" />
+                                        <VBox fx:id="searchResultsContainer" spacing="6.0" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="sidebar-card">
+                                    <children>
+                                        <Label styleClass="card-title" text="About Group" />
+                                        <Label fx:id="aboutGroupLabel" wrapText="true" text="About text" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+            </padding>
+        </VBox>
+    </content>
+</ScrollPane>

@@ -1,0 +1,100 @@
+.group-page {
+    -fx-background-color: linear-gradient(to bottom right, #f7fbff, #eef3f8);
+}
+
+.header-card,
+.form-card,
+.sidebar-card,
+.post-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.15, 0, 2);
+}
+
+.text-field,
+.text-area,
+.combo-box {
+    -fx-background-color: #f7f9fe;
+    -fx-border-color: #dce6f7;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.group-title,
+.card-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1f3558;
+}
+
+.post-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.image-view {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0.1, 0, 1);
+}
+
+.post-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7785;
+}
+
+.post-author,
+.member-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.member-role,
+.member-count {
+    -fx-background-color: #e8f0fd;
+    -fx-text-fill: #2b5baa;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 10;
+    -fx-font-size: 11px;
+}
+
+.member-row,
+.search-user-row {
+    -fx-padding: 6;
+    -fx-background-color: #f8fbff;
+    -fx-background-radius: 10;
+    -fx-alignment: center-left;
+}
+
+.primary-action {
+    -fx-background-color: #4a7fd7;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-font-weight: 700;
+}
+
+.secondary-action {
+    -fx-background-color: #ebf1fb;
+    -fx-text-fill: #2b5baa;
+    -fx-background-radius: 20;
+    -fx-font-weight: 700;
+}
+
+.danger-btn {
+    -fx-background-color: #d9534f;
+    -fx-text-fill: white;
+    -fx-background-radius: 16;
+}
+
+.empty-label {
+    -fx-padding: 12;
+    -fx-text-fill: #6b7785;
+    -fx-font-style: italic;
+}
+
+.error-text {
+    -fx-text-fill: #c62828;
+}
+
+.success-text {
+    -fx-text-fill: #2e7d32;
+}

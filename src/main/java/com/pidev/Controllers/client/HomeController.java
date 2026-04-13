@@ -3,12 +3,11 @@ package com.pidev.Controllers.client;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.Alert;
 import javafx.scene.control.MenuButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.Node;
 import java.awt.Desktop;
 import java.io.IOException;
@@ -17,7 +16,10 @@ import java.net.URI;
 public class HomeController {
 
     @FXML
-    private MenuButton challengesMenu; // Linked to the button in image_a509af.png
+    private VBox homeRoot;
+
+    @FXML
+    private MenuButton challengesMenu;
 
 
     @FXML
@@ -45,30 +47,22 @@ public class HomeController {
 
 
     @FXML
-    private void navigateToModule(MouseEvent event) {
-        String fxmlFile = "";
-        Node source = (Node) event.getSource();
-
-        // Determine which button was clicked based on its ID or Text
-        if (source.getId().contains("challenges")) {
-            fxmlFile = "/com/skillbridge/views/challenges.fxml"; //
-        } else if (source.getId().contains("courses")) {
-            fxmlFile = "/com/skillbridge/views/courses.fxml";
-        }
-
-        if (!fxmlFile.isEmpty()) {
-            switchScene(event, fxmlFile);
-        }
+    private void openGroupsFeed(MouseEvent event) {
+        loadIntoBaseContent("/Fxml/client/GroupsView.fxml");
     }
 
-    private void switchScene(MouseEvent event, String fxmlPath) {
+    private void loadIntoBaseContent(String fxmlPath) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            StackPane contentArea = (StackPane) homeRoot.getScene().lookup("#contentArea");
+            if (contentArea != null) {
+                contentArea.getChildren().setAll(root);
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Unable to open feed");
+            alert.setContentText("Could not load the groups feed page.");
+            alert.showAndWait();
         }
     }
 }
