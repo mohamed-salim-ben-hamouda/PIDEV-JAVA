@@ -19,6 +19,7 @@
             <children>
                 <Label styleClass="challenge-title" text="📝 Description de l'activité" style="-fx-font-size: 18px;" />
                 <TextArea fx:id="activity_desc" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez votre activité..." wrapText="true" />
+                <Label fx:id="activityDescError" text="Description is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
                 <Button onAction="#OnMemberActivity" styleClass="primary-btn" text="Enregistrer Description" prefWidth="200" />
             </children>
         </VBox>
@@ -27,6 +28,7 @@
             <children>
                 <Label styleClass="challenge-title" text="⚠️ Problème rencontré" style="-fx-font-size: 18px;" />
                 <TextArea fx:id="Problem_grp" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez le problème rencontré..." wrapText="true" />
+                <Label fx:id="problemGrpError" text="The problem is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
                 <Button onAction="#OnProblem" styleClass="primary-btn" text="Enregistrer Problème" prefWidth="200" />
             </children>
         </VBox>
@@ -41,6 +43,7 @@
                 <VBox spacing="5">
                     <Label styleClass="input-label" text="Votre Solution" />
                     <TextArea fx:id="solution_desc" styleClass="modern-input" prefHeight="80.0" promptText="Expliquez votre approche..." wrapText="true" />
+                    <Label fx:id="solutionDescError" text="The Solution is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
                 </VBox>
                 <Button onAction="#OnSolution" styleClass="primary-btn" text="Enregistrer Solution" prefWidth="200" />
             </children>
@@ -55,6 +58,7 @@
                         <Label fx:id="fileNameLabel" styleClass="meta-text" text="Aucun fichier (PDF, ZIP)" />
                     </children>
                 </HBox>
+                <Label fx:id="fileError" text="The submission File is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
                 <Button onAction="#onSubmission" styleClass="primary-btn" text="Soumettre le Travail" prefWidth="200" />
             </children>
         </VBox>

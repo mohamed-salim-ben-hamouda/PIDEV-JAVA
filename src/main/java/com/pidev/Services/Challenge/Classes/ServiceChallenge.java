@@ -54,24 +54,24 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
 
     @Override
     public void update(Challenge c) {
-        String query="UPDATE challenge SET title=?,description=?,target_skill=?," +
+        String query = "UPDATE challenge SET title=?,description=?,target_skill=?," +
                 "difficulty=?,min_group_nbr=?,max_group_nbr=?,dead_line=?,content=? WHERE id=?";
-        try(PreparedStatement ps=connection.prepareStatement(query)){
-            ps.setString(1,c.getTitle());
-            ps.setString(2,c.getDescription());
-            ps.setString(3,c.getTargetSkill());
-            ps.setString(4,c.getDifficulty());
-            ps.setInt(5,c.getMinGroupNbr());
-            ps.setInt(6,c.getMaxGroupNbr());
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, c.getTitle());
+            ps.setString(2, c.getDescription());
+            ps.setString(3, c.getTargetSkill());
+            ps.setString(4, c.getDifficulty());
+            ps.setInt(5, c.getMinGroupNbr());
+            ps.setInt(6, c.getMaxGroupNbr());
             if (c.getDeadLine() != null) {
                 ps.setTimestamp(7, Timestamp.valueOf(c.getDeadLine()));
             } else {
                 ps.setNull(7, Types.TIMESTAMP);
             }
             ps.setString(8, c.getContent());
-            ps.setInt(9,c.getId());
+            ps.setInt(9, c.getId());
             ps.executeUpdate();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -79,11 +79,11 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     @Override
     public void delete(int id) {
         String query = "DELETE FROM challenge WHERE id= ?";
-        try(PreparedStatement st =connection.prepareStatement(query)){
+        try (PreparedStatement st = connection.prepareStatement(query)) {
             st.setInt(1, id);
             st.executeUpdate();
 
-        }catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -126,14 +126,15 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     }
 
     @Override
-    public List<Challenge> findChallengeWithActivities()
-    {
-        List<Challenge> c=new ArrayList<>();
-        String query="SELECT DISTINCT c.id , c.title , c.description FROM challenge c " +
-                "JOIN activity a ON a.id_challenge_id=c.id";
-        try(PreparedStatement ps=connection.prepareStatement(query)){
-            ResultSet rs =ps.executeQuery();
-            while(rs.next()){
+    public List<Challenge> findChallengeWithActivities(int user_id) {
+        List<Challenge> c = new ArrayList<>();
+        String query = "SELECT DISTINCT c.id , c.title , c.description FROM challenge c " +
+                "JOIN activity a ON a.id_challenge_id=c.id " +
+                "WHERE c.creator_id = ? ";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1,user_id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
                 Challenge ch = new Challenge();
                 ch.setId(rs.getInt("id"));
                 ch.setTitle(rs.getString("title"));
@@ -145,12 +146,13 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
         }
         return c;
     }
-    public List<Challenge> displayALL(){
+
+    public List<Challenge> displayALL() {
         List<Challenge> list = new ArrayList<>();
-        String query="SELECT * FROM challenge";
-        try (PreparedStatement ps=connection.prepareStatement(query)){
-            ResultSet rs=ps.executeQuery();
-            while(rs.next()){
+        String query = "SELECT * FROM challenge";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
                 Challenge c = new Challenge();
                 c.setId(rs.getInt("id"));
                 c.setTitle(rs.getString("title"));
@@ -167,6 +169,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
         }
         return list;
     }
+
     public List<Challenge> searchChallenge(String query) {
         List<Challenge> list = new ArrayList<>();
         String sql = "SELECT * FROM challenge WHERE LOWER(title) LIKE ? " +
@@ -196,6 +199,44 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
             System.err.println("Search failed: " + e.getMessage());
         }
         return list;
+    }
+
+    public List<Challenge> displayForSupervisor(int user_id) {
+        String query = "SELECT id, title, description, target_skill, " +
+                "difficulty, min_group_nbr, max_group_nbr, dead_line, created_at, content " +
+                "FROM challenge WHERE creator_id=? ORDER BY created_at DESC";
+        List<Challenge> challenges = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, user_id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Challenge c = new Challenge();
+                c.setId(rs.getInt("id"));
+                c.setTitle(rs.getString("title"));
+                c.setDescription(rs.getString("description"));
+                c.setTargetSkill(rs.getString("target_skill"));
+                c.setDifficulty(rs.getString("difficulty"));
+                c.setMinGroupNbr(rs.getInt("min_group_nbr"));
+                c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+
+                java.sql.Timestamp deadLine = rs.getTimestamp("dead_line");
+                if (deadLine != null) {
+                    c.setDeadLine(deadLine.toLocalDateTime());
+                }
+
+                java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+                if (createdAt != null) {
+                    c.setCreatedAt(createdAt.toLocalDateTime());
+                }
+
+                c.setContent(rs.getString("content"));
+                challenges.add(c);
+
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return challenges;
     }
 
 }

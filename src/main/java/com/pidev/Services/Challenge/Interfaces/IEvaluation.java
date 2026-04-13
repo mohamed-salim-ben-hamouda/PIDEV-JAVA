@@ -14,4 +14,5 @@ public interface IEvaluation {
     void delete(long e);
     List<Evaluation> displayAll();
     List<Evaluation> displaySorted(String c);
+    boolean isEvaluationStarted(int a);
 }

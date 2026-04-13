@@ -18,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -28,62 +29,79 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class ActivityController {
-    @FXML
-    private VBox challengeListContainer;
+    @FXML private VBox challengeListContainer;
+    @FXML private TextArea activity_desc;
+    @FXML private TextArea Problem_grp;
+    @FXML private ComboBox<ProblemSolution> problemCombo;
+    @FXML private VBox solutionContainer;
+    @FXML private TextArea solution_desc;
+    @FXML private VBox submissionContainer;
+    @FXML private Label fileNameLabel;
+    @FXML private VBox editOverlayHost;
+    @FXML private VBox editMemberOverlayHost;
+    @FXML private VBox memberActivityCards;
+    @FXML private Label memberEmptyLabel;
+    @FXML private VBox problemSolutionCards;
+    @FXML private Label psEmptyLabel;
+    @FXML private VBox DescriptionContainer;
+
+    @FXML private Label activityDescError;
+    @FXML private Label problemGrpError;
+    @FXML private Label solutionComboError;
+    @FXML private Label solutionDescError;
+    @FXML private Label fileError;
+
     private Challenge c;
-    @FXML
-    private TextArea activity_desc;
-    @FXML
-    private TextArea Problem_grp;
-    @FXML
-    private ComboBox<ProblemSolution> problemCombo;
-    @FXML
-    private VBox solutionContainer;
-    @FXML
-    private TextArea solution_desc;
-    @FXML
-    private VBox submissionContainer;
-    @FXML
-    private Label fileNameLabel;
-    @FXML
-    private VBox editOverlayHost;
-    @FXML
-    private VBox editMemberOverlayHost;
-    @FXML
-    private VBox memberActivityCards;
-    @FXML
-    private Label memberEmptyLabel;
-    @FXML
-    private VBox problemSolutionCards;
-    @FXML
-    private Label psEmptyLabel;
-    @FXML
-    private VBox DescriptionContainer;
     private ServiceActivity serviceActivity = new ServiceActivity();
     private ServiceMemberActivity serviceMember = new ServiceMemberActivity();
-    private ServiceProblemSolution serviceProblem =new ServiceProblemSolution();
+    private ServiceProblemSolution serviceProblem = new ServiceProblemSolution();
     private int grp_id;
     private int act_id;
     private File selectedPdf;
     private ProblemSolution editingProblemSolution;
     private MemberActivity editingMemberActivity;
 
+    private boolean activitySubmitted = false;
+    private boolean problemSubmitted = false;
+    private boolean solutionSubmitted = false;
+    private boolean finalSubmitted = false;
 
+    @FXML
+    public void initialize() {
+        activity_desc.textProperty().addListener((obs, old, val) -> {
+            if (activitySubmitted) toggleError(activityDescError, val.isBlank());
+        });
+        Problem_grp.textProperty().addListener((obs, old, val) -> {
+            if (problemSubmitted) toggleError(problemGrpError, val.isBlank());
+        });
+        solution_desc.textProperty().addListener((obs, old, val) -> {
+            if (solutionSubmitted) toggleError(solutionDescError, val.isBlank());
+        });
+        problemCombo.valueProperty().addListener((obs, old, val) -> {
+            if (solutionSubmitted) toggleError(solutionComboError, val == null);
+        });
+    }
 
-    public void initData(Challenge c, int grpId,int actId) {
+    private void toggleError(Label label, boolean show) {
+        if (label != null) {
+            label.setVisible(show);
+            label.setManaged(show);
+            label.setTextFill(Color.RED);
+        }
+    }
+
+    public void initData(Challenge c, int grpId, int actId) {
         this.c = c;
         this.grp_id = grpId;
-        this.act_id=actId;
+        this.act_id = actId;
         solutionContainer.setVisible(false);
         solutionContainer.setManaged(false);
-        String css = getClass().getResource("/styles/challenge.css").toExternalForm();
         initProblemSolutionCards(this.act_id);
         initMemberActivityCards(this.act_id);
         UserPermissions();
         renderChallengeHeader();
         loadProblems();
         descriptionVisibility();
-
     }
 
     private void renderChallengeHeader() {
@@ -92,7 +110,7 @@ public class ActivityController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/ChallengeCard.fxml"));
             VBox card = loader.load();
             ChallengeCardController cardController = loader.getController();
-            cardController.setData(c,v->renderChallengeHeader());
+            cardController.setData(c, v -> renderChallengeHeader());
             cardController.StudentCard(cardController.editBtn);
             cardController.StudentCard(cardController.deleteBtn);
             cardController.StudentCard(cardController.groupsBtn);
@@ -103,20 +121,127 @@ public class ActivityController {
         }
     }
 
-    public void OnMemberActivity(){
-        String description=activity_desc.getText();
+    @FXML
+    public void OnMemberActivity() {
+        activitySubmitted = true;
+        String description = activity_desc.getText();
+        if (description.isBlank()) {
+            toggleError(activityDescError, true);
+            return;
+        }
+        toggleError(activityDescError, false);
         try {
             MemberActivity ma = new MemberActivity();
             ma.setActivityDescription(description);
             int user_id = 2;
             serviceMember.addMemberActivity(ma, act_id, user_id);
             activity_desc.clear();
+            activitySubmitted = false;
             refreshMemberCards(act_id);
             descriptionVisibility();
         } catch (Exception e) {
             System.err.println("Failed to save member activity: " + e.getMessage());
         }
+    }
 
+    @FXML
+    public void OnProblem() {
+        problemSubmitted = true;
+        String problemDesc = Problem_grp.getText();
+        if (problemDesc.isBlank()) {
+            toggleError(problemGrpError, true);
+            return;
+        }
+        toggleError(problemGrpError, false);
+        try {
+            ProblemSolution p = new ProblemSolution();
+            p.setProblemDescription(problemDesc);
+            int newId = serviceProblem.addProblem(p, act_id);
+            if (newId != -1) {
+                p.setId(newId);
+                Problem_grp.clear();
+                problemSubmitted = false;
+                if (problemCombo.getItems() == null) {
+                    problemCombo.setItems(FXCollections.observableArrayList());
+                }
+                problemCombo.getItems().add(p);
+                refreshProblemSolutionCards(act_id);
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to save problem: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void OnSolution() {
+        solutionSubmitted = true;
+        ProblemSolution problem_selected = problemCombo.getSelectionModel().getSelectedItem();
+        String sol = solution_desc.getText();
+
+        boolean isValid = true;
+        if (problem_selected == null) {
+            toggleError(solutionComboError, true);
+            isValid = false;
+        } else {
+            toggleError(solutionComboError, false);
+        }
+        if (sol.isBlank()) {
+            toggleError(solutionDescError, true);
+            isValid = false;
+        } else {
+            toggleError(solutionDescError, false);
+        }
+
+        if (!isValid) return;
+
+        try {
+            problem_selected.setGroupSolution(sol);
+            serviceProblem.addSolutionGrp(problem_selected);
+            problemCombo.getItems().remove(problem_selected);
+            solution_desc.clear();
+            problemCombo.getSelectionModel().clearSelection();
+            solutionSubmitted = false;
+            loadProblems();
+            refreshProblemSolutionCards(act_id);
+        } catch (Exception e) {
+            System.err.println("Failed to save solution: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onChooseFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        selectedPdf = fileChooser.showOpenDialog(null);
+        if (selectedPdf != null) {
+            fileNameLabel.setText(selectedPdf.getName());
+            toggleError(fileError, false);
+        }
+    }
+
+    @FXML
+    public void onSubmission() {
+        finalSubmitted = true;
+        if (selectedPdf == null) {
+            toggleError(fileError, true);
+            return;
+        }
+        toggleError(fileError, false);
+        try {
+            Activity submission = new Activity();
+            submission.setId(this.act_id);
+            Path destDir = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "challenge_module", "activity_pdf");
+            Files.createDirectories(destDir);
+            Path destFile = destDir.resolve(selectedPdf.getName());
+            Files.copy(selectedPdf.toPath(), destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            submission.setSubmissionFile("challenge_module/activity_pdf/" + selectedPdf.getName());
+            serviceActivity.submissionfile(submission);
+            fileNameLabel.setText("Soumission terminée ✅");
+            fileNameLabel.setStyle("-fx-text-fill: #2ecc71;");
+            BaseController.getInstance().loadActivity();
+        } catch (Exception e) {
+            System.err.println("Échec de la soumission: " + e.getMessage());
+        }
     }
 
     public void initMemberActivityCards(int activityId) {
@@ -126,16 +251,13 @@ public class ActivityController {
     private void refreshMemberCards(int activityId) {
         int user_id = 2;
         List<MemberActivity> list = serviceMember.display(activityId, user_id);
-
         if (memberEmptyLabel != null) {
             boolean empty = list == null || list.isEmpty();
             memberEmptyLabel.setVisible(empty);
             memberEmptyLabel.setManaged(empty);
         }
-
         if (memberActivityCards == null) return;
         memberActivityCards.getChildren().clear();
-
         if (list == null) return;
         for (MemberActivity memberActivity : list) {
             try {
@@ -151,27 +273,16 @@ public class ActivityController {
     }
 
     private void handleEditMember(MemberActivity selected) {
-        if (selected == null) return;
-        if (editMemberOverlayHost == null) return;
-
-        if (editingMemberActivity != null
-                && editingMemberActivity.getId() != null
-                && editingMemberActivity.getId().equals(selected.getId())
-                && editMemberOverlayHost.isVisible()) {
+        if (selected == null || editMemberOverlayHost == null) return;
+        if (editingMemberActivity != null && editingMemberActivity.getId().equals(selected.getId()) && editMemberOverlayHost.isVisible()) {
             hideEditMemberOverlay();
             return;
         }
-
         editingMemberActivity = selected;
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/EditMemberActivity.fxml"));
             Parent content = loader.load();
-            content.getStylesheets().add(getClass().getResource("/styles/challenge.css").toExternalForm());
-            if (content instanceof Region region) {
-                region.setMaxWidth(Double.MAX_VALUE);
-            }
-
+            if (content instanceof Region region) region.setMaxWidth(Double.MAX_VALUE);
             EditMemberActivityController overlayController = loader.getController();
             overlayController.setData(selected);
             overlayController.setOnSave(updated -> {
@@ -184,7 +295,6 @@ public class ActivityController {
                     hideEditMemberOverlay();
                 }
             });
-
             editMemberOverlayHost.getChildren().setAll(content);
             editMemberOverlayHost.setVisible(true);
             editMemberOverlayHost.setManaged(true);
@@ -206,38 +316,15 @@ public class ActivityController {
         if (selected == null) return;
         try {
             serviceMember.delete(selected.getId());
-            if (editingMemberActivity != null && editingMemberActivity.getId().equals(selected.getId())) {
-                hideEditMemberOverlay();
-            }
+            if (editingMemberActivity != null && editingMemberActivity.getId().equals(selected.getId())) hideEditMemberOverlay();
             refreshMemberCards(act_id);
             descriptionVisibility();
         } catch (Exception e) {
             System.err.println("Failed to delete member activity: " + e.getMessage());
         }
     }
-    @FXML
-    public void OnProblem() {
-        String problemDesc = Problem_grp.getText();
-        if (problemDesc.isEmpty()) return;
-        try {
-            ProblemSolution p = new ProblemSolution();
-            p.setProblemDescription(problemDesc);
-            int newId = serviceProblem.addProblem(p, act_id);
-            if (newId != -1) {
-                p.setId(newId);
-                Problem_grp.clear();
-                if (problemCombo.getItems() == null) {
-                    problemCombo.setItems(FXCollections.observableArrayList());
-                }
-                problemCombo.getItems().add(p);
-                refreshProblemSolutionCards(act_id);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to save problem: " + e.getMessage());
-        }
-    }
+
     private void loadProblems() {
-        ServiceProblemSolution service = new ServiceProblemSolution();
         List<ProblemSolution> problems = serviceProblem.displayProblems(act_id);
         ObservableList<ProblemSolution> observableList = FXCollections.observableArrayList(problems);
         problemCombo.setItems(observableList);
@@ -245,62 +332,12 @@ public class ActivityController {
         solutionContainer.visibleProperty().bind(Bindings.isNotEmpty(problemCombo.getItems()));
         solutionContainer.managedProperty().bind(solutionContainer.visibleProperty());
     }
-    @FXML
-    private void OnSolution(){
-        ProblemSolution problem_selected=problemCombo.getSelectionModel().getSelectedItem();
-        String sol=solution_desc.getText();
-        try {
-            problem_selected.setGroupSolution(sol);
 
-            serviceProblem.addSolutionGrp(problem_selected);
-            problemCombo.getItems().remove(problem_selected);
-            solution_desc.clear();
-            problemCombo.getSelectionModel().clearSelection();
-            loadProblems();
-            refreshProblemSolutionCards(act_id);
-        } catch (Exception e) {
-            System.err.println("Failed to save solution: " + e.getMessage());
-        }
-
-    }
-    public void UserPermissions(){
+    public void UserPermissions() {
         int user_id = 2;
-        boolean leader=serviceActivity.isUserLeader(this.grp_id,user_id);
+        boolean leader = serviceActivity.isUserLeader(this.grp_id, user_id);
         submissionContainer.setVisible(leader);
         submissionContainer.setManaged(leader);
-    }
-    @FXML
-    public void onChooseFile() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-        selectedPdf = fileChooser.showOpenDialog(null);
-        if (selectedPdf != null) {
-            fileNameLabel.setText(selectedPdf.getName());
-        }
-    }
-    @FXML
-    public void onSubmission(){
-        if (selectedPdf == null) {
-            System.err.println("Erreur: Aucun fichier sélectionné.");
-            return;
-        }
-        try {
-            Activity submission = new Activity();
-            submission.setId(this.act_id);
-            Path destDir = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "challenge_module", "activity_pdf");
-            Files.createDirectories(destDir);
-            Path destFile = destDir.resolve(selectedPdf.getName());
-            Files.copy(selectedPdf.toPath(), destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            submission.setSubmissionFile("challenge_module/activity_pdf/" + selectedPdf.getName());
-            serviceActivity.submissionfile(submission);
-            fileNameLabel.setText("Soumission terminée ✅");
-            fileNameLabel.setStyle("-fx-text-fill: #2ecc71;");
-            BaseController.getInstance().loadActivity();
-
-        } catch (Exception e) {
-            System.err.println("Échec de la soumission: " + e.getMessage());
-        }
-
     }
 
     public void initProblemSolutionCards(int activityId) {
@@ -309,16 +346,13 @@ public class ActivityController {
 
     private void refreshProblemSolutionCards(int activityId) {
         List<ProblemSolution> list = serviceProblem.display(activityId);
-
         if (psEmptyLabel != null) {
             boolean empty = list == null || list.isEmpty();
             psEmptyLabel.setVisible(empty);
             psEmptyLabel.setManaged(empty);
         }
-
         if (problemSolutionCards == null) return;
         problemSolutionCards.getChildren().clear();
-
         if (list == null) return;
         for (ProblemSolution ps : list) {
             try {
@@ -334,26 +368,16 @@ public class ActivityController {
     }
 
     private void handleEditAction(ProblemSolution selected) {
-        if (selected == null) return;
-        if (editOverlayHost == null) return;
-
-        if (editingProblemSolution != null
-                && editingProblemSolution.getId() == selected.getId()
-                && editOverlayHost.isVisible()) {
+        if (selected == null || editOverlayHost == null) return;
+        if (editingProblemSolution != null && editingProblemSolution.getId() == selected.getId() && editOverlayHost.isVisible()) {
             hideEditOverlay();
             return;
         }
-
         editingProblemSolution = selected;
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/EditProblemActivity.fxml"));
             Parent content = loader.load();
-            content.getStylesheets().add(getClass().getResource("/styles/challenge.css").toExternalForm());
-            if (content instanceof Region region) {
-                region.setMaxWidth(Double.MAX_VALUE);
-            }
-
+            if (content instanceof Region region) region.setMaxWidth(Double.MAX_VALUE);
             EditProblemSolutionController overlayController = loader.getController();
             overlayController.setData(selected);
             overlayController.setOnSave(updated -> {
@@ -366,7 +390,6 @@ public class ActivityController {
                     hideEditOverlay();
                 }
             });
-
             editOverlayHost.getChildren().setAll(content);
             editOverlayHost.setVisible(true);
             editOverlayHost.setManaged(true);
@@ -388,24 +411,18 @@ public class ActivityController {
         if (selected == null) return;
         try {
             serviceProblem.delete(selected.getId());
-            if (editingProblemSolution != null && editingProblemSolution.getId() == selected.getId()) {
-                hideEditOverlay();
-            }
+            if (editingProblemSolution != null && editingProblemSolution.getId() == selected.getId()) hideEditOverlay();
             refreshProblemSolutionCards(act_id);
             loadProblems();
         } catch (Exception e) {
             System.err.println("Failed to delete problem/solution: " + e.getMessage());
         }
     }
-    public void descriptionVisibility(){
-        int user_id=2;
-        boolean rs =serviceMember.findDescription(act_id,user_id);
+
+    public void descriptionVisibility() {
+        int user_id = 2;
+        boolean rs = serviceMember.findDescription(act_id, user_id);
         DescriptionContainer.setVisible(!rs);
         DescriptionContainer.setManaged(!rs);
-
     }
-
-
-
-
 }

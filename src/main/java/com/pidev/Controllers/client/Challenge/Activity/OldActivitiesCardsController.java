@@ -2,6 +2,7 @@ package com.pidev.Controllers.client.Challenge.Activity;
 
 import com.pidev.Controllers.client.BaseController;
 import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationController;
+import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.models.*;
@@ -33,8 +34,11 @@ public class OldActivitiesCardsController {
     private Label statusAct;
     @FXML
     private Button evaluationBtn;
+    @FXML
+    private Button ModifyBtn;
     private ServiceEvaluation serviceEva = new ServiceEvaluation();
     private ServiceMemberActivity serviceMA = new ServiceMemberActivity();
+    private ServiceActivity serviceA = new ServiceActivity();
 
     public void setData(Activity a) {
         this.a = a;
@@ -58,7 +62,16 @@ public class OldActivitiesCardsController {
 
         String status = (a.getStatus() != null) ? a.getStatus() : "unknown";
         statusAct.setText("Status: " + status);
-
+        int user_id = 2;
+        boolean is_admin = serviceA.isUserLeader(a.getGroup().getId(),user_id);
+        boolean is_evaluation = serviceEva.isEvaluation(a.getId());
+        if(!is_admin || is_evaluation){
+            ModifyBtn.setVisible(false);
+            ModifyBtn.setManaged(false);
+        }else {
+            ModifyBtn.setVisible(true);
+            ModifyBtn.setManaged(true);
+        }
         if (status.equalsIgnoreCase("evaluated")) {
             evaluationBtn.setDisable(false);
             evaluationBtn.setText("See Evaluation");

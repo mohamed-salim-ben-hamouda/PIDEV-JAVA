@@ -27,7 +27,8 @@ public class SelectToEvaluateController {
     }
 
     public void displayChallenges() {
-        List<Challenge> list = serviceCh.findChallengeWithActivities();
+        int user_id = 1;
+        List<Challenge> list = serviceCh.findChallengeWithActivities(user_id);
         challengeCardsPane.getChildren().clear();
         openItemsContainer = null;
         openChallengeId = -1;

@@ -141,7 +141,6 @@ public class ServiceEvaluation implements IEvaluation {
         String normalized = criteria == null ? "" : criteria.trim().toLowerCase(Locale.ROOT);
         String sql;
         if (normalized.equals("group score") || normalized.equals("groupscore") || normalized.equals("group_score")) {
-            // MySQL: keep null scores last
             sql = "SELECT * FROM evaluation ORDER BY group_score IS NULL, group_score DESC, id ASC";
         } else {
             sql = "SELECT * FROM evaluation ORDER BY id ASC";
@@ -169,5 +168,19 @@ public class ServiceEvaluation implements IEvaluation {
             System.err.println("Sort failed: " + ex.getMessage());
         }
         return list;
+    }
+    public boolean isEvaluationStarted(int activity_id){
+        String query ="SELECT COUNT(*) FROM evaluation WHERE activity_id_id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setInt(1,activity_id);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
     }
 }

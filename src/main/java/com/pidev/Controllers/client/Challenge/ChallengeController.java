@@ -235,8 +235,8 @@ public class ChallengeController implements Initializable {
     }
     private void refreshChallenges() {
         challengeListContainer.getChildren().clear();
-
-        List<Challenge> challenges = service.display();
+        int user_id = 1;
+        List<Challenge> challenges = service.displayForSupervisor(user_id);
         if (challenges == null || challenges.isEmpty()) {
             Label empty = new Label("No challenges yet");
             challengeListContainer.getChildren().add(empty);

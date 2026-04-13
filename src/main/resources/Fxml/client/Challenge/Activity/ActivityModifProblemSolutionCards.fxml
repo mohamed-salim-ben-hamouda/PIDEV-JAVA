@@ -21,7 +21,7 @@
     </HBox>
 
     <HBox alignment="CENTER_RIGHT">
-        <Button  fx:id="ModifProbSol" onAction="#onUpdatePS" text="Update Row"
-                style="-fx-background-color: #0369a1; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold;"/>
+        <Button  fx:id="ModifProbSol" onAction="#onUpdatePS" text="Update"
+                style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10;"/>
     </HBox>
 </VBox>
