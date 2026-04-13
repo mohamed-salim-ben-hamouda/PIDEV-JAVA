@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceEvaluation implements IEvaluation {
     Connection connection;
@@ -104,6 +106,31 @@ public class ServiceEvaluation implements IEvaluation {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+    public List<Evaluation> displayAll(){
+        String query="SELECT * FROM evaluation";
+        List<Evaluation> list = new ArrayList<>();
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                Evaluation e = new Evaluation();
+                e.setId(rs.getLong("id"));
+                e.setGroupScore(rs.getDouble("group_score"));
+                e.setFeedback(rs.getString("feedback"));
+                e.setStatus(rs.getString("status"));
+                int activityId = rs.getInt("activity_id_id");
+                if (activityId > 0) {
+                    Activity a = new Activity();
+                    a.setId(activityId);
+                    e.setActivity(a);
+                }
+                list.add(e);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return list;
     }
 
 }

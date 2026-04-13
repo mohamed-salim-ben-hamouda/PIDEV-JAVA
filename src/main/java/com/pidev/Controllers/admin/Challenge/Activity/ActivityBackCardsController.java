@@ -43,6 +43,7 @@ public class ActivityBackCardsController {
             submissionDate.setText("No Date");
         }
         statusActivity.setText(a.getStatus());
+        applyStatusStyle(a.getStatus().toUpperCase());
         if (a.getChallenge() != null) {
             idChallengeRef.setText("#" + a.getChallenge().getId());
         } else {
@@ -100,5 +101,30 @@ public class ActivityBackCardsController {
         alert.setHeaderText("Unable to open PDF");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    private void applyStatusStyle(String level) {
+        String bgColor;
+        String textColor;
+
+        switch (level) {
+            case "EVALUATED":
+                bgColor = "#dcfce7";
+                textColor = "#166534";
+                break;
+            case "SUBMITTED":
+                bgColor = "#fef3c7";
+                textColor = "#92400e";
+                break;
+            default:
+                bgColor = "#f3f4f6"; // Gray
+                textColor = "#374151";
+                break;
+        }
+
+        statusActivity.setStyle(
+                "-fx-background-color: " + bgColor + ";" +
+                        "-fx-text-fill: " + textColor + ";" +
+                        "-fx-padding: 4 10; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 10;"
+        );
     }
 }

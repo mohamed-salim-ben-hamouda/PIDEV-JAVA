@@ -3,6 +3,8 @@ package com.pidev.Services.Challenge.Interfaces;
 import com.pidev.models.Activity;
 import com.pidev.models.Evaluation;
 
+import java.util.List;
+
 public interface IEvaluation {
     void StartEvaluation(Evaluation e, Activity a);
     boolean isEvaluation(int a);
@@ -10,4 +12,5 @@ public interface IEvaluation {
     Evaluation findEvaluation(int a);
     double SelectGrpScore(int e);
     void delete(long e);
+    List<Evaluation> displayAll();
 }
