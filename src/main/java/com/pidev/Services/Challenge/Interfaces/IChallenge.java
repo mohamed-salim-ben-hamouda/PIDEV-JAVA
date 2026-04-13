@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface IChallenge {
     List<Challenge> findChallengeWithActivities();
+    List<Challenge> displayALL();
 
 
 }

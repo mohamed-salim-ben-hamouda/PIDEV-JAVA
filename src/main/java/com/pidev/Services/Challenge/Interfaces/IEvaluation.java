@@ -9,4 +9,5 @@ public interface IEvaluation {
     void updateEvaluation(Evaluation e);
     Evaluation findEvaluation(int a);
     double SelectGrpScore(int e);
+    void delete(long e);
 }

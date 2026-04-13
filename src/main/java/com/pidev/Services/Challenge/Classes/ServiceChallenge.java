@@ -145,4 +145,27 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
         }
         return c;
     }
+    public List<Challenge> displayALL(){
+        List<Challenge> list = new ArrayList<>();
+        String query="SELECT * FROM challenge";
+        try (PreparedStatement ps=connection.prepareStatement(query)){
+            ResultSet rs=ps.executeQuery();
+            while(rs.next()){
+                Challenge c = new Challenge();
+                c.setId(rs.getInt("id"));
+                c.setTitle(rs.getString("title"));
+                c.setDescription(rs.getString("description"));
+                c.setTargetSkill(rs.getString("target_skill"));
+                c.setDifficulty(rs.getString("difficulty"));
+                c.setMinGroupNbr(rs.getInt("min_group_nbr"));
+                c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+                c.setDeadLine(rs.getTimestamp("dead_line").toLocalDateTime());
+                list.add(c);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
 }

@@ -31,7 +31,6 @@
             </children>
         </VBox>
 
-        <!-- 4. Proposez une solution -->
         <VBox fx:id="solutionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="💡 Proposez une solution" style="-fx-font-size: 18px;" />
@@ -47,7 +46,6 @@
             </children>
         </VBox>
 
-        <!-- 5. Soumission finale -->
         <VBox fx:id="submissionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
             <children>
                 <Label styleClass="challenge-title" text="📤 Soumission finale" style="-fx-font-size: 18px;" />

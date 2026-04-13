@@ -77,14 +77,14 @@ public class ServiceEvaluation implements IEvaluation {
         return null;
     }
 
-    public double SelectGrpScore(int evaluation_id){
-        String query="SELECT group_score FROM evaluation WHERE id=?";
-        try (PreparedStatement ps =connection.prepareStatement(query)){
-            ps.setInt(1,evaluation_id);
-            ResultSet rs=ps.executeQuery();
-            if (rs.next()){
+    public double SelectGrpScore(int evaluation_id) {
+        String query = "SELECT group_score FROM evaluation WHERE id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, evaluation_id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
                 double score = rs.getDouble("group_score");
-                if(rs.wasNull()){
+                if (rs.wasNull()) {
                     return 0;
                 }
                 return score;
@@ -94,6 +94,16 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return 0;
 
+    }
+
+    public void delete(long evaluation_id){
+        String query = "DELETE FROM evaluation WHERE id= ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setLong(1,evaluation_id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

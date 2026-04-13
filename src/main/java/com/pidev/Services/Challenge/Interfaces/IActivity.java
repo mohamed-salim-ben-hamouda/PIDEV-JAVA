@@ -17,4 +17,6 @@ public interface IActivity {
     void updateActivityStatus(Activity a);
     List<Activity> getOldActivitiesForUser(int userId);
     void updateActivityFile(Activity a);
+    void delete(int a);
+    List<Activity> displayAll();
 }

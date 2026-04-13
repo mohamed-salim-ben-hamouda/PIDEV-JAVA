@@ -53,4 +53,16 @@ public class BaseController implements Initializable {
             e.printStackTrace();
         }
     }
+    @FXML
+    public void loadBackChallenge(){
+        loadView("Challenge/challengeBackoffice");
+    }
+    @FXML
+    public void loadBackActivity(){
+        loadView("Challenge/Activity/ActivityBackoffice");
+    }
+    @FXML
+    public void loadBackEvaluation(){
+        loadView("Challenge/Evaluation/EvaluationBackoffice");
+    }
 }

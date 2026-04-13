@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox alignment="CENTER_LEFT" minHeight="-Infinity" styleClass="hero-side-card" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.admin.Challenge.Activity.ActivityBackCardsController">
+    <padding>
+        <Insets bottom="20" left="25" right="25" top="20"/>
+    </padding>
+    <children>
+        <GridPane hgap="20" vgap="10" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets left="20" right="20"/>
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints minWidth="50" prefWidth="60"/>
+                <ColumnConstraints minWidth="150" prefWidth="200"/>
+                <ColumnConstraints minWidth="200" prefWidth="250"/>
+                <ColumnConstraints minWidth="120" prefWidth="140"/>
+                <ColumnConstraints minWidth="100" prefWidth="110"/>
+                <ColumnConstraints minWidth="60" prefWidth="70"/>
+                <ColumnConstraints minWidth="110" prefWidth="120"/>
+            </columnConstraints>
+            <children>
+                <Label fx:id="idActivity" styleClass="hero-side-text" text="#ID" GridPane.columnIndex="0"/>
+                <Button fx:id="submissionFileBtn"
+                        styleClass="action-btn, action-btn-primary"
+                        text="file"
+                        wrapText="true"
+                        onAction="#openPdfActivity"
+                        GridPane.columnIndex="1"/>
+                <Label fx:id="submissionDate" styleClass="hero-side-text" text="2024/05/20" GridPane.columnIndex="2"/>
+
+                <StackPane alignment="CENTER_LEFT" GridPane.columnIndex="3">
+                    <Label fx:id="statusActivity" text="PENDING"/>
+                </StackPane>
+
+                <Label fx:id="idChallengeRef" styleClass="hero-side-text" text="CH-10" GridPane.columnIndex="4"/>
+                <Label fx:id="idGroupRef" styleClass="hero-side-text" text="GP-05" GridPane.columnIndex="5"/>
+
+                <HBox alignment="CENTER_RIGHT" spacing="10" GridPane.columnIndex="6">
+                    <Button styleClass="action-btn, action-btn-primary" onAction="#OnDelete" text="Delete"/>
+                </HBox>
+            </children>
+        </GridPane>
+    </children>
+</HBox>

@@ -12,6 +12,11 @@ module com.pidev.challenge_module {
     requires javafx.web;
     requires org.apache.pdfbox;
     opens challenge_module.evaluation_pdf to javafx.graphics, javafx.web;
+    opens com.pidev.Controllers.admin.Challenge to javafx.fxml;
+    opens com.pidev.Controllers.admin.Challenge.Activity to javafx.fxml;
+    opens com.pidev.Controllers.admin.Challenge.Evaluation to javafx.fxml;
+
+
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
     opens com.pidev.Controllers.client to javafx.fxml;

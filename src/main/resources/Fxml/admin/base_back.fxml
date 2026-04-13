@@ -114,11 +114,24 @@
 
                                 <Label styleClass="menu-section" text="Challenges" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Challenges">
+                                        styleClass="menu-item" onAction="#loadBackChallenge" text="Challenges">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-trophy" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" onAction="#loadBackActivity" text="Activities">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-tasks" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" onAction="#loadBackEvaluation" text="Evaluations">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-clipboard-check" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Label styleClass="menu-section" text="Hackathon" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                         styleClass="menu-item" text="Hackathons">
                                     <graphic>

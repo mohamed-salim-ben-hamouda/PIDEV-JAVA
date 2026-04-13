@@ -277,15 +277,58 @@ public class ServiceActivity implements IActivity {
         }
         return list;
     }
-    public void updateActivityFile(Activity a){
-       String query = "UPDATE activity SET submission_file = ? WHERE id=?";
-       try (PreparedStatement ps=connection.prepareStatement(query)){
-           ps.setString(1,a.getSubmissionFile());
-           ps.setInt(2,a.getId());
-           ps.executeUpdate();
-       } catch (Exception e) {
-           throw new RuntimeException(e);
-       }
+
+    public void updateActivityFile(Activity a) {
+        String query = "UPDATE activity SET submission_file = ? WHERE id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, a.getSubmissionFile());
+            ps.setInt(2, a.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void delete(int activity_id) {
+        String query = "DELETE FROM activity WHERE id=? ";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, activity_id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public List<Activity> displayAll() {
+        String query = "Select * FROM activity WHERE submission_date is not null ";
+        List<Activity> list = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Activity a = new Activity();
+
+                a.setId(rs.getInt("id"));
+                a.setSubmissionFile(rs.getString("submission_file"));
+
+                a.setSubmissionDate(rs.getTimestamp("submission_date").toLocalDateTime());
+
+                a.setStatus(rs.getString("status"));
+                Challenge placeChallenge = new Challenge();
+                placeChallenge.setId(rs.getInt("id_challenge_id"));
+                a.setChallenge(placeChallenge);
+                Group placeGroup = new Group();
+                placeGroup.setId(rs.getInt("group_id_id"));
+                a.setGroup(placeGroup);
+
+                list.add(a);
+
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
     }
 
 
