@@ -10,6 +10,7 @@ import com.pidev.utils.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +54,41 @@ public class ServiceMemberActivity implements IMemberActivity {
             throw new RuntimeException(e);
         }
         return m;
+    }
+
+    public List<MemberActivity> displayAll() {
+        String query = "SELECT * FROM member_activity";
+        List<MemberActivity> list = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                MemberActivity ma = new MemberActivity();
+                ma.setId(rs.getInt("id"));
+                ma.setActivityDescription(rs.getString("activity_description"));
+
+                double indivScore = rs.getDouble("indiv_score");
+                ma.setIndivScore(rs.wasNull() ? null : indivScore);
+
+                int activityId = rs.getInt("id_activity_id");
+                if (!rs.wasNull()) {
+                    Activity a = new Activity();
+                    a.setId(activityId);
+                    ma.setActivity(a);
+                }
+
+                int userId = rs.getInt("user_id_id");
+                if (!rs.wasNull()) {
+                    User u = new User();
+                    u.setId(userId);
+                    ma.setUser(u);
+                }
+
+                list.add(ma);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading member_activity: " + e.getMessage(), e);
+        }
+        return list;
     }
 
     @Override

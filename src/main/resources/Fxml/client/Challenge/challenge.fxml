@@ -12,7 +12,6 @@
         <VBox maxHeight="Infinity" minHeight="0.0" spacing="18.0" styleClass="challenge-list-column" HBox.hgrow="ALWAYS">
             <children>
                 <Label text="My Challenges" styleClass="page-title"/>
-
                 <ScrollPane fitToWidth="true" maxHeight="Infinity" minHeight="0.0" prefHeight="0.0" styleClass="transparent-scroll" VBox.vgrow="ALWAYS">
                     <content>
                         <VBox fx:id="challengeListContainer" spacing="25.0" pickOnBounds="false" style="-fx-background-color: transparent;">
@@ -30,46 +29,64 @@
                 <VBox maxHeight="Infinity" minHeight="0.0" spacing="15.0" styleClass="main-card" VBox.vgrow="ALWAYS">
                     <children>
                         <Label text="Create New Challenge" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+
                         <VBox spacing="5.0">
                             <Label text="Title" styleClass="input-label"/>
                             <TextField fx:id="TitleInput" promptText="Enter title" styleClass="modern-input"/>
+                            <Label fx:id="TitleError" text="Title is required" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
+
                         <VBox spacing="5.0">
                             <Label text="Target skill" styleClass="input-label"/>
                             <TextField fx:id="TargetSkillInput" promptText="Enter the skill" styleClass="modern-input"/>
+                            <Label fx:id="TargetSkillError" text="Target Skill is required" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
+
                         <VBox spacing="5.0">
                             <Label text="Difficulty" styleClass="input-label"/>
                             <ComboBox fx:id="DifficultyCombo" maxWidth="Infinity" promptText="Select Difficulty" styleClass="modern-input"/>
+                            <Label fx:id="DifficultyError" text="The Difficulty is required" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
-                        <HBox spacing="10.0">
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                <Label text="Min group nbr" styleClass="input-label"/>
-                                <TextField fx:id="MinGroupNbrInput" text="0" styleClass="modern-input"/>
-                            </VBox>
-                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                <Label text="Max group nbr" styleClass="input-label"/>
-                                <TextField fx:id="MaxGroupNbrInput" text="0" styleClass="modern-input"/>
-                            </VBox>
-                        </HBox>
+
+                        <VBox spacing="5.0">
+                            <HBox spacing="10.0">
+                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Min group nbr" styleClass="input-label"/>
+                                    <TextField fx:id="MinGroupNbrInput" text="0" styleClass="modern-input"/>
+                                </VBox>
+                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Max group nbr" styleClass="input-label"/>
+                                    <TextField fx:id="MaxGroupNbrInput" text="0" styleClass="modern-input"/>
+                                </VBox>
+                            </HBox>
+                            <Label fx:id="GroupError" text="Invalid group numbers (Min must be ≤ Max)" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
+                        </VBox>
+
                         <VBox spacing="5.0">
                             <Label text="Dead line" styleClass="input-label"/>
                             <DatePicker fx:id="DeadlineInput" maxWidth="Infinity" styleClass="modern-input"/>
+                            <Label fx:id="DeadlineError" text="A valid deadline is required" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
+
                         <VBox spacing="5.0">
                             <Label text="Description (text)" styleClass="input-label"/>
                             <TextArea fx:id="DescriptionInput" prefHeight="80.0" promptText="Write a short description" styleClass="modern-input" wrapText="true"/>
+                            <Label fx:id="DescriptionError" text="Description is required" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
+
                         <VBox spacing="5.0">
                             <Label text="PDF File (required)" styleClass="input-label"/>
                             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="modern-input">
                                 <children>
                                     <Button text="Choisir un fichier" onAction="#onChooseFile" style="-fx-background-color: #f1f5f9; -fx-border-color: #cbd5e1; -fx-border-radius: 4;"/>
-                                    <Label fx:id="fileInput" text="Aucun fichier n'a ete selectionne" textFill="#94a3b8" style="-fx-font-size: 11;"/>
+                                    <Label fx:id="fileInput" text="Aucun fichier n'a été sélectionné" textFill="#94a3b8" style="-fx-font-size: 11;"/>
                                 </children>
                             </HBox>
+                            <Label fx:id="FileError" text="Please select a PDF file" textFill="RED" visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
+
                         <Region VBox.vgrow="ALWAYS"/>
+
                         <Button maxWidth="Infinity" styleClass="primary-btn" text="Create Challenge" onAction="#onCreateChallenge">
                             <VBox.margin><Insets top="10.0"/></VBox.margin>
                         </Button>

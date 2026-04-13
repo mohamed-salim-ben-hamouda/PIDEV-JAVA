@@ -6,12 +6,10 @@ import com.pidev.models.Evaluation;
 import com.pidev.utils.DataSource;
 
 import javax.management.Query;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ServiceEvaluation implements IEvaluation {
     Connection connection;
@@ -49,7 +47,11 @@ public class ServiceEvaluation implements IEvaluation {
     public void updateEvaluation(Evaluation e) {
         String query = "UPDATE evaluation SET group_score=? , feedback=? , status=? WHERE id=?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setDouble(1, e.getGroupScore());
+            if (e.getGroupScore() == null) {
+                ps.setNull(1, Types.DOUBLE);
+            } else {
+                ps.setDouble(1, e.getGroupScore());
+            }
             ps.setString(2, e.getFeedback());
             ps.setString(3, "finished");
             ps.setLong(4, e.getId());
@@ -67,7 +69,8 @@ public class ServiceEvaluation implements IEvaluation {
             if (rs.next()) {
                 Evaluation e = new Evaluation();
                 e.setId(rs.getLong("id"));
-                e.setGroupScore(rs.getDouble("group_score"));
+                double groupScore = rs.getDouble("group_score");
+                e.setGroupScore(rs.wasNull() ? null : groupScore);
                 e.setFeedback(rs.getString("feedback"));
 
                 return e;
@@ -115,7 +118,8 @@ public class ServiceEvaluation implements IEvaluation {
             while(rs.next()){
                 Evaluation e = new Evaluation();
                 e.setId(rs.getLong("id"));
-                e.setGroupScore(rs.getDouble("group_score"));
+                double groupScore = rs.getDouble("group_score");
+                e.setGroupScore(rs.wasNull() ? null : groupScore);
                 e.setFeedback(rs.getString("feedback"));
                 e.setStatus(rs.getString("status"));
                 int activityId = rs.getInt("activity_id_id");
@@ -132,5 +136,38 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return list;
     }
+    public List<Evaluation> displaySorted(String criteria) {
+        List<Evaluation> list = new ArrayList<>();
+        String normalized = criteria == null ? "" : criteria.trim().toLowerCase(Locale.ROOT);
+        String sql;
+        if (normalized.equals("group score") || normalized.equals("groupscore") || normalized.equals("group_score")) {
+            // MySQL: keep null scores last
+            sql = "SELECT * FROM evaluation ORDER BY group_score IS NULL, group_score DESC, id ASC";
+        } else {
+            sql = "SELECT * FROM evaluation ORDER BY id ASC";
+        }
 
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Evaluation e = new Evaluation();
+                e.setId(rs.getLong("id"));
+                double groupScore = rs.getDouble("group_score");
+                e.setGroupScore(rs.wasNull() ? null : groupScore);
+                e.setFeedback(rs.getString("feedback"));
+                e.setStatus(rs.getString("status"));
+                int activityId = rs.getInt("activity_id_id");
+                if (activityId > 0) {
+                    Activity a = new Activity();
+                    a.setId(activityId);
+                    e.setActivity(a);
+                }
+                list.add(e);
+            }
+        } catch (SQLException ex) {
+            System.err.println("Sort failed: " + ex.getMessage());
+        }
+        return list;
+    }
 }

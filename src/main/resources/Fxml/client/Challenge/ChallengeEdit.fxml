@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
@@ -17,20 +16,22 @@
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0"/>
         </columnConstraints>
 
-        <!-- Row 0: Title and Difficulty -->
         <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Title" styleClass="input-label"/>
             <TextField fx:id="titleEdit" styleClass="modern-input" promptText="Challenge Title"/>
+            <Label fx:id="TitleError" text="Title is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11;"/>
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <Label text="Difficulty" styleClass="input-label"/>
             <ComboBox fx:id="difficultyEdit" maxWidth="Infinity" styleClass="modern-input"/>
+            <Label fx:id="DifficultyError" text="Select a difficulty" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11;"/>
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label text="Target Skill" styleClass="input-label"/>
             <TextField fx:id="skillEdit" styleClass="modern-input" promptText="e.g. Java Development"/>
+            <Label fx:id="SkillError" text="Target skill is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11;"/>
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -39,16 +40,19 @@
                 <TextField fx:id="minGroupEdit" HBox.hgrow="ALWAYS" styleClass="modern-input" promptText="Min"/>
                 <TextField fx:id="maxGroupEdit" HBox.hgrow="ALWAYS" styleClass="modern-input" promptText="Max"/>
             </HBox>
+            <Label fx:id="GroupError" text="Invalid group numbers" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11;"/>
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
             <Label text="Deadline" styleClass="input-label"/>
             <DatePicker fx:id="deadlineEdit" maxWidth="Infinity" styleClass="modern-input"/>
+            <Label fx:id="DeadlineError" text="A valid deadline is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11;"/>
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
             <Label text="Description (text)" styleClass="input-label"/>
             <TextArea fx:id="descriptionEdit" prefHeight="100.0" styleClass="modern-input" wrapText="true"/>
+            <Label fx:id="DescriptionError" text="Description is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11;"/>
         </VBox>
 
         <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
@@ -61,8 +65,6 @@
     </GridPane>
 
     <Button fx:id="updateBtn" onAction="#OnEdit" maxWidth="Infinity" text="Update Challenge" styleClass="primary-btn">
-        <VBox.margin>
-            <Insets top="10"/>
-        </VBox.margin>
+        <VBox.margin><Insets top="10"/></VBox.margin>
     </Button>
 </VBox>

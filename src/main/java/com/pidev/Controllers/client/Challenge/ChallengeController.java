@@ -50,7 +50,13 @@ public class ChallengeController implements Initializable {
     private Label fileInput;
     @FXML
     private VBox challengeListContainer;
-
+    @FXML private Label TitleError;
+    @FXML private Label TargetSkillError;
+    @FXML private Label DifficultyError;
+    @FXML private Label GroupError;
+    @FXML private Label DeadlineError;
+    @FXML private Label DescriptionError;
+    @FXML private Label FileError;
     private File selectedPdf;
     private final ServiceChallenge service = new ServiceChallenge();
 
@@ -59,6 +65,11 @@ public class ChallengeController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         ObservableList<String> options = FXCollections.observableArrayList("Easy", "Medium", "Hard");
         DifficultyCombo.setItems(options);
+        TitleInput.textProperty().addListener((obs, old, val) -> toggleError(TitleError, val.isBlank()));
+        TargetSkillInput.textProperty().addListener((obs, old, val) -> toggleError(TargetSkillError, val.isBlank()));
+        DescriptionInput.textProperty().addListener((obs, old, val) -> toggleError(DescriptionError, val.isBlank()));
+        DifficultyCombo.valueProperty().addListener((obs, old, val) -> toggleError(DifficultyError, val == null));
+        DeadlineInput.valueProperty().addListener((obs, old, val) -> toggleError(DeadlineError, val == null));
         refreshChallenges();
     }
 
@@ -134,6 +145,7 @@ public class ChallengeController implements Initializable {
 
     @FXML
     public void onChooseFile() {
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
         selectedPdf = fileChooser.showOpenDialog(null);
@@ -148,44 +160,53 @@ public class ChallengeController implements Initializable {
 
     @FXML
     public void onCreateChallenge() {
+        boolean isValid = true;
+
+        if (TitleInput.getText().isBlank()) { toggleError(TitleError, true); isValid = false; }
+        if (TargetSkillInput.getText().isBlank()) { toggleError(TargetSkillError, true); isValid = false; }
+        if (DescriptionInput.getText().isBlank()) { toggleError(DescriptionError, true); isValid = false; }
+
+        if (DifficultyCombo.getValue() == null) { toggleError(DifficultyError, true); isValid = false; }
+        if (DeadlineInput.getValue() == null) {
+            DeadlineError.setText("Deadline is required");
+            toggleError(DeadlineError, true);
+            isValid = false;
+        }
+
         try {
-            String title = TitleInput.getText();
-            if (title == null || title.isBlank()) {
-                throw new IllegalArgumentException("Title is required.");
+            int min = Integer.parseInt(MinGroupNbrInput.getText());
+            int max = Integer.parseInt(MaxGroupNbrInput.getText());
+            if (min < 0 || max < 0 || min > max) {
+                GroupError.setText("Min must be positive and less than Max");
+                toggleError(GroupError, true);
+                isValid = false;
+            } else {
+                toggleError(GroupError, false);
             }
-            String targetSkill = TargetSkillInput.getText();
-            if (targetSkill == null || targetSkill.isBlank()) {
-                throw new IllegalArgumentException("Target skill is required.");
-            }
-            String difficulty = DifficultyCombo.getValue();
-            if (difficulty == null || difficulty.isBlank()) {
-                throw new IllegalArgumentException("Difficulty is required.");
-            }
+        } catch (NumberFormatException e) {
+            GroupError.setText("Please enter valid numbers");
+            toggleError(GroupError, true);
+            isValid = false;
+        }
 
-            int minGroupNbr = parseIntRequired(MinGroupNbrInput, "Min group number");
-            int maxGroupNbr = parseIntRequired(MaxGroupNbrInput, "Max group number");
-            if (minGroupNbr < 0 || maxGroupNbr < 0) {
-                throw new IllegalArgumentException("Group numbers must be >= 0.");
-            }
-            if (minGroupNbr > maxGroupNbr) {
-                throw new IllegalArgumentException("Min group number cannot be greater than max group number.");
-            }
+        if (selectedPdf == null) {
+            toggleError(FileError, true);
+            isValid = false;
+        } else {
+            toggleError(FileError, false);
+        }
 
-            if (selectedPdf == null) {
-                throw new IllegalArgumentException("PDF file is required.");
-            }
+        if (!isValid) return;
 
+        try {
             Challenge c = new Challenge();
-            c.setTitle(title.trim());
-            c.setTargetSkill(targetSkill.trim());
-            c.setDifficulty(difficulty);
-            c.setMinGroupNbr(minGroupNbr);
-            c.setMaxGroupNbr(maxGroupNbr);
+            c.setTitle(TitleInput.getText().trim());
+            c.setTargetSkill(TargetSkillInput.getText().trim());
+            c.setDifficulty(DifficultyCombo.getValue());
+            c.setMinGroupNbr(Integer.parseInt(MinGroupNbrInput.getText()));
+            c.setMaxGroupNbr(Integer.parseInt(MaxGroupNbrInput.getText()));
             c.setDescription(DescriptionInput.getText());
-
-            if (DeadlineInput.getValue() != null) {
-                c.setDeadLine(DeadlineInput.getValue().atStartOfDay());
-            }
+            c.setDeadLine(DeadlineInput.getValue().atStartOfDay());
             c.setCreatedAt(LocalDateTime.now());
 
             Path destDir = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "challenge_module", "challenge_pdf");
@@ -198,14 +219,19 @@ public class ChallengeController implements Initializable {
             refreshChallenges();
             showSuccessAlert();
             clearForm();
+            hideAllErrors();
         } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null || message.isBlank()) {
-                message = e.getClass().getSimpleName();
-            }
-            showErrorAlert(message);
-            e.printStackTrace();
+            showErrorAlert("Could not save challenge: " + e.getMessage());
         }
+    }
+    private void hideAllErrors() {
+        toggleError(TitleError, false);
+        toggleError(TargetSkillError, false);
+        toggleError(DifficultyError, false);
+        toggleError(GroupError, false);
+        toggleError(DeadlineError, false);
+        toggleError(DescriptionError, false);
+        toggleError(FileError, false);
     }
     private void refreshChallenges() {
         challengeListContainer.getChildren().clear();
@@ -229,5 +255,9 @@ public class ChallengeController implements Initializable {
                 e.printStackTrace();
             }
         }
+    }
+    private void toggleError(Label label, boolean show) {
+        label.setVisible(show);
+        label.setManaged(show);
     }
 }

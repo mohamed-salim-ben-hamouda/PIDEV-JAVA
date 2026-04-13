@@ -13,4 +13,5 @@ public interface IEvaluation {
     double SelectGrpScore(int e);
     void delete(long e);
     List<Evaluation> displayAll();
+    List<Evaluation> displaySorted(String c);
 }

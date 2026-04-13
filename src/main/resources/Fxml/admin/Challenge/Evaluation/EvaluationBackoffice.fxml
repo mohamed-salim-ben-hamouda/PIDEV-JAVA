@@ -9,9 +9,31 @@
         <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
     </padding>
 
-    <VBox spacing="10.0" styleClass="hero-panel">
-        <Label styleClass="hero-eyebrow" text="ADMINISTRATION" />
-        <Label styleClass="dashboard-title" text="Evaluation Management" />
+    <VBox spacing="20.0">
+        <children>
+            <VBox spacing="10.0" styleClass="hero-panel">
+                <children>
+                    <Label styleClass="hero-eyebrow" text="ADMINISTRATION" />
+                    <Label styleClass="dashboard-title" text="Evaluation Management" />
+                </children>
+            </VBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+                <children>
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 8 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 1);">
+                        <children>
+                            <Label style="-fx-text-fill: #64748b; -fx-font-weight: 800; -fx-font-size: 14;" text="⇅" />
+                            <Label style="-fx-text-fill: #64748b; -fx-font-weight: 600;" text="Sort By:" />
+                            <ComboBox fx:id="sortComboBox" prefWidth="180.0" promptText="Select criteria..."
+                                      style="-fx-background-color: transparent; -fx-font-size: 13;" />
+                        </children>
+                    </HBox>
+                </children>
+                <VBox.margin>
+                    <Insets left="5.0" />
+                </VBox.margin>
+            </HBox>
+        </children>
     </VBox>
 
     <ScrollPane fitToHeight="true" hbarPolicy="ALWAYS" styleClass="dashboard-scroll" VBox.vgrow="ALWAYS">
@@ -23,24 +45,18 @@
                             <Insets bottom="18.0" left="45.0" right="45.0" top="18.0" />
                         </padding>
                         <columnConstraints>
-                            <ColumnConstraints minWidth="50" prefWidth="60" />
-                            <ColumnConstraints minWidth="150" prefWidth="200" />
-                            <ColumnConstraints minWidth="200" prefWidth="250" />
-                            <ColumnConstraints minWidth="120" prefWidth="140" />
-                            <ColumnConstraints minWidth="100" prefWidth="110" />
-                            <ColumnConstraints minWidth="60" prefWidth="120" />
-                        </columnConstraints>
+                            <ColumnConstraints minWidth="50" prefWidth="60" />   <ColumnConstraints minWidth="150" prefWidth="180" /> <ColumnConstraints minWidth="200" prefWidth="350" /> <ColumnConstraints minWidth="120" prefWidth="140" /> <ColumnConstraints minWidth="100" prefWidth="110" /> <ColumnConstraints minWidth="110" prefWidth="120" /> </columnConstraints>
                         <children>
                             <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="ID" GridPane.columnIndex="0" />
-                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="Group Score" GridPane.columnIndex="1" />
-                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="FeedBack" GridPane.columnIndex="2" />
-                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="status" GridPane.columnIndex="3" />
-                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="Activity_id" GridPane.columnIndex="4" />
-                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="ACTIONS" GridPane.columnIndex="7" />
+                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="GROUP SCORE" GridPane.columnIndex="1" />
+                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="FEEDBACK" GridPane.columnIndex="2" />
+                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="STATUS" GridPane.columnIndex="3" />
+                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="ACTIVITY_ID" GridPane.columnIndex="4" />
+                            <Label style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11;" text="ACTIONS" GridPane.columnIndex="5" />
                         </children>
                     </GridPane>
-                    <VBox fx:id="EvaluationCardsContainer" spacing="15" style="-fx-background-color: #f8fbff; -fx-background-radius: 0 0 20 20; -fx-padding: 20;" />
 
+                    <VBox fx:id="EvaluationCardsContainer" spacing="15" style="-fx-background-color: #f8fbff; -fx-background-radius: 0 0 20 20; -fx-padding: 20;" />
                 </children>
             </VBox>
         </content>

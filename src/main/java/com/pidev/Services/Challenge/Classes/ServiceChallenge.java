@@ -167,5 +167,35 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
         }
         return list;
     }
+    public List<Challenge> searchChallenge(String query) {
+        List<Challenge> list = new ArrayList<>();
+        String sql = "SELECT * FROM challenge WHERE LOWER(title) LIKE ? " +
+                "OR LOWER(description) LIKE ? OR LOWER(target_skill) LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            String searchPattern = "%" + query.toLowerCase() + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Challenge c = new Challenge();
+                c.setId(rs.getInt("id"));
+                c.setTitle(rs.getString("title"));
+                c.setDescription(rs.getString("description"));
+                c.setTargetSkill(rs.getString("target_skill"));
+                c.setDifficulty(rs.getString("difficulty"));
+                c.setMinGroupNbr(rs.getInt("min_group_nbr"));
+                c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+                if (rs.getDate("dead_line") != null) {
+                    c.setDeadLine(rs.getTimestamp("dead_line").toLocalDateTime());
+                }
+                list.add(c);
+            }
+        } catch (SQLException e) {
+            System.err.println("Search failed: " + e.getMessage());
+        }
+        return list;
+    }
 
 }

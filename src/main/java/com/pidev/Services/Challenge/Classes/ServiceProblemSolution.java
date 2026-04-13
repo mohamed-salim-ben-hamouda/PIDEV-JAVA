@@ -1,12 +1,14 @@
 package com.pidev.Services.Challenge.Classes;
 
 import com.pidev.Services.Challenge.Interfaces.IProblemSolution;
+import com.pidev.models.Activity;
 import com.pidev.models.ProblemSolution;
 import com.pidev.utils.DataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,5 +133,31 @@ public class ServiceProblemSolution implements IProblemSolution {
             throw new RuntimeException(e);
         }
         return false;
+    }
+
+    public List<ProblemSolution> displayAll() {
+        List<ProblemSolution> list = new ArrayList<>();
+        String query = "SELECT * FROM problem_solution";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ProblemSolution prob = new ProblemSolution();
+                prob.setId(rs.getInt("id"));
+                prob.setProblemDescription(rs.getString("problem_description"));
+                prob.setGroupSolution(rs.getString("group_solution"));
+                prob.setSupervisorSolution(rs.getString("supervisor_solution"));
+
+                int activityId = rs.getInt("activity_id_id");
+                if (!rs.wasNull()) {
+                    Activity activity = new Activity();
+                    activity.setId(activityId);
+                    prob.setActivity(activity);
+                }
+                list.add(prob);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading problem_solution: " + e.getMessage(), e);
+        }
+        return list;
     }
 }
