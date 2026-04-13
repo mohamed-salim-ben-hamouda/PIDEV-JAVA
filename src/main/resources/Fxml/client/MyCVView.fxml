@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="24.0" styleClass="cv-page-root" stylesheets="@../../styles/home.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.MyCVController">
+    <padding>
+        <Insets top="24.0" right="28.0" bottom="30.0" left="28.0" />
+    </padding>
+
+    <children>
+        <VBox fx:id="listPage" spacing="24.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" styleClass="cv-hero-card">
+                    <children>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Mes CVs" styleClass="cv-page-title" />
+                                <Label fx:id="pageSubtitleLabel" text="Gérez et créez vos curriculum vitae." styleClass="cv-page-subtitle" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleShowCreateForm" styleClass="primary-btn" text="+ Nouveau CV" />
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="cv-toolbar">
+                    <children>
+                        <TextField fx:id="searchField" promptText="Rechercher un CV..." styleClass="cv-search-field" HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="filterLangueComboBox" prefWidth="190.0" promptText="Toutes les langues" styleClass="cv-filter-combo" />
+                        <Button onAction="#handleRefreshCv" styleClass="cv-secondary-btn" text="Actualiser" />
+                    </children>
+                </HBox>
+
+                <FlowPane fx:id="cardsContainer" hgap="18.0" prefWrapLength="1080.0" vgap="18.0" />
+            </children>
+        </VBox>
+
+        <VBox fx:id="formPage" managed="false" spacing="18.0" visible="false">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label fx:id="formTitleLabel" text="Créer un nouveau CV" styleClass="cv-page-title" />
+                                <Label fx:id="formSubtitleLabel" text="Remplissez les informations principales de votre CV." styleClass="cv-page-subtitle" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleBackToList" styleClass="cv-secondary-btn" text="← Retour" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <Label text="Informations générales" styleClass="cv-section-title" />
+                                <Label text="Champs obligatoires" styleClass="cv-section-badge" />
+                            </children>
+                        </HBox>
+                        <Label text="Les champs marqués * sont nécessaires pour enregistrer un CV valide." styleClass="cv-section-helper" />
+
+                        <GridPane hgap="16.0" vgap="16.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                            </columnConstraints>
+
+                            <children>
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label text="Nom du CV *" styleClass="cv-field-label" />
+                                        <TextField fx:id="nomCvField" promptText="Ex. CV Développeur Web" styleClass="cv-form-field cv-required-field" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1">
+                                    <children>
+                                        <Label text="Langue *" styleClass="cv-field-label" />
+                                        <ComboBox fx:id="langueComboBox" promptText="Sélectionnez une langue" styleClass="cv-form-field cv-required-field" maxWidth="Infinity" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <children>
+                                        <Label text="URL LinkedIn" styleClass="cv-field-label" />
+                                        <TextField fx:id="linkedinUrlField" promptText="https://linkedin.com/in/..." styleClass="cv-form-field" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <children>
+                                        <Label text="Template" styleClass="cv-field-label" />
+                                        <ComboBox fx:id="templateComboBox" promptText="Sélectionnez un template" styleClass="cv-form-field" maxWidth="Infinity" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                                    <children>
+                                        <Label text="Résumé / Profil" styleClass="cv-field-label" />
+                                        <TextArea fx:id="summaryArea" prefRowCount="4" promptText="Présentez-vous en quelques lignes..." styleClass="cv-form-field cv-form-textarea" wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+
+                <!-- Experiences Section -->
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label text="👤 Expériences professionnelles" styleClass="cv-section-title" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="experiencesContainer" spacing="12.0" />
+                        <Button fx:id="addExperienceBtn" onAction="#addExperienceRow" styleClass="cv-add-btn" text="+ Ajouter une expérience" maxWidth="Infinity" />
+                    </children>
+                </VBox>
+
+                <!-- Education Section -->
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label text="🎓 Formation" styleClass="cv-section-title" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="educationContainer" spacing="12.0" />
+                        <Button fx:id="addEducationBtn" onAction="#addEducationRow" styleClass="cv-add-btn" text="+ Ajouter une formation" maxWidth="Infinity" />
+                    </children>
+                </VBox>
+
+                <!-- Skills Section -->
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label text="⚙️ Compétences" styleClass="cv-section-title" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="skillsContainer" spacing="12.0" />
+                        <Button fx:id="addSkillBtn" onAction="#addSkillRow" styleClass="cv-add-btn" text="+ Ajouter une compétence" maxWidth="Infinity" />
+                    </children>
+                </VBox>
+
+                <!-- Certifications Section -->
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label text="📜 Certifications" styleClass="cv-section-title" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="certifsContainer" spacing="12.0" />
+                        <Button fx:id="addCertifBtn" onAction="#addCertifRow" styleClass="cv-add-btn" text="+ Ajouter une certification" maxWidth="Infinity" />
+                    </children>
+                </VBox>
+
+                <!-- Languages Section -->
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label text="🌐 Langues" styleClass="cv-section-title" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="languagesContainer" spacing="12.0" />
+                        <Button fx:id="addLanguageBtn" onAction="#addLanguageRow" styleClass="cv-add-btn" text="+ Ajouter une langue" maxWidth="Infinity" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="cv-actions-row">
+                    <children>
+                        <Button fx:id="submitButton" onAction="#handleSubmitCv" styleClass="primary-btn" text="Créer le CV" />
+                        <Button fx:id="clearButton" onAction="#handleClearForm" styleClass="cv-secondary-btn" text="Réinitialiser" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Preview Page -->
+        <VBox fx:id="previewPage" managed="false" spacing="30.0" visible="false" style="-fx-background-color: white; -fx-padding: 50; -fx-background-radius: 20;">
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <VBox spacing="10.0">
+                            <children>
+                                <Label fx:id="previewNomLabel" style="-fx-font-size: 36; -fx-font-weight: 900; -fx-text-fill: #0f172a;" text="NOM DU CANDIDAT" />
+                                <Label fx:id="previewLangueLabel" style="-fx-font-size: 18; -fx-text-fill: #6366f1; -fx-font-weight: bold;" text="Langue" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleBackToList" styleClass="cv-secondary-btn" text="← Fermer l'aperçu" />
+                    </children>
+                </HBox>
+
+                <Separator style="-fx-opacity: 0.5;" />
+
+                <GridPane hgap="40.0" vgap="30.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="65.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="35.0" />
+                    </columnConstraints>
+                    <children>
+                        <!-- Left Column: Experiences & Education -->
+                        <VBox spacing="30.0" GridPane.columnIndex="0">
+                            <children>
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label styleClass="cv-preview-title" text="PROFIL" />
+                                        <Label fx:id="previewSummaryLabel" wrapText="true" style="-fx-font-size: 15; -fx-text-fill: #475569; -fx-line-spacing: 5;" text="Résumé..." />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label styleClass="cv-preview-title" text="EXPÉRIENCES" />
+                                        <VBox fx:id="previewExpBox" spacing="20.0" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label styleClass="cv-preview-title" text="FORMATION" />
+                                        <VBox fx:id="previewEduBox" spacing="20.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Right Column: Skills, Certifs, Languages -->
+                        <VBox spacing="35.0" GridPane.columnIndex="1" style="-fx-background-color: #f8fafc; -fx-padding: 30; -fx-background-radius: 20; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
+                            <children>
+                                <VBox styleClass="cv-preview-sidebar-section">
+                                    <children>
+                                        <Label styleClass="cv-preview-sidebar-title" text="CONTACT" />
+                                        <Label fx:id="previewLinkedinLabel" style="-fx-text-fill: #6366f1; -fx-font-weight: bold;" text="LinkedIn" />
+                                    </children>
+                                </VBox>
+
+                                <VBox styleClass="cv-preview-sidebar-section">
+                                    <children>
+                                        <Label styleClass="cv-preview-sidebar-title" text="COMPÉTENCES" />
+                                        <VBox fx:id="previewSkillBox" spacing="12.0" />
+                                    </children>
+                                </VBox>
+
+                                <VBox styleClass="cv-preview-sidebar-section">
+                                    <children>
+                                        <Label styleClass="cv-preview-sidebar-title" text="CERTIFICATIONS" />
+                                        <VBox fx:id="previewCertBox" spacing="12.0" />
+                                    </children>
+                                </VBox>
+
+                                <VBox styleClass="cv-preview-sidebar-section">
+                                    <children>
+                                        <Label styleClass="cv-preview-sidebar-title" text="LANGUES" />
+                                        <VBox fx:id="previewLangBox" spacing="12.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </children>
+</VBox>

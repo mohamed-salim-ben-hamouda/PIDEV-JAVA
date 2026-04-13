@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<StackPane style="-fx-background-color: #f1f5f9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.MyOffersController">
+    <children>
+        <!-- LIST PAGE -->
+        <VBox fx:id="listPage" spacing="25.0">
+            <padding><Insets top="30.0" bottom="30.0" left="40.0" right="40.0"/></padding>
+            <children>
+                <VBox spacing="20.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 15, 0, 0, 5); -fx-border-color: #e2e8f0; -fx-border-radius: 20;">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <VBox spacing="5.0">
+                                    <Label text="Tableau de bord des offres" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #0f172a;">
+                                        <font><Font name="Segoe UI Bold" size="28.0" /></font>
+                                    </Label>
+                                    <Label text="Pilotez vos recrutements et gérez vos publications d'offres." style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button onAction="#handleShowAddForm" text="+ Publier une offre" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-padding: 12 25; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-size: 14; -fx-effect: dropshadow(three-pass-box, rgba(59,130,246,0.3), 10, 0, 0, 4);"/>
+                            </children>
+                        </HBox>
+
+                        <Separator style="-fx-opacity: 0.5;" />
+
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="Filtres :" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
+                                <TextField promptText="Rechercher par titre..." style="-fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-pref-width: 250;"/>
+                                <ComboBox promptText="Statut" style="-fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                    <content>
+                        <FlowPane fx:id="offersContainer" hgap="25.0" vgap="25.0" style="-fx-padding: 10 0 40 0;"/>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+
+        <!-- ADD/EDIT FORM PAGE -->
+        <VBox fx:id="formPage" spacing="25.0" visible="false" managed="false">
+            <padding><Insets top="30.0" bottom="30.0" left="40.0" right="40.0"/></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Button onAction="#showListPage" text="←  Retour" style="-fx-background-color: white; -fx-text-fill: #475569; -fx-padding: 10 20; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #e2e8f0; -fx-border-radius: 10;"/>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <Label fx:id="formTitleLabel" text="Publier une nouvelle offre" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #0f172a;">
+                                <font><Font name="Segoe UI Bold" size="26.0" /></font>
+                            </Label>
+                            <Label fx:id="formSubtitleLabel" text="Complétez les informations pour attirer les meilleurs candidats." style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="30.0" style="-fx-background-color: white; -fx-padding: 40; -fx-background-radius: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 20, 0, 0, 10); -fx-border-color: #f1f5f9; -fx-border-radius: 25; -fx-max-width: 950;">
+                    <children>
+                        <GridPane hgap="30.0" vgap="25.0">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50.0" />
+                                <ColumnConstraints percentWidth="50.0" />
+                            </columnConstraints>
+                            <children>
+                                <VBox spacing="10.0" GridPane.columnSpan="2">
+                                    <Label text="Titre du poste *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <TextField fx:id="titleField" promptText="ex: Ingénieur Fullstack Java / Angular" prefHeight="48.0" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 0 15; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="1">
+                                    <Label text="Type d'offre *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <ComboBox fx:id="typeComboBox" promptText="Sélectionnez" prefHeight="48.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                                    <Label text="Domaine *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <TextField fx:id="fieldField" promptText="ex: Informatique / Design / Marketing" prefHeight="48.0" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 0 15; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                    <Label text="Description détaillée *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <TextArea fx:id="descriptionArea" prefHeight="160.0" wrapText="true" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 10; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="3">
+                                    <Label text="Niveau d'expérience *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <ComboBox fx:id="levelComboBox" promptText="Sélectionnez le niveau" prefHeight="48.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                                    <Label text="Ville / Localisation *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <TextField fx:id="locationField" promptText="ex: Tunis, Berges du Lac" prefHeight="48.0" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 0 15; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="4">
+                                    <Label text="Type de contrat *" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <ComboBox fx:id="contractComboBox" promptText="CDI / CDD / Freelance" prefHeight="48.0" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+
+                                <VBox spacing="10.0" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                                    <Label text="Salaire mensuel (DT)" style="-fx-font-weight: bold; -fx-text-fill: #334155; -fx-font-size: 13;"/>
+                                    <TextField fx:id="salaryField" promptText="ex: 1800" prefHeight="48.0" style="-fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 0 15; -fx-background-color: #f8fafc;"/>
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                            <children>
+                                <Button onAction="#showListPage" text="Annuler" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                                <Button fx:id="saveOfferBtn" onAction="#handleSaveOffer" text="Publier l'offre" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-padding: 15 45; -fx-font-weight: bold; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 16;"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <!-- APPLICATIONS PAGE -->
+        <VBox fx:id="applicationsPage" spacing="25.0" visible="false" managed="false">
+            <padding><Insets top="30.0" bottom="30.0" left="40.0" right="40.0"/></padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Button onAction="#showListPage" text="←  Retour" style="-fx-background-color: white; -fx-text-fill: #475569; -fx-padding: 10 20; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #e2e8f0; -fx-border-radius: 10;"/>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <Label text="Suivi des candidatures" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #0f172a;">
+                                <font><Font name="Segoe UI Bold" size="26.0" /></font>
+                            </Label>
+                            <Label text="Évaluez les profils et gérez le statut des postulants." style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox style="-fx-background-color: white; -fx-background-radius: 20; -fx-border-color: #e2e8f0; -fx-border-radius: 20; -fx-padding: 0;">
+                    <children>
+                        <HBox style="-fx-background-color: #f8fafc; -fx-padding: 15 25; -fx-background-radius: 20 20 0 0; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                            <children>
+                                <Label text="Candidat" prefWidth="300" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
+                                <Label text="Statut" prefWidth="150" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="Actions" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-min-height: 400;">
+                            <content>
+                                <VBox fx:id="applicationsContainer" spacing="0" style="-fx-padding: 0;"/>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

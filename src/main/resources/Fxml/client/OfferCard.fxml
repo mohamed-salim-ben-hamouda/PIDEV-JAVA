@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxWidth="Infinity" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5); -fx-border-color: #f1f5f9; -fx-border-radius: 15; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.OfferCardController">
+    <children>
+        <HBox spacing="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <!-- Blue vertical line indicator on the left -->
+                <VBox prefWidth="6.0" style="-fx-background-color: #3b82f6; -fx-background-radius: 15 0 0 15;" />
+
+                <HBox spacing="25.0" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                    </padding>
+                    <children>
+                        <!-- Company Logo -->
+                        <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
+                            <children>
+                                <ImageView fx:id="companyLogoImageView" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true" />
+                            </children>
+                        </VBox>
+
+                        <!-- Content Area -->
+                        <VBox spacing="12.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="4.0">
+                                    <children>
+                                        <Label fx:id="companyLabel" style="-fx-text-fill: #3b82f6;" text="SKILLSDOOR">
+                                            <font><Font name="Segoe UI Bold" size="12.0" /></font>
+                                        </Label>
+                                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                            <children>
+                                                <Label fx:id="titleLabel" style="-fx-text-fill: #0f172a;" text="Titre de l'offre">
+                                                    <font><Font name="System Bold" size="22.0" /></font>
+                                                </Label>
+                                                <Label fx:id="typeLabel" style="-fx-background-color: #dcfce7; -fx-text-fill: #166534; -fx-padding: 4 12; -fx-background-radius: 20; -fx-border-color: #166534; -fx-border-radius: 20; -fx-border-width: 0.8;" text="Candidature rapide">
+                                                    <font><Font name="System Bold" size="11.0" /></font>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="dateLabel" style="-fx-text-fill: #64748b;" text="Date de publication">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+
+                                <Label fx:id="descriptionLabel" lineSpacing="4.0" style="-fx-text-fill: #334155;" text="Description de l'offre" wrapText="true">
+                                    <font><Font name="System" size="15.0" /></font>
+                                </Label>
+
+                                <!-- Meta Info Row (Badges) -->
+                                <HBox spacing="12.0">
+                                    <children>
+                                        <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: #f1f5f9; -fx-padding: 8 15; -fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-width: 1;">
+                                            <children>
+                                                <Label fx:id="offerTypeTag" style="-fx-text-fill: #475569;" text="Type"><font><Font name="System Bold" size="12.0" /></font></Label>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: #ecfdf5; -fx-padding: 8 15; -fx-background-radius: 8; -fx-border-color: #166534; -fx-border-width: 1;">
+                                            <children>
+                                                <Label fx:id="locationLabel" style="-fx-text-fill: #166534;" text="Localisation"><font><Font name="System Bold" size="12.0" /></font></Label>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" spacing="6.0" style="-fx-background-color: #f1f5f9; -fx-padding: 8 15; -fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-width: 1;">
+                                            <children>
+                                                <Label fx:id="levelTag" style="-fx-text-fill: #475569;" text="Niveau"><font><Font name="System Bold" size="12.0" /></font></Label>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- Skills Tags -->
+                                <HBox fx:id="skillsTagsContainer" spacing="10.0">
+                                    <children>
+                                        <Label style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-padding: 5 15; -fx-background-radius: 10;" text="#Communication"><font><Font size="12.0" /></font></Label>
+                                        <Label style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-padding: 5 15; -fx-background-radius: 10;" text="#Sourcing"><font><Font size="12.0" /></font></Label>
+                                    </children>
+                                </HBox>
+
+                                <!-- Bottom Row: Heart and Details Button -->
+                                <HBox alignment="CENTER_RIGHT" spacing="20.0">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#handleViewDetails" prefHeight="48.0" prefWidth="180.0" style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;" text="Voir les détails  →">
+                                            <font><Font name="Segoe UI Bold" size="14.0" /></font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>
