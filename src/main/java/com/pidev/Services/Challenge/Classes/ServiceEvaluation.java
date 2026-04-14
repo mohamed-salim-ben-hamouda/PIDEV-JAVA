@@ -140,7 +140,7 @@ public class ServiceEvaluation implements IEvaluation {
         List<Evaluation> list = new ArrayList<>();
         String normalized = criteria == null ? "" : criteria.trim().toLowerCase(Locale.ROOT);
         String sql;
-        if (normalized.equals("group score") || normalized.equals("groupscore") || normalized.equals("group_score")) {
+        if (normalized.equals("group score")) {
             sql = "SELECT * FROM evaluation ORDER BY group_score IS NULL, group_score DESC, id ASC";
         } else {
             sql = "SELECT * FROM evaluation ORDER BY id ASC";

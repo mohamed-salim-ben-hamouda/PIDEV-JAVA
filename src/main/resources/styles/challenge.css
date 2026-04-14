@@ -2,6 +2,36 @@
     -fx-background-color: transparent;
 }
 
+.challenge-switcher {
+    -fx-padding: 6px 0 0 0;
+}
+
+.switcher-btn {
+    -fx-background-color: #eef2ff;
+    -fx-background-radius: 999px;
+    -fx-border-color: #c7d2fe;
+    -fx-border-radius: 999px;
+    -fx-text-fill: #4f46e5;
+    -fx-font-weight: 800;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.switcher-btn:hover {
+    -fx-background-color: #e0e7ff;
+}
+
+.switcher-btn.switcher-btn-active {
+    -fx-background-color: #6366f1;
+    -fx-border-color: #6366f1;
+    -fx-text-fill: white;
+}
+
+.switcher-btn.switcher-btn-active:hover {
+    -fx-background-color: #4f46e5;
+    -fx-border-color: #4f46e5;
+}
+
 .challenge-list-column,
 .challenge-form-column {
     -fx-alignment: TOP_LEFT;

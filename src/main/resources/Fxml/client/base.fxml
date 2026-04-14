@@ -47,15 +47,15 @@
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F4F7FB;">
+        <ScrollPane fitToWidth="true" pannable="true" hbarPolicy="NEVER" vbarPolicy="ALWAYS" style="-fx-background-color: transparent; -fx-background: #F4F7FB;">
             <content>
                 <StackPane>
                     <children>
                         <Pane mouseTransparent="true" styleClass="mesh-gradient" />
 
-                        <VBox fx:id="mainScrollContent" spacing="50.0">
+                        <VBox fx:id="mainScrollContent" maxHeight="Infinity" maxWidth="Infinity" spacing="50.0">
                             <children>
-                                <StackPane fx:id="contentArea">
+                                <StackPane fx:id="contentArea" maxHeight="Infinity" maxWidth="Infinity" VBox.vgrow="ALWAYS">
                                     <padding>
                                         <Insets top="40.0" bottom="20.0" left="20.0" right="20.0"/>
                                     </padding>

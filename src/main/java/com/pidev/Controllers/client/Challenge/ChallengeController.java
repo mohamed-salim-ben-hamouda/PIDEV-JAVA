@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
@@ -32,6 +33,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ChallengeController implements Initializable {
+    @FXML
+    private VBox myChallengesPane;
+    @FXML
+    private VBox createChallengePane;
+    @FXML
+    private Button myChallengesBtn;
+    @FXML
+    private Button createChallengeBtn;
     @FXML
     private TextField TitleInput;
     @FXML
@@ -71,6 +80,48 @@ public class ChallengeController implements Initializable {
         DifficultyCombo.valueProperty().addListener((obs, old, val) -> toggleError(DifficultyError, val == null));
         DeadlineInput.valueProperty().addListener((obs, old, val) -> toggleError(DeadlineError, val == null));
         refreshChallenges();
+        showMyChallengesView();
+    }
+
+    @FXML
+    public void onShowMyChallenges() {
+        refreshChallenges();
+        showMyChallengesView();
+    }
+
+    @FXML
+    public void onShowCreateChallenge() {
+        hideAllErrors();
+        showCreateChallengeView();
+    }
+
+    private void showMyChallengesView() {
+        setViewVisible(myChallengesPane, true);
+        setViewVisible(createChallengePane, false);
+        setActiveSwitcher(myChallengesBtn, createChallengeBtn);
+    }
+
+    private void showCreateChallengeView() {
+        setViewVisible(myChallengesPane, false);
+        setViewVisible(createChallengePane, true);
+        setActiveSwitcher(createChallengeBtn, myChallengesBtn);
+    }
+
+    private void setViewVisible(VBox view, boolean visible) {
+        if (view == null) {
+            return;
+        }
+        view.setVisible(visible);
+        view.setManaged(visible);
+    }
+
+    private void setActiveSwitcher(Button active, Button inactive) {
+        if (active != null && !active.getStyleClass().contains("switcher-btn-active")) {
+            active.getStyleClass().add("switcher-btn-active");
+        }
+        if (inactive != null) {
+            inactive.getStyleClass().remove("switcher-btn-active");
+        }
     }
 
     private void showSuccessAlert() {
@@ -220,6 +271,7 @@ public class ChallengeController implements Initializable {
             showSuccessAlert();
             clearForm();
             hideAllErrors();
+            showMyChallengesView();
         } catch (Exception e) {
             showErrorAlert("Could not save challenge: " + e.getMessage());
         }
@@ -243,6 +295,7 @@ public class ChallengeController implements Initializable {
             return;
         }
 
+        boolean loadError = false;
         for (Challenge c : challenges) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/ChallengeCard.fxml"));
@@ -252,8 +305,14 @@ public class ChallengeController implements Initializable {
                 cardController.SupervisorCard(cardController.participationBtn);
                 challengeListContainer.getChildren().add(card);
             } catch (Exception e) {
+                loadError = true;
                 e.printStackTrace();
             }
+        }
+
+        if (challengeListContainer.getChildren().isEmpty()) {
+            Label fallback = new Label(loadError ? "Could not display challenges." : "No challenges yet");
+            challengeListContainer.getChildren().add(fallback);
         }
     }
     private void toggleError(Label label, boolean show) {

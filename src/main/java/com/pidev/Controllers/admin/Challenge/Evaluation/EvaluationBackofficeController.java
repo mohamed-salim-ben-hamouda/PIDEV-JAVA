@@ -23,19 +23,15 @@ public class EvaluationBackofficeController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // 1. Populate the ComboBox
         sortComboBox.getItems().addAll("ID", "Group Score");
 
-        // 2. Listen for selection changes
         sortComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             refreshEvaluations();
         });
 
-        // 3. Initial display (keeps current behavior when no sort is selected)
         refreshEvaluations();
     }
 
-    // Refactored to accept a list so it can handle both "all" and "sorted"
     public void displayEvaluation(List<Evaluation> evaluations) {
         EvaluationCardsContainer.getChildren().clear();
 
@@ -45,7 +41,6 @@ public class EvaluationBackofficeController implements Initializable {
                 HBox card = loader.load();
                 EvaluationBackCardsController cardController = loader.getController();
 
-                // Passing the refresh callback using a lambda
                 cardController.initData(e, v -> refreshEvaluations());
 
                 EvaluationCardsContainer.getChildren().add(card);
@@ -56,7 +51,6 @@ public class EvaluationBackofficeController implements Initializable {
         }
     }
 
-    // Overload for the callback refresh
     public void displayEvaluation() {
         refreshEvaluations();
     }

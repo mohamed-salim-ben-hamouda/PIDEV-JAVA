@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 public class ChallengeBackofficeController implements Initializable {
     @FXML private VBox challengeCardsContainer;
-    @FXML private TextField searchField; // Make sure this FXID matches your FXML
+    @FXML private TextField searchField;
 
     private ServiceChallenge serviceC = new ServiceChallenge();
 
