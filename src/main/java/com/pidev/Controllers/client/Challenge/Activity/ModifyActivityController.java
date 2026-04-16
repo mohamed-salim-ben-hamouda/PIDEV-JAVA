@@ -48,13 +48,22 @@ public class ModifyActivityController {
 
     public void loadMemberActivity() {
         mainActivityContainer.getChildren().clear();
-        List<MemberActivity> ma = serviceMA.SelectMActivity(a.getId());
+        if (a == null) {
+            return;
+        }
+        List<MemberActivity> ma;
+        if (a.getGroup() != null) {
+            ma = serviceMA.getAllGroupMembersForActivity(a.getGroup(), a);
+        } else {
+            ma = serviceMA.SelectMActivity(a.getId());
+        }
         for (MemberActivity m_activity : ma) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/MembersActivityModifCards.fxml"));
                 VBox card = loader.load();
                 MembersActivityModifCardsController controller = loader.getController();
                 controller.initData(m_activity, () -> {
+                    loadMemberActivity();
                 });
                 mainActivityContainer.getChildren().add(card);
 

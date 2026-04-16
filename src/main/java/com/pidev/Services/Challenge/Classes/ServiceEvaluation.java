@@ -19,11 +19,11 @@ public class ServiceEvaluation implements IEvaluation {
     }
 
     public void StartEvaluation(Evaluation e, Activity a) {
-        String query = "INSERT INTO evaluation (activity_id_id,status) " +
-                "VALUES (?,?)";
+        String query = "UPDATE evaluation SET status = ? " +
+                "WHERE activity_id_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, a.getId());
-            ps.setString(2, "in_progress");
+            ps.setString(1, "in_progress");
+            ps.setInt(2, a.getId());
             ps.executeUpdate();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -31,7 +31,7 @@ public class ServiceEvaluation implements IEvaluation {
     }
 
     public boolean isEvaluation(int activity_id) {
-        String query = "SELECT COUNT(*) FROM evaluation WHERE activity_id_id=?";
+        String query = "SELECT COUNT(*) FROM evaluation WHERE activity_id_id=? AND status IS NOT NULL";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, activity_id);
             ResultSet rs = ps.executeQuery();
@@ -101,21 +101,22 @@ public class ServiceEvaluation implements IEvaluation {
 
     }
 
-    public void delete(long evaluation_id){
+    public void delete(long evaluation_id) {
         String query = "DELETE FROM evaluation WHERE id= ?";
-        try (PreparedStatement ps = connection.prepareStatement(query)){
-            ps.setLong(1,evaluation_id);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setLong(1, evaluation_id);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public List<Evaluation> displayAll(){
-        String query="SELECT * FROM evaluation";
+
+    public List<Evaluation> displayAll() {
+        String query = "SELECT * FROM evaluation";
         List<Evaluation> list = new ArrayList<>();
-        try (PreparedStatement ps=connection.prepareStatement(query)){
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 Evaluation e = new Evaluation();
                 e.setId(rs.getLong("id"));
                 double groupScore = rs.getDouble("group_score");
@@ -136,6 +137,7 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return list;
     }
+
     public List<Evaluation> displaySorted(String criteria) {
         List<Evaluation> list = new ArrayList<>();
         String normalized = criteria == null ? "" : criteria.trim().toLowerCase(Locale.ROOT);
@@ -169,12 +171,13 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return list;
     }
-    public boolean isEvaluationStarted(int activity_id){
-        String query ="SELECT COUNT(*) FROM evaluation WHERE activity_id_id=?";
-        try (PreparedStatement ps = connection.prepareStatement(query)){
-            ps.setInt(1,activity_id);
+
+    public boolean isEvaluationStarted(int activity_id) {
+        String query = "SELECT COUNT(*) FROM evaluation WHERE activity_id_id=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, activity_id);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
 
@@ -183,18 +186,30 @@ public class ServiceEvaluation implements IEvaluation {
         }
         return false;
     }
-    public boolean isEvaluationfinished(int activity_id){
+
+    public boolean isEvaluationfinished(int activity_id) {
         String query = "SELECT COUNT(*) FROM evaluation WHERE activity_id_id=? AND status=?";
-        try (PreparedStatement ps= connection.prepareStatement(query)){
-            ps.setInt(1,activity_id);
-            ps.setString(2,"finished");
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, activity_id);
+            ps.setString(2, "finished");
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                return rs.getInt(1)>0;
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
         return false;
+    }
+
+    public void CreatePreFeedback(Evaluation e,int activity_id){
+        String query="INSERT into evaluation (pre_feedback,activity_id_id) VALUES (?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setString(1, e.getPreFeedback());
+            ps.setInt(2,activity_id);
+            ps.executeUpdate();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

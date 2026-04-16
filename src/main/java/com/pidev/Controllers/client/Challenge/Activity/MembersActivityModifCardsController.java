@@ -32,7 +32,17 @@ public class MembersActivityModifCardsController {
         String m_activity=activityDescModifier.getText();
         ma.setActivityDescription(m_activity);
         try {
-            serviceMA.update(ma);
+            if (ma.getId() != null && ma.getId() > 0) {
+                serviceMA.update(ma);
+            } else {
+                if (ma.getActivity() == null || ma.getActivity().getId() == null) {
+                    throw new IllegalStateException("Missing activity id for member activity.");
+                }
+                if (ma.getUser() == null || ma.getUser().getId() == null) {
+                    throw new IllegalStateException("Missing user id for member activity.");
+                }
+                serviceMA.addMemberActivity(ma, ma.getActivity().getId(), ma.getUser().getId());
+            }
             if (onUpdateCallback != null) {
                 onUpdateCallback.run();
             }

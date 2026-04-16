@@ -3,12 +3,11 @@ package com.pidev.Controllers.client.Challenge.Activity;
 import com.pidev.Controllers.client.BaseController;
 import com.pidev.Controllers.client.Challenge.ChallengeCardController;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
+import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.Services.Challenge.Classes.ServiceProblemSolution;
-import com.pidev.models.Activity;
-import com.pidev.models.Challenge;
-import com.pidev.models.MemberActivity;
-import com.pidev.models.ProblemSolution;
+import com.pidev.models.*;
+import com.pidev.utils.FlowiseGraderUtil;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -55,6 +54,7 @@ public class ActivityController {
     private ServiceActivity serviceActivity = new ServiceActivity();
     private ServiceMemberActivity serviceMember = new ServiceMemberActivity();
     private ServiceProblemSolution serviceProblem = new ServiceProblemSolution();
+    private ServiceEvaluation serviceEva = new ServiceEvaluation();
     private int grp_id;
     private int act_id;
     private File selectedPdf;
@@ -229,6 +229,7 @@ public class ActivityController {
         toggleError(fileError, false);
         try {
             Activity submission = new Activity();
+            Evaluation e = new Evaluation();
             submission.setId(this.act_id);
             Path destDir = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "challenge_module", "activity_pdf");
             Files.createDirectories(destDir);
@@ -236,8 +237,9 @@ public class ActivityController {
             Files.copy(selectedPdf.toPath(), destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             submission.setSubmissionFile("challenge_module/activity_pdf/" + selectedPdf.getName());
             serviceActivity.submissionfile(submission);
-            fileNameLabel.setText("Soumission terminée ✅");
-            fileNameLabel.setStyle("-fx-text-fill: #2ecc71;");
+            e.setPreFeedback(FlowiseGraderUtil.gradeFromPdfPaths(c.getContent(),"challenge_module/activity_pdf/" + selectedPdf.getName()).toString());
+            serviceEva.CreatePreFeedback(e,act_id);
+
             BaseController.getInstance().loadActivity();
         } catch (Exception e) {
             System.err.println("Échec de la soumission: " + e.getMessage());

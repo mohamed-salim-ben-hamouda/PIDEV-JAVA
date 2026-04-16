@@ -81,6 +81,12 @@
             <artifactId>ikonli-fontawesome5-pack</artifactId>
             <version>12.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
     </dependencies>
 
 

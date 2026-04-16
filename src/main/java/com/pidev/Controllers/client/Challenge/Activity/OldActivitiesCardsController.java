@@ -36,6 +36,8 @@ public class OldActivitiesCardsController {
     private Button evaluationBtn;
     @FXML
     private Button ModifyBtn;
+    @FXML
+    private Button preFeedbackBtn;
     private ServiceEvaluation serviceEva = new ServiceEvaluation();
     private ServiceMemberActivity serviceMA = new ServiceMemberActivity();
     private ServiceActivity serviceA = new ServiceActivity();
@@ -72,6 +74,8 @@ public class OldActivitiesCardsController {
             ModifyBtn.setVisible(true);
             ModifyBtn.setManaged(true);
         }
+
+
         if (status.equalsIgnoreCase("evaluated")) {
             evaluationBtn.setDisable(false);
             evaluationBtn.setText("See Evaluation");
@@ -84,7 +88,7 @@ public class OldActivitiesCardsController {
         }
     }
     public void OnEvaluation(){
-       Evaluation e = serviceEva.findEvaluation(a.getId());
+        Evaluation e = serviceEva.findEvaluation(a.getId());
         StudentEvaluationController StEvaCntrl = BaseController.getInstance().loadStudentEvaluation();
         if (StEvaCntrl != null){
             StEvaCntrl.setData(e,a);
@@ -97,4 +101,6 @@ public class OldActivitiesCardsController {
             ModifActCntrl.initData(a);
         }
     }
+
+
 }

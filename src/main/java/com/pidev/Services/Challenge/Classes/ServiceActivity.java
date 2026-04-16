@@ -65,6 +65,7 @@ public class ServiceActivity implements IActivity {
                 challenge.setTitle(rs.getString("title"));
                 challenge.setDescription(rs.getString("description"));
                 challenge.setDifficulty(rs.getString("difficulty"));
+                challenge.setContent(rs.getString("content"));
 
                 activity.setChallenge(challenge);
 

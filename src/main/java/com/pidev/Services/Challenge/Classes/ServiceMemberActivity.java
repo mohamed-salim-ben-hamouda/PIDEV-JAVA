@@ -135,7 +135,7 @@ public class ServiceMemberActivity implements IMemberActivity {
     public List<MemberActivity> getAllGroupMembersForActivity(Group group, Activity activity) {
         List<MemberActivity> list = new ArrayList<>();
         String query = "SELECT u.id AS user_id, u.nom, u.prenom, " +
-                "ma.id AS ma_id, ma.indiv_score, ma.activity_description " + // Use your actual column name here
+                "ma.id AS ma_id, ma.indiv_score, ma.activity_description " +
                 "FROM `user` u " +
                 "INNER JOIN `membership` ms ON u.id = ms.user_id_id " +
                 "LEFT JOIN `member_activity` ma ON u.id = ma.user_id_id AND ma.id_activity_id = ? " +
@@ -164,7 +164,6 @@ public class ServiceMemberActivity implements IMemberActivity {
                 } else {
                     ma.setId(-1);
                     ma.setIndivScore(0.0);
-                    ma.setActivityDescription("No submission recorded.");
                 }
                 list.add(ma);
             }

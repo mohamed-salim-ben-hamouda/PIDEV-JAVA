@@ -219,6 +219,7 @@ public class EvaluationMainController {
             Path destFile = destDir.resolve(selectedPdf.getName());
             Files.copy(selectedPdf.toPath(), destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             Evaluation e = serviceEval.findEvaluation(a.getId());
+
             if(e != null){
                 e.setGroupScore(grp_score);
                 e.setFeedback("challenge_module/evaluation_pdf/" + selectedPdf.getName());
