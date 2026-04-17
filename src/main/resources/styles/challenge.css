@@ -154,6 +154,21 @@
     -fx-border-color: #ef4444;
     -fx-text-fill: white;
 }
+.action-btn-outline-feedback {
+    -fx-background-color: #eef2ff;
+    -fx-background-radius: 999px;
+    -fx-border-color: #c7d2fe;
+    -fx-border-radius: 999px;
+    -fx-text-fill: #4f46a6;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 6 14;
+}
+.action-btn-outline-feedback:hover {
+    -fx-background-color: #6366f1;
+    -fx-border-color: #6337a9;
+    -fx-text-fill: white;
+}
 
 .file-link-btn {
     -fx-background-color: #eff6ff;

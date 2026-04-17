@@ -6,16 +6,20 @@ import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.models.*;
+import com.pidev.utils.OpenPdfUtil;
+import com.pidev.utils.PreFeedbackPdfUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -74,6 +78,13 @@ public class OldActivitiesCardsController {
             ModifyBtn.setVisible(true);
             ModifyBtn.setManaged(true);
         }
+        if(status.equalsIgnoreCase("evaluated") || status.equalsIgnoreCase("submitted")){
+            preFeedbackBtn.setVisible(true);
+            preFeedbackBtn.setManaged(true);
+        }else {
+            preFeedbackBtn.setVisible(false);
+            preFeedbackBtn.setManaged(false);
+        }
 
 
         if (status.equalsIgnoreCase("evaluated")) {
@@ -100,6 +111,34 @@ public class OldActivitiesCardsController {
         if(ModifActCntrl != null){
             ModifActCntrl.initData(a);
         }
+    }
+    public void OnPreFeedback() {
+        if (a == null || a.getId() == null) {
+            showError("No activity selected.");
+            return;
+        }
+
+        Evaluation eval = serviceEva.findEvaluation(a.getId());
+        if (eval == null || eval.getPreFeedback() == null || eval.getPreFeedback().isBlank()) {
+            showError("No pre-feedback is available for this activity yet.");
+            return;
+        }
+
+        try {
+            String fileName = "prefeedback-activity-" + a.getId() + ".pdf";
+            Path pdfPath = PreFeedbackPdfUtil.writePreFeedbackPdfToResources(eval.getPreFeedback(), fileName);
+            OpenPdfUtil.openPdfInApp(pdfPath.toString(), "Pre-Feedback PDF");
+        } catch (Exception ex) {
+            showError("Could not open pre-feedback PDF:\n" + ex.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Pre-Feedback PDF");
+        alert.setHeaderText("Unable to open pre-feedback PDF");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 

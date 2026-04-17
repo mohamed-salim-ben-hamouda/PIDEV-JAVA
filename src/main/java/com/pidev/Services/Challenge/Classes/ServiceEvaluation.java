@@ -72,6 +72,8 @@ public class ServiceEvaluation implements IEvaluation {
                 double groupScore = rs.getDouble("group_score");
                 e.setGroupScore(rs.wasNull() ? null : groupScore);
                 e.setFeedback(rs.getString("feedback"));
+                e.setPreFeedback(rs.getString("pre_feedback"));
+                e.setStatus(rs.getString("status"));
 
                 return e;
             }

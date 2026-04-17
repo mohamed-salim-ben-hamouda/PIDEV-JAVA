@@ -19,4 +19,5 @@ public interface IActivity {
     void updateActivityFile(Activity a);
     void delete(int a);
     List<Activity> displayAll();
+    //boolean isActivitySubmitted(int a_id);
 }

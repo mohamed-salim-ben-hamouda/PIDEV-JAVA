@@ -2,8 +2,11 @@ package com.pidev.Controllers.client.Challenge;
 
 import com.pidev.Services.Challenge.Classes.ServiceChallenge;
 import com.pidev.models.Challenge;
+import com.pidev.utils.flowiseSuggestChallengeInputs;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -22,6 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.net.URL;
@@ -66,6 +70,7 @@ public class ChallengeController implements Initializable {
     @FXML private Label DeadlineError;
     @FXML private Label DescriptionError;
     @FXML private Label FileError;
+    @FXML private Button GenerateBtn;
     private File selectedPdf;
     private final ServiceChallenge service = new ServiceChallenge();
 
@@ -81,6 +86,8 @@ public class ChallengeController implements Initializable {
         DeadlineInput.valueProperty().addListener((obs, old, val) -> toggleError(DeadlineError, val == null));
         refreshChallenges();
         showMyChallengesView();
+        GenerateBtn.setVisible(false);
+        GenerateBtn.setManaged(false);
     }
 
     @FXML
@@ -202,6 +209,8 @@ public class ChallengeController implements Initializable {
         selectedPdf = fileChooser.showOpenDialog(null);
         if (selectedPdf != null) {
             fileInput.setText(selectedPdf.getName());
+            GenerateBtn.setVisible(true);
+            GenerateBtn.setManaged(true);
         }
     }
 
@@ -318,5 +327,72 @@ public class ChallengeController implements Initializable {
     private void toggleError(Label label, boolean show) {
         label.setVisible(show);
         label.setManaged(show);
+    }
+    @FXML
+    private void onGenerateInputs(){
+        if (selectedPdf == null) {
+            toggleError(FileError, true);
+            return;
+        }
+        GenerateBtn.setDisable(true);
+        String originalText = GenerateBtn.getText();
+        GenerateBtn.setText("Generating...");
+        hideAllErrors();
+
+        Task<JSONObject> task = new Task<>() {
+            @Override
+            protected org.json.JSONObject call() throws Exception {
+                return flowiseSuggestChallengeInputs.suggestChallenge(selectedPdf.getAbsolutePath());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            org.json.JSONObject result = task.getValue();
+            GenerateBtn.setDisable(false);
+            GenerateBtn.setText(originalText);
+
+            // DEBUG PRINT: See the raw response in your console
+            System.out.println("Flowise Raw Result: " + result.toString());
+
+            if (result.has("error") && result.getBoolean("error")) {
+                // This will now show the actual message if it exists
+                showErrorAlert("AI Generation failed: " + result.optString("message", "Unknown error"));
+            } else {
+                populateAIGeneratedFields(result);
+            }
+        });
+
+        task.setOnFailed(e -> {
+            GenerateBtn.setDisable(false);
+            GenerateBtn.setText(originalText);
+            showErrorAlert("Request failed. Please check your connection or Flowise server.");
+        });
+
+        new Thread(task).start();
+
+    }
+    private void populateAIGeneratedFields(org.json.JSONObject data) {
+        Platform.runLater(() -> {
+            // Basic Text Fields
+            TitleInput.setText(data.optString("title"));
+            TargetSkillInput.setText(data.optString("target_skill"));
+            DescriptionInput.setText(data.optString("description"));
+
+            // Number Fields (Strings in UI)
+            MinGroupNbrInput.setText(String.valueOf(data.optInt("min_group_nbr", 2)));
+            MaxGroupNbrInput.setText(String.valueOf(data.optInt("max_group_nbr", 4)));
+
+            // Difficulty ComboBox
+            String diff = data.optString("difficulty");
+            if (diff != null && !diff.isEmpty()) {
+                DifficultyCombo.setValue(diff);
+            }
+
+            // Deadline Date Calculation
+            if (data.has("dead_line")) {
+                int days = data.getInt("dead_line");
+                DeadlineInput.setValue(java.time.LocalDate.now().plusDays(days));
+            }
+        });
     }
 }

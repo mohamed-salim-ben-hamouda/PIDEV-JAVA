@@ -331,6 +331,22 @@ public class ServiceActivity implements IActivity {
         }
         return list;
     }
+    /*public boolean isActivitySubmitted(int activity_id){
+        String query ="SELECT COUNT(*) from activity WHERE id=? AND status IN (?, ?)";
+        try (PreparedStatement ps= connection.prepareStatement(query)){
+            ps.setInt(1,activity_id);
+            ps.setString(2,"submitted");
+            ps.setString(3,"evaluated");
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return rs.getInt(1)>0;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
+    }*/
 
 
 }

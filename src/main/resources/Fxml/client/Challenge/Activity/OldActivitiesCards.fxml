@@ -46,6 +46,9 @@
                     <Button fx:id="ModifyBtn" onAction="#OnModif" styleClass="action-btn-outline" text="modify" />
                     <Button fx:id="evaluationBtn" onAction="#OnEvaluation" styleClass="primary-btn" text="See Evaluation" />
                 </HBox>
+                <HBox alignment="CENTER" spacing="10">
+                    <Button fx:id="preFeedbackBtn"  onAction="#OnPreFeedback" styleClass="action-btn-outline-feedback" text="Instant Feedback" />
+                </HBox>
             </VBox>
         </VBox>
     </children>
