@@ -63,12 +63,13 @@
                                                 <Label fx:id="quizTitleLabel" styleClass="assessment-title" text="Quiz" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Label fx:id="quizStateBadge" styleClass="status-badge status-pending" text="EN ATTENTE" />
-                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Commencer le quiz" styleClass="courses-action-btn primary" />
+                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Ouvrir la session quiz" styleClass="courses-action-btn primary" />
                                             </children>
                                         </HBox>
 
                                         <Label fx:id="quizMetaLabel" styleClass="course-card-description" text="" />
                                         <Label fx:id="quizHintLabel" styleClass="course-empty-subtitle" text="" />
+                                        <Label styleClass="quiz-flow-hint" text="Reponse correcte -> passage automatique a la question suivante" />
 
                                         <VBox fx:id="quizSection" spacing="14.0" visible="false" managed="false">
                                             <children>

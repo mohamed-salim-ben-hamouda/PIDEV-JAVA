@@ -20,6 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
@@ -189,11 +190,15 @@ public class CoursesController {
             Parent root = loader.load();
             CourseDetailController controller = loader.getController();
             controller.setCourse(course);
+            root.setUserData("course-detail-window");
 
-            Scene scene = courseFlow.getScene();
-            if (scene != null) {
-                scene.setRoot(root);
-            }
+            Stage detailStage = new Stage();
+            Scene detailScene = new Scene(root, 1240, 860);
+            detailStage.setTitle("Detail du cours - " + nullSafe(course.getTitle(), "Cours"));
+            detailStage.setMinWidth(1080);
+            detailStage.setMinHeight(760);
+            detailStage.setScene(detailScene);
+            detailStage.show();
         } catch (IOException e) {
             showError("Navigation", "Impossible d'ouvrir la page du cours.");
         }

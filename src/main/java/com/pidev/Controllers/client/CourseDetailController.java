@@ -23,6 +23,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -148,12 +150,22 @@ public class CourseDetailController {
 
     @FXML
     private void onBack() {
+        Scene scene = backButton.getScene();
+        if (scene != null) {
+            Object marker = scene.getRoot() != null ? scene.getRoot().getUserData() : null;
+            Window window = scene.getWindow();
+            if ("course-detail-window".equals(marker) && window != null) {
+                window.hide();
+                return;
+            }
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
             Parent root = loader.load();
             BaseController controller = loader.getController();
             controller.loadCourses();
-            Scene scene = backButton.getScene();
+            
             if (scene != null) {
                 scene.setRoot(root);
             }
@@ -164,46 +176,7 @@ public class CourseDetailController {
 
     @FXML
     private void onStartQuiz() {
-        if (quiz == null) {
-            return;
-        }
-        selectedAnswerByQuestionId.clear();
-        resultCard.setVisible(false);
-        resultCard.setManaged(false);
-
-        try {
-            questions = questionService.findAll().stream()
-                    .filter(item -> item.getQuiz() != null && Objects.equals(item.getQuiz().getId(), quiz.getId()))
-                    .sorted(Comparator.comparingInt(item -> item.getId() == null ? Integer.MAX_VALUE : item.getId()))
-                    .toList();
-            answers = answerService.findAll();
-
-            if (questions.isEmpty()) {
-                questionCardContainer.getChildren().setAll(new Label("Aucune question pour ce quiz."));
-                quizProgressLabel.setText("0 / 0");
-                questionNavLabel.setText("Question 0 sur 0");
-                quizScoreLabel.setText("Score: 0 / 0");
-                prevQuestionButton.setDisable(true);
-                nextQuestionButton.setDisable(true);
-                finishQuizButton.setDisable(true);
-                showQuizSection(true);
-                return;
-            }
-
-            currentQuestionIndex = 0;
-            updateScoreLabel();
-            renderCurrentQuestion();
-            showQuizSection(true);
-        } catch (SQLException e) {
-            questionCardContainer.getChildren().setAll(new Label("Impossible de charger les questions et reponses du quiz."));
-            quizProgressLabel.setText("0 / 0");
-            questionNavLabel.setText("Question 0 sur 0");
-            quizScoreLabel.setText("Score: 0 / 0");
-            prevQuestionButton.setDisable(true);
-            nextQuestionButton.setDisable(true);
-            finishQuizButton.setDisable(true);
-            showQuizSection(true);
-        }
+        openSelectedQuizWindow();
     }
 
     @FXML
@@ -365,18 +338,24 @@ public class CourseDetailController {
                 answerButton.getStyleClass().add("quiz-answer-option");
                 answerButton.setMaxWidth(Double.MAX_VALUE);
 
-                if (selectedAnswerId != null) {
-                    if (answer.isCorrect()) {
-                        answerButton.getStyleClass().add("correct-answer");
-                    }
-                    if (Objects.equals(selectedAnswerId, answer.getId())) {
-                        answerButton.getStyleClass().add(answer.isCorrect() ? "selected-correct" : "selected-wrong");
-                    }
+                if (selectedAnswerId != null && Objects.equals(selectedAnswerId, answer.getId())) {
+                    answerButton.getStyleClass().add("selected");
                 }
 
                 answerButton.setOnAction(event -> {
                     selectedAnswerByQuestionId.put(question.getId(), answer.getId());
                     updateScoreLabel();
+
+                    if (answer.isCorrect()) {
+                        if (currentQuestionIndex < questions.size() - 1) {
+                            currentQuestionIndex++;
+                            renderCurrentQuestion();
+                        } else {
+                            onFinishQuiz();
+                        }
+                        return;
+                    }
+
                     renderCurrentQuestion();
                 });
                 answersBox.getChildren().add(answerButton);
@@ -485,21 +464,10 @@ public class CourseDetailController {
                     .map(Answer::getContent)
                     .findFirst()
                     .orElse("Non repondu");
-            String goodAnswerText = answers.stream()
-                    .filter(answer -> answer.getQuestion() != null
-                            && Objects.equals(answer.getQuestion().getId(), question.getId())
-                            && answer.isCorrect())
-                    .map(Answer::getContent)
-                    .findFirst()
-                    .orElse("N/A");
-
             Label selectedLabel = new Label("Votre reponse: " + selectedAnswerText);
             selectedLabel.getStyleClass().add("result-subline");
 
-            Label expectedLabel = new Label("Bonne reponse: " + goodAnswerText);
-            expectedLabel.getStyleClass().add("result-subline");
-
-            line.getChildren().addAll(header, selectedLabel, expectedLabel);
+                line.getChildren().addAll(header, selectedLabel);
             resultDetailsBox.getChildren().add(line);
         }
     }
@@ -561,16 +529,14 @@ public class CourseDetailController {
         header.getChildren().addAll(order, textWrap, spacer, badge);
 
         if (chapterQuiz != null) {
-            Button openQuiz = new Button("Ouvrir le quiz");
+            Button openQuiz = new Button("Ouvrir session quiz");
             openQuiz.getStyleClass().setAll("courses-action-btn", "secondary");
             openQuiz.setOnAction(event -> {
                 selectedChapter = chapter;
                 quiz = chapterQuiz;
                 updateQuizHeader();
-                showQuizSection(false);
-                resultCard.setVisible(false);
-                resultCard.setManaged(false);
                 startQuizButton.setDisable(false);
+                openSelectedQuizWindow();
             });
             card.getChildren().addAll(header, openQuiz);
         } else {
@@ -672,6 +638,40 @@ public class CourseDetailController {
 
     private void showError(String title, String message) {
         Alert alert = new Alert(AlertType.ERROR, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private void openSelectedQuizWindow() {
+        if (quiz == null) {
+            showWarning("Quiz", "Aucun quiz disponible pour ce chapitre.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/QuizSessionView.fxml"));
+            Parent root = loader.load();
+            QuizSessionController controller = loader.getController();
+            controller.setQuizContext(quiz, selectedChapter != null ? selectedChapter.getTitle() : "Quiz du cours");
+
+            Stage stage = new Stage();
+            stage.setTitle("Session Quiz - " + (quiz.getTitle() == null ? "Quiz" : quiz.getTitle()));
+            stage.setScene(new Scene(root, 1080, 820));
+            stage.setMinWidth(980);
+            stage.setMinHeight(760);
+            if (backButton.getScene() != null && backButton.getScene().getWindow() != null) {
+                stage.initOwner(backButton.getScene().getWindow());
+            }
+            stage.centerOnScreen();
+            stage.show();
+        } catch (IOException e) {
+            showError("Quiz", "Impossible d'ouvrir la fenetre du quiz.");
+        }
+    }
+
+    private void showWarning(String title, String message) {
+        Alert alert = new Alert(AlertType.WARNING, message);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.showAndWait();

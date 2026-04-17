@@ -299,6 +299,7 @@
 .courses-action-btn.primary {
     -fx-background-color: #586cf2;
     -fx-text-fill: white;
+    -fx-padding: 10 16;
 }
 
 .courses-action-btn.secondary {
@@ -307,6 +308,12 @@
     -fx-border-color: #d5dced;
     -fx-border-radius: 14px;
     -fx-border-width: 1;
+    -fx-padding: 10 16;
+}
+
+.courses-action-btn:hover,
+.page-btn:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(88, 108, 242, 0.18), 10, 0, 0, 3);
 }
 
 .page-btn {
@@ -333,12 +340,16 @@
     -fx-background-color: white;
     -fx-background-radius: 22px;
     -fx-padding: 0 0 18 0;
-    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.09), 18, 0, 0, 6);
+    -fx-border-color: #e3e9f6;
+    -fx-border-width: 1;
+    -fx-border-radius: 22px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.09), 20, 0, 0, 7);
 }
 
 .course-card:hover {
     -fx-translate-y: -4;
-    -fx-effect: dropshadow(three-pass-box, rgba(87, 108, 242, 0.16), 20, 0, 0, 8);
+    -fx-border-color: #b9caf0;
+    -fx-effect: dropshadow(three-pass-box, rgba(87, 108, 242, 0.18), 24, 0, 0, 10);
 }
 
 .course-card-header {
@@ -530,11 +541,12 @@
 }
 
 .question-block {
-    -fx-background-color: #f8faff;
-    -fx-background-radius: 14px;
-    -fx-padding: 14;
-    -fx-border-color: #d8e3f4;
-    -fx-border-radius: 14px;
+    -fx-background-color: linear-gradient(to bottom, #f9fbff 0%, #f2f7ff 100%);
+    -fx-background-radius: 16px;
+    -fx-padding: 16;
+    -fx-border-color: #cfdcf2;
+    -fx-border-radius: 16px;
+    -fx-border-width: 1;
 }
 
 .question-title {
@@ -558,6 +570,9 @@
     -fx-background-color: white;
     -fx-background-radius: 20px;
     -fx-padding: 18;
+    -fx-border-color: #e1e8f5;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1;
     -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.07), 14, 0, 0, 4);
 }
 
@@ -643,6 +658,15 @@
     -fx-text-fill: #8a1f1b;
 }
 
+.quiz-flow-hint {
+    -fx-text-fill: #2f4f8f;
+    -fx-background-color: #eaf2ff;
+    -fx-background-radius: 999;
+    -fx-padding: 7 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
 .quiz-result-card {
     -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #f8fbff 100%);
     -fx-border-color: #d6e3f2;
@@ -714,4 +738,172 @@
 .mini-neutral {
     -fx-background-color: #ebf0f6;
     -fx-text-fill: #526579;
+}
+
+.quiz-session-shell {
+    -fx-background-color: #f3f4f8;
+}
+
+.quiz-session-frame {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 18px;
+    -fx-border-color: #e1e7f2;
+    -fx-border-width: 1;
+    -fx-border-radius: 18px;
+    -fx-padding: 0 0 18 0;
+}
+
+.quiz-session-hero {
+    -fx-background-color: linear-gradient(to right, #5f7af5 0%, #6f62d8 52%, #855dc9 100%);
+    -fx-background-radius: 18px 18px 0 0;
+    -fx-padding: 22 24;
+}
+
+.quiz-session-hero-title {
+    -fx-text-fill: white;
+    -fx-font-size: 34px;
+    -fx-font-weight: 900;
+}
+
+.quiz-session-hero-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.quiz-session-stats {
+    -fx-padding: 14 24 4 24;
+}
+
+.quiz-metric-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14px;
+    -fx-border-color: #dce4f3;
+    -fx-border-width: 1;
+    -fx-border-radius: 14px;
+    -fx-padding: 14 22;
+    -fx-alignment: CENTER;
+    -fx-pref-width: 168px;
+}
+
+.quiz-intro-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14px;
+    -fx-border-color: #dce4f3;
+    -fx-border-width: 1;
+    -fx-border-radius: 14px;
+    -fx-padding: 18 20;
+    -fx-max-width: 852px;
+    -fx-alignment: center;
+}
+
+.quiz-primary-cta {
+    -fx-background-color: linear-gradient(to right, #637ceb 0%, #7a5dcb 100%);
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-font-size: 18px;
+    -fx-background-radius: 12px;
+    -fx-padding: 14 16;
+}
+
+.quiz-question-panel {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14px;
+    -fx-border-color: #dce4f3;
+    -fx-border-width: 1;
+    -fx-border-radius: 14px;
+    -fx-padding: 18 20;
+    -fx-max-width: 852px;
+    -fx-alignment: center;
+}
+
+.quiz-question-topbar {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-border-color: #e1e7f2;
+    -fx-border-width: 1;
+    -fx-border-radius: 12px;
+    -fx-padding: 12 14;
+}
+
+.quiz-question-counter {
+    -fx-text-fill: #1f2b3d;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.quiz-progress-track {
+    -fx-pref-height: 10px;
+}
+
+.quiz-progress-track .track {
+    -fx-background-color: #e4e9f4;
+    -fx-background-radius: 999;
+}
+
+.quiz-progress-track .bar {
+    -fx-background-color: linear-gradient(to right, #5f76f1 0%, #7a5dcb 100%);
+    -fx-background-radius: 999;
+}
+
+.quiz-language-badge {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 8 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.quiz-timer-badge {
+    -fx-background-color: #fde8bd;
+    -fx-text-fill: #e88b2b;
+    -fx-background-radius: 999;
+    -fx-padding: 8 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.quiz-quick-nav-wrap {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-border-color: #e1e7f2;
+    -fx-border-width: 1;
+    -fx-border-radius: 12px;
+    -fx-padding: 12 14;
+}
+
+.quiz-quick-nav-title {
+    -fx-text-fill: #3b4d67;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.quiz-question-panel .question-title {
+    -fx-font-size: 20px;
+}
+
+.quiz-question-panel .quiz-answer-option {
+    -fx-background-color: #f8fbff;
+    -fx-border-color: #d2dced;
+    -fx-border-radius: 14px;
+    -fx-border-width: 1;
+    -fx-background-radius: 14px;
+    -fx-padding: 16 18;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+}
+
+.quiz-question-panel .quiz-answer-option:hover {
+    -fx-background-color: #eef4ff;
+    -fx-border-color: #8aa4f8;
+}
+
+.quiz-question-panel .quiz-answer-option.selected {
+    -fx-background-color: #dfe8ff;
+    -fx-border-color: #5f76f1;
+}
+
+.quiz-quick-nav-wrap {
+    -fx-padding: 14 16;
 }
