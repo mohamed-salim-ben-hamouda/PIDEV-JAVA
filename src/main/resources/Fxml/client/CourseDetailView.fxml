@@ -38,7 +38,7 @@
                         <VBox spacing="10.0" styleClass="course-detail-hero">
                             <children>
                                 <Label styleClass="course-detail-hero-title" text="Parcours du cours" />
-                                <Label fx:id="courseContentLabel" wrapText="true" styleClass="course-detail-hero-subtitle" />
+                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Ouvrir le PDF du cours" styleClass="courses-action-btn secondary" />
                             </children>
                         </VBox>
 

@@ -24,7 +24,6 @@
             <children>
                 <HBox spacing="15.0" styleClass="management-rail-header">
                     <children>
-                        <Label style="-fx-min-width: 80;" styleClass="management-rail-label" text="ID" />
                         <Label style="-fx-min-width: 350;" styleClass="management-rail-label" text="Contenu" />
                         <Label style="-fx-min-width: 140;" styleClass="management-rail-label" text="Question" />
                         <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Correcte" />

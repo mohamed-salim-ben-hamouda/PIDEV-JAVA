@@ -24,7 +24,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,7 +39,7 @@ import java.util.Objects;
 
 public class CourseDetailController {
     @FXML private Label courseTitleLabel;
-    @FXML private Label courseContentLabel;
+    @FXML private Button openCoursePdfButton;
     @FXML private Label chapterCompletionLabel;
     @FXML private Label quizTitleLabel;
     @FXML private Label quizMetaLabel;
@@ -101,10 +104,46 @@ public class CourseDetailController {
     public void setCourse(Course course) {
         this.course = course;
         courseTitleLabel.setText(course != null && course.getTitle() != null ? course.getTitle() : "Cours");
-        courseContentLabel.setText(course != null && course.getContent() != null && !course.getContent().isBlank()
-                ? course.getContent()
-                : "Contenu du cours non renseigne.");
+        String pdfRef = course != null ? course.getContent() : null;
+        if (pdfRef != null && !pdfRef.isBlank()) {
+            openCoursePdfButton.setText("Ouvrir le PDF du cours");
+            openCoursePdfButton.setDisable(false);
+        } else {
+            openCoursePdfButton.setText("PDF du cours indisponible");
+            openCoursePdfButton.setDisable(true);
+        }
         loadCourseStructure();
+    }
+
+    @FXML
+    private void onOpenCoursePdf() {
+        if (course == null || course.getContent() == null || course.getContent().isBlank()) {
+            showError("PDF", "Aucun PDF n'est renseigne pour ce cours.");
+            return;
+        }
+
+        String pdfRef = course.getContent().trim();
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                showError("PDF", "Ouverture du PDF non supportee sur cette machine.");
+                return;
+            }
+
+            if (pdfRef.startsWith("http://") || pdfRef.startsWith("https://")) {
+                Desktop.getDesktop().browse(URI.create(pdfRef));
+                return;
+            }
+
+            File pdfFile = new File(pdfRef);
+            if (!pdfFile.exists()) {
+                showError("PDF", "Fichier introuvable: " + pdfRef);
+                return;
+            }
+
+            Desktop.getDesktop().open(pdfFile);
+        } catch (Exception e) {
+            showError("PDF", "Impossible d'ouvrir le PDF du cours.");
+        }
     }
 
     @FXML

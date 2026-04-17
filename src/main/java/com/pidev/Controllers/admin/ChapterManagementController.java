@@ -118,9 +118,6 @@ public class ChapterManagementController {
     }
 
     private HBox createChapterCard(Chapter chapter) {
-        Label id = new Label(String.valueOf(chapter.getId() == null ? 0 : chapter.getId()));
-        id.setStyle("-fx-min-width: 80;");
-        id.getStyleClass().add("management-card-label");
         Label title = new Label(nullSafe(chapter.getTitle()));
         title.setStyle("-fx-min-width: 200;");
         title.getStyleClass().add("management-card-label");
@@ -140,7 +137,7 @@ public class ChapterManagementController {
         quiz.setStyle("-fx-min-width: 120;");
         quiz.getStyleClass().add("management-card-label");
 
-        HBox card = new HBox(15, id, title, order, status, minScore, quiz);
+        HBox card = new HBox(15, title, order, status, minScore, quiz);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(chapter, card));
         return card;

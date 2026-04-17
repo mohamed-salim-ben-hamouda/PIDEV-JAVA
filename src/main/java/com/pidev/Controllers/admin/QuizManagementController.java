@@ -117,9 +117,6 @@ public class QuizManagementController {
     }
 
     private HBox createQuizCard(Quiz quiz) {
-        Label id = new Label(String.valueOf(quiz.getId() == null ? 0 : quiz.getId()));
-        id.setStyle("-fx-min-width: 80;");
-        id.getStyleClass().add("management-card-label");
         Label title = new Label(nullSafe(quiz.getTitle()));
         title.setStyle("-fx-min-width: 250;");
         title.getStyleClass().add("management-card-label");
@@ -145,7 +142,7 @@ public class QuizManagementController {
         supervisor.setStyle("-fx-min-width: 120;");
         supervisor.getStyleClass().add("management-card-label");
 
-        HBox card = new HBox(15, id, title, passingScore, maxAttempts, chapter, timeLimit, supervisor);
+        HBox card = new HBox(15, title, passingScore, maxAttempts, chapter, timeLimit, supervisor);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(quiz, card));
         return card;

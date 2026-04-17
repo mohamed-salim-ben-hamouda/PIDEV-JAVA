@@ -117,9 +117,6 @@ public class AnswerManagementController {
     }
 
     private HBox createAnswerCard(Answer answer) {
-        Label id = new Label(String.valueOf(answer.getId() == null ? 0 : answer.getId()));
-        id.setStyle("-fx-min-width: 80;");
-        id.getStyleClass().add("management-card-label");
         Label content = new Label(nullSafe(answer.getContent()));
         content.setStyle("-fx-min-width: 350;");
         content.getStyleClass().add("management-card-label");
@@ -133,7 +130,7 @@ public class AnswerManagementController {
         correct.setStyle("-fx-min-width: 120;");
         correct.getStyleClass().add("management-card-muted");
 
-        HBox card = new HBox(15, id, content, question, correct);
+        HBox card = new HBox(15, content, question, correct);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(answer, card));
         return card;
