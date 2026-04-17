@@ -13,24 +13,14 @@
                     <image><Image url="@../../images/logo.png" /></image>
                 </ImageView>
                 <Region HBox.hgrow="ALWAYS" />
-                <HBox alignment="CENTER" spacing="25.0">
+                <HBox alignment="CENTER" spacing="20.0">
                     <children>
-                        <Label styleClass="nav-link" text="Dashboard" onMouseClicked="#loadDashboard"/>
                         <Label styleClass="nav-link" text="Home" onMouseClicked="#loadHome"/>
                         <Label styleClass="nav-link" text="Courses" onMouseClicked="#loadCourses"/>
                         <Label styleClass="nav-link" text="Groups" onMouseClicked="#loadGroups"/>
-                        <MenuButton fx:id="challengesMenu" text="Challenge &amp; Evaluation" styleClass="nav-menu-button">
-                            <items>
-                                <MenuItem onAction="#loadChallenge" text="Challenge" />
-                                <MenuItem text="Evaluation" />
-                            </items>
-                        </MenuButton>
-                        <MenuButton fx:id="CvMenu" text="Jobs &amp; CV" styleClass="nav-menu-button">
-                            <items>
-                                <MenuItem onAction="#loadMyCV" text="Cv" />
-                                <MenuItem onAction="#loadJobs" text="Jobs" />
-                            </items>
-                        </MenuButton>
+                        <Label styleClass="nav-link" text="Challenges" onMouseClicked="#loadChallenge"/>
+                        <Label styleClass="nav-link" text="Jobs &amp; CV" onMouseClicked="#loadJobs"/>
+                        <Label styleClass="nav-link" text="Mes CV" onMouseClicked="#loadMyCV"/>
                         <Label styleClass="nav-link" text="Hackathon" onMouseClicked="#loadHackathon"/>
                     </children>
                 </HBox>
@@ -65,9 +55,13 @@
                                                 </VBox>
                                                 <VBox spacing="10.0">
                                                     <Label text="LIENS UTILES" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                                    <Label text="Programme d'affiliation" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
+                                                    <Label text="Devenir partenaire" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
                                                     <Label text="Aide et FAQ" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
-                                                    <Label text="À propos" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
-                                                    <Label text="Contact" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
+                                                    <Label text="A propos de Skill Bridge" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
+                                                    <Label text="Nos tarifs" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
+                                                    <Label text="Comment ca marche ?" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
+                                                    <Label text="Nous contacter" style="-fx-text-fill: #a0aec0;" styleClass="footer-link"/>
                                                 </VBox>
                                                 <VBox spacing="10.0">
                                                     <Label text="NOUS CONTACTER" style="-fx-text-fill: white; -fx-font-weight: bold;"/>

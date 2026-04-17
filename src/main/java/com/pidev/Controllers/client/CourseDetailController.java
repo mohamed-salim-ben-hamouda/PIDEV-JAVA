@@ -41,6 +41,7 @@ import java.util.Objects;
 
 public class CourseDetailController {
     @FXML private Label courseTitleLabel;
+    @FXML private Label courseMetaLabel;
     @FXML private Button openCoursePdfButton;
     @FXML private Label chapterCompletionLabel;
     @FXML private Label quizTitleLabel;
@@ -106,6 +107,14 @@ public class CourseDetailController {
     public void setCourse(Course course) {
         this.course = course;
         courseTitleLabel.setText(course != null && course.getTitle() != null ? course.getTitle() : "Cours");
+        if (course != null) {
+            courseMetaLabel.setText("Niveau: " + nullSafe(course.getDifficulty(), "N/A")
+                    + " | Duree: " + course.getDuration() + " min"
+                    + " | Score validation: " + Math.round(course.getValidationScore()) + "%");
+        } else {
+            courseMetaLabel.setText("Niveau: - | Duree: - | Score validation: -");
+        }
+
         String pdfRef = course != null ? course.getContent() : null;
         if (pdfRef != null && !pdfRef.isBlank()) {
             openCoursePdfButton.setText("Ouvrir le PDF du cours");
@@ -345,17 +354,6 @@ public class CourseDetailController {
                 answerButton.setOnAction(event -> {
                     selectedAnswerByQuestionId.put(question.getId(), answer.getId());
                     updateScoreLabel();
-
-                    if (answer.isCorrect()) {
-                        if (currentQuestionIndex < questions.size() - 1) {
-                            currentQuestionIndex++;
-                            renderCurrentQuestion();
-                        } else {
-                            onFinishQuiz();
-                        }
-                        return;
-                    }
-
                     renderCurrentQuestion();
                 });
                 answersBox.getChildren().add(answerButton);
@@ -366,7 +364,7 @@ public class CourseDetailController {
         questionCardContainer.getChildren().setAll(questionCard);
         prevQuestionButton.setDisable(currentQuestionIndex == 0);
         nextQuestionButton.setDisable(currentQuestionIndex >= questions.size() - 1);
-        finishQuizButton.setDisable(selectedAnswerByQuestionId.isEmpty());
+        finishQuizButton.setDisable(selectedAnswerByQuestionId.size() < questions.size());
     }
 
     private void updateScoreLabel() {
@@ -629,6 +627,10 @@ public class CourseDetailController {
             return normalized;
         }
         return normalized.substring(0, Math.max(0, maxLength - 3)) + "...";
+    }
+
+    private String nullSafe(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 
     private void showQuizSection(boolean visible) {

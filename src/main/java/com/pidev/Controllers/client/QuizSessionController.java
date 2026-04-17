@@ -42,10 +42,12 @@ public class QuizSessionController {
     @FXML private VBox resultSection;
 
     @FXML private Label questionNavLabel;
+    @FXML private Label answeredCounterLabel;
     @FXML private Label liveScoreLabel;
     @FXML private ProgressBar questionProgressBar;
     @FXML private Label timerBadgeLabel;
     @FXML private Label questionTextLabel;
+    @FXML private Label questionFeedbackLabel;
     @FXML private VBox answersContainer;
     @FXML private HBox quickNavContainer;
 
@@ -73,6 +75,12 @@ public class QuizSessionController {
     public void initialize() {
         showSection(true, false, false);
         timerBadgeLabel.setText("Libre");
+        if (answeredCounterLabel != null) {
+            answeredCounterLabel.setText("0 / 0 repondues");
+        }
+        if (questionFeedbackLabel != null) {
+            questionFeedbackLabel.setText("");
+        }
     }
 
     public void setQuizContext(Quiz quiz, String chapterName) {
@@ -102,6 +110,9 @@ public class QuizSessionController {
         }
         selectedAnswerByQuestionId.clear();
         currentQuestionIndex = 0;
+        if (questionFeedbackLabel != null) {
+            questionFeedbackLabel.setText("");
+        }
         startCountdown();
         showSection(false, true, false);
         renderCurrentQuestion();
@@ -223,9 +234,11 @@ public class QuizSessionController {
         Question question = questions.get(currentQuestionIndex);
         questionNavLabel.setText("Question " + (currentQuestionIndex + 1) + " sur " + questions.size());
         liveScoreLabel.setText("Score: " + computeScore() + " / " + questions.size());
+        answeredCounterLabel.setText(selectedAnswerByQuestionId.size() + " / " + questions.size() + " repondues");
         double progress = questions.isEmpty() ? 0.0 : (currentQuestionIndex + 1) / (double) questions.size();
         questionProgressBar.setProgress(progress);
         questionTextLabel.setText(question.getContent() == null ? "Sans contenu" : question.getContent());
+        questionFeedbackLabel.setText("");
 
         answersContainer.getChildren().clear();
         Integer selectedId = selectedAnswerByQuestionId.get(question.getId());
@@ -248,7 +261,7 @@ public class QuizSessionController {
         renderQuickNav();
         prevButton.setDisable(currentQuestionIndex == 0);
         nextButton.setDisable(currentQuestionIndex >= questions.size() - 1);
-        finishButton.setDisable(selectedAnswerByQuestionId.isEmpty());
+        finishButton.setDisable(selectedAnswerByQuestionId.size() < questions.size());
     }
 
     private void renderQuickNav() {
@@ -273,17 +286,9 @@ public class QuizSessionController {
 
     private void onAnswerSelected(Question question, Answer answer) {
         selectedAnswerByQuestionId.put(question.getId(), answer.getId());
-
-        if (answer.isCorrect()) {
-            if (currentQuestionIndex < questions.size() - 1) {
-                currentQuestionIndex++;
-                renderCurrentQuestion();
-            } else {
-                onFinishQuiz();
-            }
-            return;
-        }
-
+        questionFeedbackLabel.setText(answer.isCorrect()
+                ? "Bonne reponse. Vous pouvez passer a la suivante."
+                : "Reponse enregistree. Vous pouvez la modifier avant de soumettre.");
         renderCurrentQuestion();
     }
 

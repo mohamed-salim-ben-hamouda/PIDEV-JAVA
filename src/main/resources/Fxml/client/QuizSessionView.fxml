@@ -30,7 +30,7 @@
                                                 <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Fermer" />
                                             </children>
                                         </HBox>
-                                        <Label fx:id="quizContextLabel" styleClass="quiz-session-hero-subtitle" text="Chapitre" />
+                                        <Label fx:id="quizContextLabel" styleClass="quiz-session-hero-subtitle" text="Quiz du cours" />
                                     </children>
                                 </VBox>
 
@@ -56,7 +56,7 @@
                                         </VBox>
                                         <VBox styleClass="quiz-metric-card" spacing="6.0">
                                             <children>
-                                                <Label fx:id="timeLimitLabel" styleClass="stat-value" text="Libre" />
+                                                <Label fx:id="timeLimitLabel" styleClass="stat-value" text="∞" />
                                                 <Label styleClass="stat-label" text="Temps" />
                                             </children>
                                         </VBox>
@@ -69,8 +69,9 @@
                                         <Label styleClass="course-card-description" wrapText="true"
                                                text="• Lisez attentivement chaque question avant de repondre.
 • Une seule reponse est correcte par question.
-• Vous pouvez naviguer entre les questions.
-• Si la reponse est correcte, la suivante s'ouvre automatiquement." />
+• Vous pouvez naviguer entre les questions a tout moment.
+• Vous pouvez modifier vos reponses avant de soumettre.
+• Un score minimum est requis pour valider." />
                                         <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Commencer le quiz" styleClass="quiz-primary-cta" maxWidth="1.7976931348623157E308" />
                                     </children>
                                 </VBox>
@@ -80,9 +81,10 @@
                                         <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="quiz-question-topbar">
                                             <children>
                                                 <Label fx:id="questionNavLabel" styleClass="quiz-question-counter" text="Question 1 sur 1" />
+                                                <Label fx:id="answeredCounterLabel" styleClass="section-pill" text="0 / 0 repondues" />
                                                 <ProgressBar fx:id="questionProgressBar" progress="0.2" prefWidth="190.0" styleClass="quiz-progress-track" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Label styleClass="quiz-language-badge" text="EN" />
+                                                <Label styleClass="quiz-language-badge" text="Navigation" />
                                                 <Label fx:id="timerBadgeLabel" styleClass="quiz-timer-badge" text="--:--" />
                                             </children>
                                         </HBox>
@@ -92,6 +94,7 @@
                                         <VBox spacing="12.0" styleClass="question-block">
                                             <children>
                                                 <Label fx:id="questionTextLabel" styleClass="question-title" wrapText="true" text="Question" />
+                                                <Label fx:id="questionFeedbackLabel" styleClass="course-empty-subtitle" text="" />
                                                 <VBox fx:id="answersContainer" spacing="10.0" />
                                             </children>
                                         </VBox>
@@ -101,7 +104,7 @@
                                                 <Button fx:id="prevButton" onAction="#onPrevQuestion" styleClass="courses-action-btn secondary" text="Precedent" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Button fx:id="nextButton" onAction="#onNextQuestion" styleClass="courses-action-btn primary" text="Suivant" />
-                                                <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="courses-action-btn secondary" text="Terminer" />
+                                                <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="courses-action-btn secondary" text="Terminer le quiz" />
                                             </children>
                                         </HBox>
 

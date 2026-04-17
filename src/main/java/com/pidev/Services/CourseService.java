@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class CourseService {
     private static final Set<String> ALLOWED_SORTS = Set.of("id", "title", "duration", "validationScore");
     private final Connection connection;
+    private final CourseAdvancedBusinessService advancedBusinessService = new CourseAdvancedBusinessService();
 
     public CourseService() {
         this.connection = DataSource.getInstance().getConnection();
@@ -88,6 +89,9 @@ public class CourseService {
     }
 
     public void create(Course course) throws SQLException {
+        advancedBusinessService.normalizeForPersistence(course);
+        enforceBusinessRules(course, false);
+
         String sql = "INSERT INTO course (title, description, duration, difficulty, is_active, validation_score, content, material, creator_id, prerequisite_quiz_id, sections_to_review) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
             bindCourse(statement, course, false);
@@ -96,11 +100,22 @@ public class CourseService {
     }
 
     public void update(Course course) throws SQLException {
+        advancedBusinessService.normalizeForPersistence(course);
+        enforceBusinessRules(course, true);
+
         String sql = "UPDATE course SET title=?, description=?, duration=?, difficulty=?, is_active=?, validation_score=?, content=?, material=?, creator_id=?, prerequisite_quiz_id=?, sections_to_review=? WHERE id=?";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
             bindCourse(statement, course, true);
             statement.executeUpdate();
         }
+    }
+
+    public CourseAdvancedBusinessService.CourseCompleteness evaluateCompleteness(Course course) {
+        return advancedBusinessService.evaluateCompleteness(course);
+    }
+
+    public List<CourseAdvancedBusinessService.CourseSuggestion> suggestNextCourses(Course referenceCourse, int maxResults) throws SQLException {
+        return advancedBusinessService.suggestNextCourses(findAll(), referenceCourse, maxResults);
     }
 
     public void delete(int id) throws SQLException {
@@ -156,6 +171,17 @@ public class CourseService {
 
         if (withId) {
             statement.setInt(12, course.getId());
+        }
+    }
+
+    private void enforceBusinessRules(Course course, boolean withId) throws SQLException {
+        if (withId && (course == null || course.getId() == null)) {
+            throw new SQLException("Course id is required for update.");
+        }
+
+        List<String> errors = advancedBusinessService.validateForPersistence(course);
+        if (!errors.isEmpty()) {
+            throw new SQLException(String.join(" | ", errors));
         }
     }
 

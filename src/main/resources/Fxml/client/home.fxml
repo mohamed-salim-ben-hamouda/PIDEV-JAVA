@@ -18,7 +18,7 @@
                     <children>
                         <VBox spacing="25.0" HBox.hgrow="ALWAYS">
                             <Label styleClass="hero-title" text="Skill Bridge" />
-                            <Label maxWidth="500" styleClass="hero-subtitle" text="Plateforme éducative intelligente pour booster votre carrière." wrapText="true" />
+                            <Label maxWidth="500" styleClass="hero-subtitle" text="Plateforme educative intelligente pour developper vos competences et booster votre carriere." wrapText="true" />
                         </VBox>
                         <ImageView fitHeight="350.0" fitWidth="450.0" preserveRatio="true">
                             <Image url="@../../images/home_pic.jpg" />
@@ -30,15 +30,37 @@
                     <padding><Insets bottom="80.0" left="50.0" right="50.0" top="60.0" /></padding>
                     <Label styleClass="section-subtitle" text="EXPLOREZ" />
                     <Label styleClass="section-title" text="Nos Modules" />
-                    <FlowPane alignment="CENTER" hgap="25.0" vgap="25.0">
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="👤" /><Label styleClass="member-name" text="Profile" /></VBox>
-                        <VBox onMouseClicked="#goToCourses" styleClass="module-card"><Label style="-fx-font-size: 35;" text="📚" /><Label styleClass="member-name" text="Courses" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="🏆" /><Label styleClass="member-name" text="Challenges" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="📄" /><Label styleClass="member-name" text="Internship" /></VBox>
-                    </FlowPane>
-                    <FlowPane alignment="CENTER" hgap="25.0" vgap="25.0">
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="👥" /><Label styleClass="member-name" text="Groups" /></VBox>
-                        <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="🏁" /><Label styleClass="member-name" text="Hackathon" /></VBox>
+                    <FlowPane alignment="CENTER" hgap="25.0" prefWrapLength="980" vgap="25.0">
+                        <VBox styleClass="module-card" spacing="8.0">
+                            <Label style="-fx-font-size: 35;" text="👤" />
+                            <Label styleClass="member-name" text="Profile" />
+                            <Label styleClass="course-empty-subtitle" text="Gerez vos informations et suivez votre progression." wrapText="true" />
+                        </VBox>
+                        <VBox onMouseClicked="#goToCourses" styleClass="module-card" spacing="8.0">
+                            <Label style="-fx-font-size: 35;" text="📚" />
+                            <Label styleClass="member-name" text="Courses" />
+                            <Label styleClass="course-empty-subtitle" text="Accedez a des cours interactifs pour developper vos competences." wrapText="true" />
+                        </VBox>
+                        <VBox styleClass="module-card" spacing="8.0">
+                            <Label style="-fx-font-size: 35;" text="👥" />
+                            <Label styleClass="member-name" text="Groups" />
+                            <Label styleClass="course-empty-subtitle" text="Rejoignez des groupes d'etude et collaborez avec d'autres etudiants." wrapText="true" />
+                        </VBox>
+                        <VBox styleClass="module-card" spacing="8.0">
+                            <Label style="-fx-font-size: 35;" text="🏆" />
+                            <Label styleClass="member-name" text="Challenges" />
+                            <Label styleClass="course-empty-subtitle" text="Testez vos competences grace a des defis interactifs." wrapText="true" />
+                        </VBox>
+                        <VBox styleClass="module-card" spacing="8.0">
+                            <Label style="-fx-font-size: 35;" text="📄" />
+                            <Label styleClass="member-name" text="CV &amp; Internship" />
+                            <Label styleClass="course-empty-subtitle" text="Creez votre CV et postulez pour des stages adaptes." wrapText="true" />
+                        </VBox>
+                        <VBox styleClass="module-card" spacing="8.0">
+                            <Label style="-fx-font-size: 35;" text="💡" />
+                            <Label styleClass="member-name" text="Hackathon" />
+                            <Label styleClass="course-empty-subtitle" text="Participez a des hackathons et mettez vos competences en pratique." wrapText="true" />
+                        </VBox>
                     </FlowPane>
                 </VBox>
 

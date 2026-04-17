@@ -16,7 +16,7 @@
     <top>
         <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="courses-detail-topbar">
             <children>
-                <Button fx:id="backButton" onAction="#onBack" text="Retour" styleClass="courses-action-btn secondary" />
+                <Button fx:id="backButton" onAction="#onBack" text="Retour au dashboard" styleClass="courses-action-btn secondary" />
                 <FontIcon iconLiteral="fas-book-open" styleClass="section-title-icon" />
                 <Label fx:id="courseTitleLabel" styleClass="section-title" text="Cours" />
                 <Region HBox.hgrow="ALWAYS" />
@@ -38,7 +38,9 @@
                         <VBox spacing="10.0" styleClass="course-detail-hero">
                             <children>
                                 <Label styleClass="course-detail-hero-title" text="Parcours du cours" />
-                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Ouvrir le PDF du cours" styleClass="courses-action-btn secondary" />
+                                <Label styleClass="course-detail-hero-subtitle" text="Consultez les chapitres, suivez votre progression et passez le quiz final." />
+                                <Label fx:id="courseMetaLabel" styleClass="course-detail-hero-subtitle" text="Niveau: - | Duree: - | Score validation: -" />
+                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Telecharger le support" styleClass="courses-action-btn secondary" />
                             </children>
                         </VBox>
 
@@ -49,7 +51,7 @@
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
                                                 <FontIcon iconLiteral="fas-stream" styleClass="section-title-icon" />
-                                                <Label styleClass="assessment-title" text="Chapitres" />
+                                                <Label styleClass="assessment-title" text="Contenu du cours" />
                                             </children>
                                         </HBox>
                                         <VBox fx:id="chapterContainer" spacing="10.0" />
@@ -63,13 +65,13 @@
                                                 <Label fx:id="quizTitleLabel" styleClass="assessment-title" text="Quiz" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Label fx:id="quizStateBadge" styleClass="status-badge status-pending" text="EN ATTENTE" />
-                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Ouvrir la session quiz" styleClass="courses-action-btn primary" />
+                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Commencer le quiz" styleClass="courses-action-btn primary" />
                                             </children>
                                         </HBox>
 
                                         <Label fx:id="quizMetaLabel" styleClass="course-card-description" text="" />
                                         <Label fx:id="quizHintLabel" styleClass="course-empty-subtitle" text="" />
-                                        <Label styleClass="quiz-flow-hint" text="Reponse correcte -> passage automatique a la question suivante" />
+                                        <Label styleClass="quiz-flow-hint" text="Vous pouvez modifier vos reponses jusqu'a la soumission" />
 
                                         <VBox fx:id="quizSection" spacing="14.0" visible="false" managed="false">
                                             <children>
