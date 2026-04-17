@@ -1,6 +1,7 @@
 package com.pidev.Controllers.admin;
 
 import com.pidev.Services.AdminLookupService;
+import com.pidev.Controllers.admin.AdminDialogStyler;
 import com.pidev.Services.QuestionService;
 import com.pidev.models.Question;
 import com.pidev.models.Quiz;
@@ -19,6 +20,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.Priority;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -124,8 +128,14 @@ public class QuestionManagementController {
         Label points = new Label(String.valueOf(question.getPoint()));
         points.setStyle("-fx-min-width: 100;");
         points.getStyleClass().add("management-card-label");
+        String quizText = question.getQuiz() != null && question.getQuiz().getId() != null
+            ? "Quiz #" + question.getQuiz().getId()
+            : "N/A";
+        Label quiz = new Label(quizText);
+        quiz.setStyle("-fx-min-width: 120;");
+        quiz.getStyleClass().add("management-card-muted");
 
-        HBox card = new HBox(15, id, content, type, points);
+        HBox card = new HBox(15, id, content, type, points, quiz);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(question, card));
         return card;
@@ -145,15 +155,23 @@ public class QuestionManagementController {
     private Optional<Question> showDialog(Question existing) {
         boolean edit = existing != null;
         Dialog<Question> dialog = new Dialog<>();
-        dialog.setTitle(edit ? "Edit Question" : "Add Question");
-        ButtonType save = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        VBox dialogContent = AdminDialogStyler.apply(dialog,
+            edit ? "Modifier question" : "Ajouter question",
+            edit ? "Mettre a jour le contenu de la question" : "Renseigner la question et son type",
+            760,
+            560);
+        ButtonType save = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(save, ButtonType.CANCEL);
 
         ComboBox<Quiz> quizCombo = new ComboBox<>();
+        AdminDialogStyler.styleComboBox(quizCombo);
         TextArea contentArea = new TextArea(edit ? existing.getContent() : "");
+        AdminDialogStyler.styleTextArea(contentArea);
         ComboBox<String> typeCombo = new ComboBox<>(FXCollections.observableArrayList("multiple_choice", "single_choice", "true_false"));
+        AdminDialogStyler.styleComboBox(typeCombo);
         typeCombo.setValue(edit ? existing.getType() : "multiple_choice");
         TextField pointField = new TextField(edit ? String.valueOf(existing.getPoint()) : "1");
+        AdminDialogStyler.styleField(pointField);
 
         try {
             quizCombo.setItems(FXCollections.observableArrayList(lookupService.findAllQuizzes()));
@@ -170,8 +188,10 @@ public class QuestionManagementController {
         }
 
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
+        grid.setHgap(14);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(0, 4, 4, 4));
+        grid.setPrefWidth(700);
         Label quizError = new Label();
         Label contentError = new Label();
         Label typeError = new Label();
@@ -182,22 +202,50 @@ public class QuestionManagementController {
         typeError.setStyle(errorStyle);
         pointError.setStyle(errorStyle);
 
-        grid.add(new Label("Quiz"), 0, 0);
+        Label quizLabel = new Label("Quiz");
+        AdminDialogStyler.styleFormLabel(quizLabel);
+        grid.add(quizLabel, 0, 0);
         grid.add(quizCombo, 1, 0);
         grid.add(quizError, 1, 1);
-        grid.add(new Label("Content"), 0, 2);
+        Label contentLabel = new Label("Contenu");
+        AdminDialogStyler.styleFormLabel(contentLabel);
+        grid.add(contentLabel, 0, 2);
         grid.add(contentArea, 1, 2);
         grid.add(contentError, 1, 3);
-        grid.add(new Label("Type"), 0, 4);
+        Label typeLabel = new Label("Type");
+        AdminDialogStyler.styleFormLabel(typeLabel);
+        grid.add(typeLabel, 0, 4);
         grid.add(typeCombo, 1, 4);
         grid.add(typeError, 1, 5);
-        grid.add(new Label("Points"), 0, 6);
+        Label pointsLabel = new Label("Points");
+        AdminDialogStyler.styleFormLabel(pointsLabel);
+        grid.add(pointsLabel, 0, 6);
         grid.add(pointField, 1, 6);
         grid.add(pointError, 1, 7);
-        dialog.getDialogPane().setContent(grid);
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setMinWidth(150);
+        labelColumn.setPrefWidth(150);
+        labelColumn.setHalignment(javafx.geometry.HPos.LEFT);
+        ColumnConstraints valueColumn = new ColumnConstraints();
+        valueColumn.setHgrow(Priority.ALWAYS);
+        valueColumn.setFillWidth(true);
+        grid.getColumnConstraints().addAll(labelColumn, valueColumn);
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionLabel("Definition de la question"));
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionSeparator());
+        dialogContent.getChildren().add(grid);
+        dialogContent.getChildren().add(AdminDialogStyler.createFooterHint("Choisissez le quiz parent puis precisez le type et le barème."));
 
         final Question[] dialogResult = new Question[1];
         Node saveButton = dialog.getDialogPane().lookupButton(save);
+        Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (saveButton instanceof javafx.scene.control.Button saveBtn) {
+            AdminDialogStyler.styleButton(saveBtn, true);
+            saveBtn.setDefaultButton(true);
+        }
+        if (cancelButton instanceof javafx.scene.control.Button cancelBtn) {
+            AdminDialogStyler.styleButton(cancelBtn, false);
+            cancelBtn.setCancelButton(true);
+        }
         saveButton.addEventFilter(ActionEvent.ACTION, event -> {
             quizError.setText("");
             contentError.setText("");
@@ -213,7 +261,8 @@ public class QuestionManagementController {
                 contentError.setText("Content obligatoire (min 3 caracteres).");
                 valid = false;
             }
-            if (typeCombo.getValue() == null || typeCombo.getValue().isBlank()) {
+            String type = typeCombo.getValue() == null ? "" : typeCombo.getValue().trim();
+            if (type.isBlank() || type.length() > 20) {
                 typeError.setText("Type obligatoire.");
                 valid = false;
             }
@@ -238,7 +287,7 @@ public class QuestionManagementController {
             Question question = edit ? existing : new Question();
             question.setQuiz(quizCombo.getValue());
             question.setContent(contentArea.getText().trim());
-            question.setType(typeCombo.getValue());
+            question.setType(type);
             question.setPoint(points);
             dialogResult[0] = question;
         });

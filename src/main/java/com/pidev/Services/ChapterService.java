@@ -2,6 +2,7 @@ package com.pidev.Services;
 
 import com.pidev.models.Chapter;
 import com.pidev.models.Course;
+import com.pidev.models.Quiz;
 import com.pidev.utils.DataSource;
 
 import java.sql.*;
@@ -18,7 +19,9 @@ public class ChapterService {
     }
 
     public List<Chapter> findAll() throws SQLException {
-        String sql = "SELECT id, course_id, chapter_order, status, min_score, content, title FROM chapter ORDER BY id DESC";
+        String sql = "SELECT ch.id, ch.course_id, ch.chapter_order, ch.status, ch.min_score, ch.content, ch.title, "
+                + "(SELECT q.id FROM quiz q WHERE q.chapter_id = ch.id LIMIT 1) AS quiz_id "
+                + "FROM chapter ch ORDER BY ch.id DESC";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql);
              ResultSet rs = statement.executeQuery()) {
             return mapResult(rs);
@@ -26,15 +29,17 @@ public class ChapterService {
     }
 
     public List<Chapter> findPage(String search, Integer courseFilter, String sort, String direction, int page, int limit) throws SQLException {
-        StringBuilder sql = new StringBuilder("SELECT id, course_id, chapter_order, status, min_score, content, title FROM chapter WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT ch.id, ch.course_id, ch.chapter_order, ch.status, ch.min_score, ch.content, ch.title, "
+                + "(SELECT q.id FROM quiz q WHERE q.chapter_id = ch.id LIMIT 1) AS quiz_id "
+                + "FROM chapter ch WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
         if (search != null && !search.isBlank()) {
-            sql.append(" AND title LIKE ?");
+            sql.append(" AND ch.title LIKE ?");
             params.add("%" + search.trim() + "%");
         }
         if (courseFilter != null) {
-            sql.append(" AND course_id = ?");
+            sql.append(" AND ch.course_id = ?");
             params.add(courseFilter);
         }
 
@@ -131,6 +136,11 @@ public class ChapterService {
             chapter.setMinScore(rs.getFloat("min_score"));
             chapter.setContent(rs.getString("content"));
             chapter.setTitle(rs.getString("title"));
+
+            int quizId = rs.getInt("quiz_id");
+            if (!rs.wasNull()) {
+                chapter.setQuiz(new Quiz(quizId));
+            }
             result.add(chapter);
         }
         return result;

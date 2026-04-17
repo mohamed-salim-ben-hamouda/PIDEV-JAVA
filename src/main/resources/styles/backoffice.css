@@ -221,12 +221,12 @@
     -fx-border-color: #dfe7f3;
     -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-padding: 12 16 12 16;
+    -fx-padding: 11 14 11 14;
 }
 
 .management-rail-label {
     -fx-text-fill: #17406f;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-letter-spacing: 0.2px;
 }
@@ -236,13 +236,17 @@
     -fx-padding: 0;
 }
 
+.management-list .viewport {
+    -fx-background-color: transparent;
+}
+
 .management-card {
     -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #fbfdff 100%);
     -fx-background-radius: 18;
     -fx-border-color: #dfe7f3;
     -fx-border-radius: 18;
     -fx-border-width: 1;
-    -fx-padding: 16 18 16 18;
+    -fx-padding: 12 14 12 14;
     -fx-effect: dropshadow(three-pass-box, rgba(46, 76, 128, 0.07), 14, 0.12, 0, 4);
 }
 
@@ -259,13 +263,162 @@
 
 .management-card-label {
     -fx-text-fill: #163760;
-    -fx-font-size: 14px;
+    -fx-font-size: 12px;
     -fx-font-weight: 600;
+    -fx-text-overrun: ellipsis;
 }
 
 .management-card-muted {
     -fx-text-fill: #6f8098;
+    -fx-font-size: 12px;
+    -fx-text-overrun: ellipsis;
+}
+
+.management-card .label {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.crud-dialog-pane {
+    -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #f8fbff 100%);
+    -fx-background-radius: 22;
+    -fx-border-color: #dfe7f3;
+    -fx-border-radius: 22;
+    -fx-border-width: 1;
+}
+
+.crud-dialog-wrapper {
+    -fx-background-color: transparent;
+}
+
+.crud-dialog-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.crud-dialog-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.crud-dialog-scroll > .scroll-bar:vertical {
+    -fx-pref-width: 12;
+}
+
+.crud-dialog-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #fbfdff 100%);
+    -fx-background-radius: 20;
+    -fx-border-color: #dfe7f3;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 76, 128, 0.10), 18, 0.15, 0, 6);
+}
+
+.crud-dialog-header {
+    -fx-background-color: transparent;
+    -fx-padding: 2 2 10 2;
+}
+
+.crud-dialog-title {
+    -fx-text-fill: #102e57;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.crud-dialog-subtitle {
+    -fx-text-fill: #6f8098;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.crud-form-label {
+    -fx-text-fill: #173861;
     -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.crud-section-label {
+    -fx-text-fill: #102e57;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-padding: 8 0 2 0;
+}
+
+.crud-section-separator {
+    -fx-opacity: 0.75;
+}
+
+.crud-dialog-hint {
+    -fx-text-fill: #6f8098;
+    -fx-font-size: 12px;
+    -fx-padding: 4 0 0 0;
+}
+
+.crud-field,
+.crud-combo-box,
+.crud-text-area {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #d8e2ef;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 14px;
+    -fx-text-fill: #0f2748;
+}
+
+.crud-dialog-wrapper .text-field,
+.crud-dialog-wrapper .combo-box-base,
+.crud-dialog-wrapper .text-area {
+    -fx-max-width: 1.7976931348623157E308;
+}
+
+.crud-text-area {
+    -fx-padding: 12 14 12 14;
+}
+
+.crud-field:focused,
+.crud-combo-box:focused,
+.crud-text-area:focused {
+    -fx-border-color: #6a99e6;
+    -fx-effect: dropshadow(three-pass-box, rgba(90, 140, 228, 0.14), 12, 0.15, 0, 2);
+}
+
+.crud-dialog-primary-btn,
+.crud-dialog-secondary-btn {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 11 18 11 18;
+    -fx-cursor: hand;
+}
+
+.crud-dialog-primary-btn {
+    -fx-background-color: linear-gradient(to bottom, #edf4ff 0%, #e3edff 100%);
+    -fx-text-fill: #355ea8;
+}
+
+.crud-dialog-secondary-btn {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #5d6f88;
+    -fx-border-color: #d8e2ef;
+    -fx-border-width: 1;
+}
+
+.crud-dialog-pane .button {
+    -fx-cursor: hand;
+}
+
+.crud-dialog-primary-btn:hover,
+.crud-dialog-primary-btn:focused,
+.crud-dialog-primary-btn:armed,
+.crud-dialog-primary-btn:pressed,
+.crud-dialog-secondary-btn:hover,
+.crud-dialog-secondary-btn:focused,
+.crud-dialog-secondary-btn:armed,
+.crud-dialog-secondary-btn:pressed {
+    -fx-background-color: linear-gradient(to bottom, #dfeaff 0%, #d2e2ff 100%);
+    -fx-text-fill: #2d5ca8;
 }
 
 .management-action-row {

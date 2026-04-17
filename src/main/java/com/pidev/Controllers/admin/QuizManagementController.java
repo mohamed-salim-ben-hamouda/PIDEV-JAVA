@@ -1,6 +1,7 @@
 package com.pidev.Controllers.admin;
 
 import com.pidev.Services.AdminLookupService;
+import com.pidev.Controllers.admin.AdminDialogStyler;
 import com.pidev.Services.QuizService;
 import com.pidev.models.Chapter;
 import com.pidev.models.Course;
@@ -20,6 +21,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.Priority;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -125,8 +129,23 @@ public class QuizManagementController {
         Label maxAttempts = new Label(String.valueOf(quiz.getMaxAttempts()));
         maxAttempts.setStyle("-fx-min-width: 120;");
         maxAttempts.getStyleClass().add("management-card-label");
+        String chapterText = quiz.getChapter() != null && quiz.getChapter().getId() != null
+            ? "Chap #" + quiz.getChapter().getId()
+            : "Aucun";
+        Label chapter = new Label(chapterText);
+        chapter.setStyle("-fx-min-width: 120;");
+        chapter.getStyleClass().add("management-card-muted");
+        Label timeLimit = new Label(quiz.getTimeLimit() == 0 ? "Illimite" : quiz.getTimeLimit() + " min");
+        timeLimit.setStyle("-fx-min-width: 100;");
+        timeLimit.getStyleClass().add("management-card-label");
+        String supervisorText = quiz.getSupervisor() != null
+            ? quiz.getSupervisor().getDisplayName()
+            : "N/A";
+        Label supervisor = new Label(supervisorText);
+        supervisor.setStyle("-fx-min-width: 120;");
+        supervisor.getStyleClass().add("management-card-label");
 
-        HBox card = new HBox(15, id, title, passingScore, maxAttempts);
+        HBox card = new HBox(15, id, title, passingScore, maxAttempts, chapter, timeLimit, supervisor);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(quiz, card));
         return card;
@@ -146,18 +165,30 @@ public class QuizManagementController {
     private Optional<Quiz> showDialog(Quiz existing) {
         boolean edit = existing != null;
         Dialog<Quiz> dialog = new Dialog<>();
-        dialog.setTitle(edit ? "Edit Quiz" : "Add Quiz");
-        ButtonType save = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        VBox dialogContent = AdminDialogStyler.apply(dialog,
+            edit ? "Modifier quiz" : "Ajouter quiz",
+            edit ? "Mettre a jour les parametres du quiz" : "Renseigner les parametres du quiz",
+            820,
+            620);
+        ButtonType save = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(save, ButtonType.CANCEL);
 
         ComboBox<Course> courseCombo = new ComboBox<>();
         ComboBox<Chapter> chapterCombo = new ComboBox<>();
+        AdminDialogStyler.styleComboBox(courseCombo);
+        AdminDialogStyler.styleComboBox(chapterCombo);
         TextField titleField = new TextField(edit ? existing.getTitle() : "");
+        AdminDialogStyler.styleField(titleField);
         TextField passingScoreField = new TextField(edit ? String.valueOf(existing.getPassingScore()) : "70");
+        AdminDialogStyler.styleField(passingScoreField);
         TextField maxAttemptsField = new TextField(edit ? String.valueOf(existing.getMaxAttempts()) : "3");
+        AdminDialogStyler.styleField(maxAttemptsField);
         TextField qpaField = new TextField(edit && existing.getQuestionsPerAttempt() != null ? String.valueOf(existing.getQuestionsPerAttempt()) : "");
+        AdminDialogStyler.styleField(qpaField);
         TextField timeLimitField = new TextField(edit ? String.valueOf(existing.getTimeLimit()) : "0");
+        AdminDialogStyler.styleField(timeLimitField);
         ComboBox<User> supervisorCombo = new ComboBox<>();
+        AdminDialogStyler.styleComboBox(supervisorCombo);
 
         try {
             List<Course> courses = lookupService.findAllCourses();
@@ -176,8 +207,10 @@ public class QuizManagementController {
         }
 
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
+        grid.setHgap(14);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(0, 4, 4, 4));
+        grid.setPrefWidth(760);
         Label titleError = new Label();
         Label courseError = new Label();
         Label chapterError = new Label();
@@ -185,6 +218,7 @@ public class QuizManagementController {
         Label maxAttemptsError = new Label();
         Label qpaError = new Label();
         Label timeLimitError = new Label();
+        Label supervisorError = new Label();
         String errorStyle = "-fx-text-fill: #d32f2f; -fx-font-size: 11;";
         titleError.setStyle(errorStyle);
         courseError.setStyle(errorStyle);
@@ -193,34 +227,72 @@ public class QuizManagementController {
         maxAttemptsError.setStyle(errorStyle);
         qpaError.setStyle(errorStyle);
         timeLimitError.setStyle(errorStyle);
+        supervisorError.setStyle(errorStyle);
 
-        grid.add(new Label("Title"), 0, 0);
+        Label titleLabel = new Label("Titre");
+        AdminDialogStyler.styleFormLabel(titleLabel);
+        grid.add(titleLabel, 0, 0);
         grid.add(titleField, 1, 0);
         grid.add(titleError, 1, 1);
-        grid.add(new Label("Course"), 0, 2);
+        Label courseLabel = new Label("Cours");
+        AdminDialogStyler.styleFormLabel(courseLabel);
+        grid.add(courseLabel, 0, 2);
         grid.add(courseCombo, 1, 2);
         grid.add(courseError, 1, 3);
-        grid.add(new Label("Chapter"), 0, 4);
+        Label chapterLabel = new Label("Chapitre (optionnel)");
+        AdminDialogStyler.styleFormLabel(chapterLabel);
+        grid.add(chapterLabel, 0, 4);
         grid.add(chapterCombo, 1, 4);
         grid.add(chapterError, 1, 5);
-        grid.add(new Label("Passing Score"), 0, 6);
+        Label passingScoreLabel = new Label("Score requis");
+        AdminDialogStyler.styleFormLabel(passingScoreLabel);
+        grid.add(passingScoreLabel, 0, 6);
         grid.add(passingScoreField, 1, 6);
         grid.add(passingScoreError, 1, 7);
-        grid.add(new Label("Max Attempts"), 0, 8);
+        Label maxAttemptsLabel = new Label("Tentatives max");
+        AdminDialogStyler.styleFormLabel(maxAttemptsLabel);
+        grid.add(maxAttemptsLabel, 0, 8);
         grid.add(maxAttemptsField, 1, 8);
         grid.add(maxAttemptsError, 1, 9);
-        grid.add(new Label("Questions/Attempt"), 0, 10);
+        Label qpaLabel = new Label("Questions/Tentative");
+        AdminDialogStyler.styleFormLabel(qpaLabel);
+        grid.add(qpaLabel, 0, 10);
         grid.add(qpaField, 1, 10);
         grid.add(qpaError, 1, 11);
-        grid.add(new Label("Time Limit (min)"), 0, 12);
+        Label timeLimitLabel = new Label("Temps limite (min)");
+        AdminDialogStyler.styleFormLabel(timeLimitLabel);
+        grid.add(timeLimitLabel, 0, 12);
         grid.add(timeLimitField, 1, 12);
         grid.add(timeLimitError, 1, 13);
-        grid.add(new Label("Supervisor"), 0, 14);
+        Label supervisorLabel = new Label("Superviseur");
+        AdminDialogStyler.styleFormLabel(supervisorLabel);
+        grid.add(supervisorLabel, 0, 14);
         grid.add(supervisorCombo, 1, 14);
-        dialog.getDialogPane().setContent(grid);
+        grid.add(supervisorError, 1, 15);
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setMinWidth(170);
+        labelColumn.setPrefWidth(170);
+        labelColumn.setHalignment(javafx.geometry.HPos.LEFT);
+        ColumnConstraints valueColumn = new ColumnConstraints();
+        valueColumn.setHgrow(Priority.ALWAYS);
+        valueColumn.setFillWidth(true);
+        grid.getColumnConstraints().addAll(labelColumn, valueColumn);
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionLabel("Parametres du quiz"));
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionSeparator());
+        dialogContent.getChildren().add(grid);
+        dialogContent.getChildren().add(AdminDialogStyler.createFooterHint("Le superviseur est obligatoire. Le chapitre reste optionnel selon votre configuration."));
 
         final Quiz[] dialogResult = new Quiz[1];
         Node saveButton = dialog.getDialogPane().lookupButton(save);
+        Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (saveButton instanceof javafx.scene.control.Button saveBtn) {
+            AdminDialogStyler.styleButton(saveBtn, true);
+            saveBtn.setDefaultButton(true);
+        }
+        if (cancelButton instanceof javafx.scene.control.Button cancelBtn) {
+            AdminDialogStyler.styleButton(cancelBtn, false);
+            cancelBtn.setCancelButton(true);
+        }
         saveButton.addEventFilter(ActionEvent.ACTION, event -> {
             titleError.setText("");
             courseError.setText("");
@@ -229,18 +301,16 @@ public class QuizManagementController {
             maxAttemptsError.setText("");
             qpaError.setText("");
             timeLimitError.setText("");
+            supervisorError.setText("");
 
             boolean valid = true;
-            if (titleField.getText() == null || titleField.getText().trim().length() < 3) {
-                titleError.setText("Titre obligatoire (min 3 caracteres).");
+            String title = titleField.getText() == null ? "" : titleField.getText().trim();
+            if (title.length() < 3 || title.length() > 30) {
+                titleError.setText("Titre obligatoire (3 a 30 caracteres).");
                 valid = false;
             }
             if (courseCombo.getValue() == null) {
                 courseError.setText("Cours obligatoire.");
-                valid = false;
-            }
-            if (chapterCombo.getValue() == null) {
-                chapterError.setText("Chapitre obligatoire.");
                 valid = false;
             }
 
@@ -295,13 +365,18 @@ public class QuizManagementController {
                 valid = false;
             }
 
+            if (supervisorCombo.getValue() == null || supervisorCombo.getValue().getId() == null) {
+                supervisorError.setText("Superviseur obligatoire.");
+                valid = false;
+            }
+
             if (!valid) {
                 event.consume();
                 return;
             }
 
             Quiz quiz = edit ? existing : new Quiz();
-            quiz.setTitle(titleField.getText().trim());
+            quiz.setTitle(title);
             quiz.setCourse(courseCombo.getValue());
             quiz.setChapter(chapterCombo.getValue());
             quiz.setPassingScore(passingScore);
@@ -317,15 +392,15 @@ public class QuizManagementController {
         return dialog.showAndWait();
     }
 
-    private String validateQuizInput(String title, Course course, Chapter chapter, String passingScore, String maxAttempts, String questionsPerAttempt, String timeLimit) {
+    private String validateQuizInput(String title, Course course, User supervisor, String passingScore, String maxAttempts, String questionsPerAttempt, String timeLimit) {
         if (title == null || title.trim().length() < 3) {
             return "Title is required (minimum 3 characters).";
         }
         if (course == null) {
             return "Course is required.";
         }
-        if (chapter == null) {
-            return "Chapter is required.";
+        if (supervisor == null) {
+            return "Supervisor is required.";
         }
 
         try {

@@ -1,5 +1,8 @@
 package com.pidev.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Quiz {
     private Integer id;
     private Course course;
@@ -10,8 +13,12 @@ public class Quiz {
     private Integer questionsPerAttempt;
     private int timeLimit;
     private User supervisor;
+    private List<Question> questions;
+    private List<Object> quizAttempts;
 
     public Quiz() {
+        this.questions = new ArrayList<>();
+        this.quizAttempts = new ArrayList<>();
     }
 
     public Quiz(int id) {
@@ -42,11 +49,24 @@ public class Quiz {
     public int getTimeLimit() { return timeLimit; }
     public void setTimeLimit(int timeLimit) { this.timeLimit = timeLimit; }
 
+    public int getTimeLimitSeconds() { return timeLimit * 60; }
+
     public User getSupervisor() { return supervisor; }
     public void setSupervisor(User supervisor) { this.supervisor = supervisor; }
 
+    public List<Question> getQuestions() { return questions; }
+    public void setQuestions(List<Question> questions) { this.questions = questions; }
+
+    public List<Object> getQuizAttempts() { return quizAttempts; }
+    public void setQuizAttempts(List<Object> quizAttempts) { this.quizAttempts = quizAttempts; }
+
     @Override
     public String toString() {
-        return title != null ? title : "Quiz #" + id;
+        String chapterTitle = chapter != null ? chapter.getTitle() : null;
+        String localTitle = title != null ? title : "";
+        if (chapterTitle != null && !chapterTitle.isBlank()) {
+            return chapterTitle + " - " + (localTitle.isBlank() ? "Quiz #" + id : localTitle);
+        }
+        return localTitle.isBlank() ? "Quiz #" + id : localTitle;
     }
 }

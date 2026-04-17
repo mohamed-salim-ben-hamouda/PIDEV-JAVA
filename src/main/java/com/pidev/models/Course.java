@@ -1,12 +1,18 @@
 package com.pidev.models;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.List;
 
 public class Course {
     public static final String DIFFICULTY_BEGINNER = "BEGINNER";
     public static final String DIFFICULTY_INTERMEDIATE = "INTERMEDIATE";
     public static final String DIFFICULTY_ADVANCED = "ADVANCED";
+    public static final Map<String, Integer> DIFFICULTY_LEVELS = Map.of(
+            DIFFICULTY_BEGINNER, 1,
+            DIFFICULTY_INTERMEDIATE, 2,
+            DIFFICULTY_ADVANCED, 3
+    );
 
     private Integer id;
     private String title;
@@ -19,15 +25,21 @@ public class Course {
     private String material;
     private Quiz prerequisiteQuiz;
     private List<String> sectionsToReview;
+    private List<Quiz> quizzes;
+    private List<Chapter> chapters;
 
     private User creator;
 
-    List<Challenge> challenges;
+    private List<Challenge> challenges;
+    private List<Object> enrollements;
 
     // Constructor
     public Course() {
         this.challenges = new ArrayList<>();
         this.sectionsToReview = new ArrayList<>();
+        this.quizzes = new ArrayList<>();
+        this.chapters = new ArrayList<>();
+        this.enrollements = new ArrayList<>();
         this.isActive = true;
         this.difficulty = DIFFICULTY_BEGINNER;
     }
@@ -40,11 +52,7 @@ public class Course {
 
 
     public int getDifficultyLevel() {
-        return switch (this.difficulty) {
-            case DIFFICULTY_INTERMEDIATE -> 2;
-            case DIFFICULTY_ADVANCED -> 3;
-            default -> 1;
-        };
+        return DIFFICULTY_LEVELS.getOrDefault(this.difficulty, 1);
     }
 
     @Override
@@ -70,6 +78,8 @@ public class Course {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+    public boolean isIsActive() { return isActive; }
+    public void setIsActive(boolean active) { isActive = active; }
 
     public float getValidationScore() { return validationScore; }
     public void setValidationScore(float validationScore) { this.validationScore = validationScore; }
@@ -85,6 +95,15 @@ public class Course {
 
     public List<Challenge> getChallenges() { return challenges; }
     public void setChallenges(List<Challenge> challenges) { this.challenges = challenges; }
+
+    public List<Object> getEnrollements() { return enrollements; }
+    public void setEnrollements(List<Object> enrollements) { this.enrollements = enrollements; }
+
+    public List<Quiz> getQuizzes() { return quizzes; }
+    public void setQuizzes(List<Quiz> quizzes) { this.quizzes = quizzes; }
+
+    public List<Chapter> getChapters() { return chapters; }
+    public void setChapters(List<Chapter> chapters) { this.chapters = chapters; }
 
     public Quiz getPrerequisiteQuiz() { return prerequisiteQuiz; }
     public void setPrerequisiteQuiz(Quiz prerequisiteQuiz) { this.prerequisiteQuiz = prerequisiteQuiz; }

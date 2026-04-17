@@ -23,7 +23,9 @@ public class Answer {
     public void setContent(String content) { this.content = content; }
 
     public boolean isCorrect() { return isCorrect; }
+    public boolean getIsCorrect() { return isCorrect; }
     public void setCorrect(boolean correct) { isCorrect = correct; }
+    public void setIsCorrect(boolean correct) { isCorrect = correct; }
 
     @Override
     public String toString() {

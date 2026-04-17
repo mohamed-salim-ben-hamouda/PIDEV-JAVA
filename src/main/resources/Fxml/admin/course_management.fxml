@@ -10,7 +10,7 @@
 <VBox spacing="16.0" styleClass="admin-page" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pidev.Controllers.admin.CourseManagementController">
     <children>
-        <Label styleClass="admin-page-title" text="Course Management" />
+        <Label styleClass="admin-page-title" text="Gestion des cours" />
 
         <VBox spacing="12.0" VBox.vgrow="ALWAYS">
             <children>
@@ -19,11 +19,15 @@
                         <Label style="-fx-min-width: 80;" styleClass="management-rail-label" text="ID" />
                         <Label style="-fx-min-width: 200;" styleClass="management-rail-label" text="Title" />
                         <Label style="-fx-min-width: 150;" styleClass="management-rail-label" text="Description" />
-                        <Label style="-fx-min-width: 100;" styleClass="management-rail-label" text="Duration" />
-                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Difficulty" />
+                        <Label style="-fx-min-width: 100;" styleClass="management-rail-label" text="Duree" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Difficulte" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Score" />
+                        <Label style="-fx-min-width: 100;" styleClass="management-rail-label" text="Statut" />
+                        <Label style="-fx-min-width: 140;" styleClass="management-rail-label" text="Superviseur" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Prerequis" />
                     </children>
                 </HBox>
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" styleClass="management-list">
+                <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" styleClass="management-list">
                     <VBox fx:id="courseContainer" spacing="10.0" style="-fx-padding: 4 2 4 2;" />
                 </ScrollPane>
             </children>

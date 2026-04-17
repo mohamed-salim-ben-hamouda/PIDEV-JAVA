@@ -1,7 +1,11 @@
 package com.pidev.Controllers.admin;
 
+import com.pidev.Services.AdminLookupService;
+import com.pidev.Controllers.admin.AdminDialogStyler;
 import com.pidev.Services.CourseService;
 import com.pidev.models.Course;
+import com.pidev.models.Quiz;
+import com.pidev.models.User;
 import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -15,11 +19,14 @@ import javafx.scene.control.Label;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +34,7 @@ public class CourseManagementController {
     @FXML private VBox courseContainer;
 
     private final CourseService courseService = new CourseService();
+    private final AdminLookupService lookupService = new AdminLookupService();
     private Course selectedCourse;
     private HBox selectedCard;
 
@@ -126,8 +134,26 @@ public class CourseManagementController {
         Label difficulty = new Label(nullSafe(course.getDifficulty()));
         difficulty.setStyle("-fx-min-width: 120;");
         difficulty.getStyleClass().add("management-card-label");
+        Label score = new Label(String.format("%.0f%%", course.getValidationScore()));
+        score.setStyle("-fx-min-width: 120;");
+        score.getStyleClass().add("management-card-label");
+        Label active = new Label(course.isIsActive() ? "Actif" : "Inactif");
+        active.setStyle("-fx-min-width: 100;");
+        active.getStyleClass().add("management-card-muted");
+        String supervisorText = course.getCreator() != null
+                ? course.getCreator().getDisplayName()
+                : "N/A";
+        Label supervisor = new Label(supervisorText);
+        supervisor.setStyle("-fx-min-width: 140;");
+        supervisor.getStyleClass().add("management-card-label");
+        String prerequisite = course.getPrerequisiteQuiz() != null && course.getPrerequisiteQuiz().getId() != null
+            ? "Quiz #" + course.getPrerequisiteQuiz().getId()
+            : "Aucun";
+        Label prerequisiteLabel = new Label(prerequisite);
+        prerequisiteLabel.setStyle("-fx-min-width: 120;");
+        prerequisiteLabel.getStyleClass().add("management-card-label");
 
-        HBox card = new HBox(15, id, title, description, duration, difficulty);
+        HBox card = new HBox(15, id, title, description, duration, difficulty, score, active, supervisor, prerequisiteLabel);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(course, card));
         return card;
@@ -148,32 +174,100 @@ public class CourseManagementController {
         boolean editMode = existing != null;
 
         Dialog<Course> dialog = new Dialog<>();
-        dialog.setTitle(editMode ? "Edit Course" : "New Course");
-        dialog.setHeaderText(editMode ? "Update course details" : "Fill in course details");
+        VBox dialogContent = AdminDialogStyler.apply(dialog,
+            editMode ? "Modifier le cours" : "Ajouter un cours",
+            editMode ? "Mettre a jour les informations du cours" : "Renseigner les informations du cours",
+            820,
+            700);
 
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        ButtonType saveButtonType = new ButtonType(editMode ? "Modifier" : "Ajouter", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
 
         TextField titleField = new TextField(editMode ? existing.getTitle() : "");
+        AdminDialogStyler.styleField(titleField);
+        titleField.setPromptText("Titre du cours");
         TextArea descriptionArea = new TextArea(editMode ? existing.getDescription() : "");
+        descriptionArea.setPrefRowCount(4);
+        descriptionArea.setWrapText(true);
+        AdminDialogStyler.styleTextArea(descriptionArea);
+        descriptionArea.setPromptText("Description concise du cours");
         TextField durationField = new TextField(editMode ? String.valueOf(existing.getDuration()) : "0");
+        AdminDialogStyler.styleField(durationField);
+        durationField.setPromptText("Ex: 45");
         ComboBox<String> difficultyCombo = new ComboBox<>(FXCollections.observableArrayList(
                 Course.DIFFICULTY_BEGINNER,
                 Course.DIFFICULTY_INTERMEDIATE,
                 Course.DIFFICULTY_ADVANCED
         ));
+        AdminDialogStyler.styleComboBox(difficultyCombo);
         difficultyCombo.setValue(editMode ? existing.getDifficulty() : Course.DIFFICULTY_BEGINNER);
 
         CheckBox activeCheck = new CheckBox("Active");
         activeCheck.setSelected(!editMode || existing.isActive());
 
         TextField scoreField = new TextField(editMode ? String.valueOf(existing.getValidationScore()) : "0");
+        AdminDialogStyler.styleField(scoreField);
+        scoreField.setPromptText("0 - 100");
         TextArea contentArea = new TextArea(editMode ? existing.getContent() : "");
+        contentArea.setPrefRowCount(5);
+        contentArea.setWrapText(true);
+        AdminDialogStyler.styleTextArea(contentArea);
+        contentArea.setPromptText("Contenu détaillé du cours");
         TextField materialField = new TextField(editMode ? existing.getMaterial() : "");
+        AdminDialogStyler.styleField(materialField);
+        materialField.setPromptText("Optionnel");
+        ComboBox<Quiz> prerequisiteQuizCombo = new ComboBox<>();
+        AdminDialogStyler.styleComboBox(prerequisiteQuizCombo);
+        ComboBox<User> supervisorCombo = new ComboBox<>();
+        AdminDialogStyler.styleComboBox(supervisorCombo);
+        TextArea sectionsToReviewArea = new TextArea(editMode && existing.getSectionsToReview() != null
+                ? String.join(", ", existing.getSectionsToReview())
+                : "");
+        sectionsToReviewArea.setPrefRowCount(3);
+        sectionsToReviewArea.setWrapText(true);
+        AdminDialogStyler.styleTextArea(sectionsToReviewArea);
+        sectionsToReviewArea.setPromptText("Section1, Section2, Section3");
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
+        try {
+            List<Quiz> quizzes = lookupService.findAllQuizzes();
+            List<User> users = lookupService.findAllUsers();
+            prerequisiteQuizCombo.setItems(FXCollections.observableArrayList(quizzes));
+            supervisorCombo.setItems(FXCollections.observableArrayList(users));
+            if (editMode && existing.getPrerequisiteQuiz() != null && existing.getPrerequisiteQuiz().getId() != null) {
+                for (Quiz quiz : quizzes) {
+                    if (quiz.getId() != null && quiz.getId().equals(existing.getPrerequisiteQuiz().getId())) {
+                        prerequisiteQuizCombo.setValue(quiz);
+                        break;
+                    }
+                }
+            }
+            if (editMode && existing.getCreator() != null && existing.getCreator().getId() != null) {
+                for (User user : users) {
+                    if (user.getId() != null && user.getId().equals(existing.getCreator().getId())) {
+                        supervisorCombo.setValue(user);
+                        break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            showError("Erreur base", e.getMessage());
+        }
+
+        GridPane generalGrid = new GridPane();
+        generalGrid.setHgap(14);
+        generalGrid.setVgap(12);
+        generalGrid.setPrefWidth(760);
+
+        GridPane relationGrid = new GridPane();
+        relationGrid.setHgap(14);
+        relationGrid.setVgap(12);
+        relationGrid.setPrefWidth(760);
+
+        GridPane reviewGrid = new GridPane();
+        reviewGrid.setHgap(14);
+        reviewGrid.setVgap(12);
+        reviewGrid.setPrefWidth(760);
 
         Label titleError = new Label();
         Label descriptionError = new Label();
@@ -182,6 +276,8 @@ public class CourseManagementController {
         Label scoreError = new Label();
         Label contentError = new Label();
         Label materialError = new Label();
+        Label sectionsError = new Label();
+        Label supervisorError = new Label();
 
         String errorStyle = "-fx-text-fill: #d32f2f; -fx-font-size: 11;";
         titleError.setStyle(errorStyle);
@@ -191,34 +287,100 @@ public class CourseManagementController {
         scoreError.setStyle(errorStyle);
         contentError.setStyle(errorStyle);
         materialError.setStyle(errorStyle);
+        sectionsError.setStyle(errorStyle);
+        supervisorError.setStyle(errorStyle);
 
-        grid.add(new Label("Title"), 0, 0);
-        grid.add(titleField, 1, 0);
-        grid.add(titleError, 1, 1);
-        grid.add(new Label("Description"), 0, 2);
-        grid.add(descriptionArea, 1, 2);
-        grid.add(descriptionError, 1, 3);
-        grid.add(new Label("Duration"), 0, 4);
-        grid.add(durationField, 1, 4);
-        grid.add(durationError, 1, 5);
-        grid.add(new Label("Difficulty"), 0, 6);
-        grid.add(difficultyCombo, 1, 6);
-        grid.add(difficultyError, 1, 7);
-        grid.add(new Label("Validation Score"), 0, 8);
-        grid.add(scoreField, 1, 8);
-        grid.add(scoreError, 1, 9);
-        grid.add(new Label("Content"), 0, 10);
-        grid.add(contentArea, 1, 10);
-        grid.add(contentError, 1, 11);
-        grid.add(new Label("Material"), 0, 12);
-        grid.add(materialField, 1, 12);
-        grid.add(materialError, 1, 13);
-        grid.add(activeCheck, 1, 14);
+        Label titleLabel = new Label("Titre");
+        AdminDialogStyler.styleFormLabel(titleLabel);
+        generalGrid.add(titleLabel, 0, 0);
+        generalGrid.add(titleField, 1, 0);
+        generalGrid.add(titleError, 1, 1);
+        Label descriptionLabel = new Label("Description");
+        AdminDialogStyler.styleFormLabel(descriptionLabel);
+        generalGrid.add(descriptionLabel, 0, 2);
+        generalGrid.add(descriptionArea, 1, 2);
+        generalGrid.add(descriptionError, 1, 3);
+        Label durationLabel = new Label("Duree (min)");
+        AdminDialogStyler.styleFormLabel(durationLabel);
+        generalGrid.add(durationLabel, 0, 4);
+        generalGrid.add(durationField, 1, 4);
+        generalGrid.add(durationError, 1, 5);
+        Label difficultyLabel = new Label("Difficulte");
+        AdminDialogStyler.styleFormLabel(difficultyLabel);
+        generalGrid.add(difficultyLabel, 0, 6);
+        generalGrid.add(difficultyCombo, 1, 6);
+        generalGrid.add(difficultyError, 1, 7);
+        Label scoreLabel = new Label("Score de validation");
+        AdminDialogStyler.styleFormLabel(scoreLabel);
+        generalGrid.add(scoreLabel, 0, 8);
+        generalGrid.add(scoreField, 1, 8);
+        generalGrid.add(scoreError, 1, 9);
+        Label contentLabel = new Label("Contenu");
+        AdminDialogStyler.styleFormLabel(contentLabel);
+        generalGrid.add(contentLabel, 0, 10);
+        generalGrid.add(contentArea, 1, 10);
+        generalGrid.add(contentError, 1, 11);
 
-        dialog.getDialogPane().setContent(grid);
+        Label materialLabel = new Label("Support (optionnel)");
+        AdminDialogStyler.styleFormLabel(materialLabel);
+        relationGrid.add(materialLabel, 0, 0);
+        relationGrid.add(materialField, 1, 0);
+        relationGrid.add(materialError, 1, 1);
+        Label supervisorLabel = new Label("Superviseur");
+        AdminDialogStyler.styleFormLabel(supervisorLabel);
+        relationGrid.add(supervisorLabel, 0, 2);
+        relationGrid.add(supervisorCombo, 1, 2);
+        relationGrid.add(supervisorError, 1, 3);
+        Label prerequisiteLabel = new Label("Quiz prerequis");
+        AdminDialogStyler.styleFormLabel(prerequisiteLabel);
+        relationGrid.add(prerequisiteLabel, 0, 4);
+        relationGrid.add(prerequisiteQuizCombo, 1, 4);
+
+        Label sectionsLabel = new Label("Sections a revoir (csv)");
+        AdminDialogStyler.styleFormLabel(sectionsLabel);
+        reviewGrid.add(sectionsLabel, 0, 0);
+        reviewGrid.add(sectionsToReviewArea, 1, 0);
+        reviewGrid.add(sectionsError, 1, 1);
+
+        HBox activeRow = new HBox(10, activeCheck);
+        activeRow.setPadding(new javafx.geometry.Insets(4, 0, 0, 0));
+
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setMinWidth(160);
+        labelColumn.setPrefWidth(160);
+        labelColumn.setHalignment(javafx.geometry.HPos.LEFT);
+
+        ColumnConstraints valueColumn = new ColumnConstraints();
+        valueColumn.setHgrow(Priority.ALWAYS);
+        valueColumn.setFillWidth(true);
+
+        generalGrid.getColumnConstraints().addAll(labelColumn, valueColumn);
+        relationGrid.getColumnConstraints().addAll(labelColumn, valueColumn);
+        reviewGrid.getColumnConstraints().addAll(labelColumn, valueColumn);
+
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionLabel("Informations generales"));
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionSeparator());
+        dialogContent.getChildren().add(generalGrid);
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionLabel("Relations du cours"));
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionSeparator());
+        dialogContent.getChildren().add(relationGrid);
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionLabel("Parametres complementaires"));
+        dialogContent.getChildren().add(AdminDialogStyler.createSectionSeparator());
+        dialogContent.getChildren().add(reviewGrid);
+        dialogContent.getChildren().add(activeRow);
+        dialogContent.getChildren().add(AdminDialogStyler.createFooterHint("Les champs supervises, contenu et duree structurent la fiche du cours."));
 
         final Course[] dialogResult = new Course[1];
         Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        Node cancelButton = dialog.getDialogPane().lookupButton(cancelButtonType);
+        if (saveButton instanceof javafx.scene.control.Button save) {
+            AdminDialogStyler.styleButton(save, true);
+            save.setDefaultButton(true);
+        }
+        if (cancelButton instanceof javafx.scene.control.Button cancel) {
+            AdminDialogStyler.styleButton(cancel, false);
+            cancel.setCancelButton(true);
+        }
         saveButton.addEventFilter(ActionEvent.ACTION, event -> {
             titleError.setText("");
             descriptionError.setText("");
@@ -227,10 +389,13 @@ public class CourseManagementController {
             scoreError.setText("");
             contentError.setText("");
             materialError.setText("");
+            sectionsError.setText("");
+            supervisorError.setText("");
 
             boolean valid = true;
-            if (titleField.getText() == null || titleField.getText().trim().length() < 3) {
-                titleError.setText("Titre obligatoire (min 3 caracteres).");
+            String title = titleField.getText() == null ? "" : titleField.getText().trim();
+            if (title.length() < 3 || title.length() > 30) {
+                titleError.setText("Titre obligatoire (3 a 30 caracteres).");
                 valid = false;
             }
             if (descriptionArea.getText() == null || descriptionArea.getText().trim().isEmpty()) {
@@ -271,8 +436,20 @@ public class CourseManagementController {
                 contentError.setText("Content obligatoire.");
                 valid = false;
             }
-            if (materialField.getText() == null || materialField.getText().trim().isEmpty()) {
-                materialError.setText("Material obligatoire.");
+            String material = materialField.getText() == null ? "" : materialField.getText().trim();
+            if (!material.isEmpty() && material.length() > 255) {
+                materialError.setText("Material ne doit pas depasser 255 caracteres.");
+                valid = false;
+            }
+
+            String sectionsText = sectionsToReviewArea.getText() == null ? "" : sectionsToReviewArea.getText().trim();
+            if (!sectionsText.isEmpty() && sectionsText.length() > 2000) {
+                sectionsError.setText("Sections a revoir trop longues.");
+                valid = false;
+            }
+
+            if (supervisorCombo.getValue() == null || supervisorCombo.getValue().getId() == null) {
+                supervisorError.setText("Superviseur obligatoire.");
                 valid = false;
             }
 
@@ -282,14 +459,28 @@ public class CourseManagementController {
             }
 
             Course course = editMode ? existing : new Course();
-            course.setTitle(titleField.getText().trim());
+            course.setTitle(title);
             course.setDescription(descriptionArea.getText().trim());
             course.setDuration(parsedDuration);
             course.setDifficulty(difficultyCombo.getValue());
             course.setValidationScore(parsedScore);
             course.setContent(contentArea.getText().trim());
-            course.setMaterial(materialField.getText().trim());
-            course.setActive(activeCheck.isSelected());
+            course.setMaterial(material.isEmpty() ? null : material);
+            course.setCreator(supervisorCombo.getValue());
+            course.setPrerequisiteQuiz(prerequisiteQuizCombo.getValue());
+
+            List<String> sections = new ArrayList<>();
+            if (!sectionsText.isEmpty()) {
+                String[] raw = sectionsText.split(",");
+                for (String token : raw) {
+                    String value = token == null ? "" : token.trim();
+                    if (!value.isEmpty()) {
+                        sections.add(value);
+                    }
+                }
+            }
+            course.setSectionsToReview(sections);
+            course.setIsActive(activeCheck.isSelected());
             dialogResult[0] = course;
         });
 

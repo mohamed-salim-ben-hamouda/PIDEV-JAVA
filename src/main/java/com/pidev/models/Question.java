@@ -1,13 +1,20 @@
 package com.pidev.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Question {
     private Integer id;
     private Quiz quiz;
     private String content;
     private String type;
     private float point;
+    private List<Answer> answers;
+    private List<Object> studentResponses;
 
     public Question() {
+        this.answers = new ArrayList<>();
+        this.studentResponses = new ArrayList<>();
     }
 
     public Question(int id) {
@@ -28,6 +35,12 @@ public class Question {
 
     public float getPoint() { return point; }
     public void setPoint(float point) { this.point = point; }
+
+    public List<Answer> getAnswers() { return answers; }
+    public void setAnswers(List<Answer> answers) { this.answers = answers; }
+
+    public List<Object> getStudentResponses() { return studentResponses; }
+    public void setStudentResponses(List<Object> studentResponses) { this.studentResponses = studentResponses; }
 
     @Override
     public String toString() {

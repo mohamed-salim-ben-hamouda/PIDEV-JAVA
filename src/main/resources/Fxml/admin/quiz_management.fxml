@@ -12,14 +12,14 @@
 <VBox spacing="16.0" styleClass="admin-page" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pidev.Controllers.admin.QuizManagementController">
     <children>
-        <Label styleClass="admin-page-title" text="Quiz Management" />
+        <Label styleClass="admin-page-title" text="Gestion des quiz" />
         <HBox spacing="10.0" styleClass="toolbar-panel">
             <children>
-                <TextField fx:id="searchField" promptText="Search quiz title..." styleClass="search-field" HBox.hgrow="ALWAYS" />
-                <ComboBox fx:id="sortFieldCombo" onAction="#onSortChanged" prefWidth="160.0" promptText="Sort by" />
-                <ComboBox fx:id="directionCombo" onAction="#onSortChanged" prefWidth="110.0" promptText="Order" />
-                <Button onAction="#onSearch" styleClass="management-btn" text="Search" />
-                <Button onAction="#onRefresh" styleClass="management-btn" text="Refresh" />
+                <TextField fx:id="searchField" promptText="Rechercher un quiz..." styleClass="search-field" HBox.hgrow="ALWAYS" />
+                <ComboBox fx:id="sortFieldCombo" onAction="#onSortChanged" prefWidth="160.0" promptText="Trier par" />
+                <ComboBox fx:id="directionCombo" onAction="#onSortChanged" prefWidth="110.0" promptText="Ordre" />
+                <Button onAction="#onSearch" styleClass="management-btn" text="Rechercher" />
+                <Button onAction="#onRefresh" styleClass="management-btn" text="Rafraichir" />
             </children>
         </HBox>
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
@@ -27,12 +27,15 @@
                 <HBox spacing="15.0" styleClass="management-rail-header">
                     <children>
                         <Label style="-fx-min-width: 80;" styleClass="management-rail-label" text="ID" />
-                        <Label style="-fx-min-width: 250;" styleClass="management-rail-label" text="Title" />
-                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Passing Score" />
-                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Max Attempts" />
+                        <Label style="-fx-min-width: 250;" styleClass="management-rail-label" text="Titre" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Score requis" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Tentatives max" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Chapitre" />
+                        <Label style="-fx-min-width: 100;" styleClass="management-rail-label" text="Duree" />
+                        <Label style="-fx-min-width: 120;" styleClass="management-rail-label" text="Superviseur" />
                     </children>
                 </HBox>
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" styleClass="management-list">
+                <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" styleClass="management-list">
                     <VBox fx:id="quizContainer" spacing="10.0" style="-fx-padding: 4 2 4 2;" />
                 </ScrollPane>
             </children>

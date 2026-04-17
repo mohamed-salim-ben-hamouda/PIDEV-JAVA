@@ -8,6 +8,7 @@ public class Chapter {
     private float minScore;
     private String content;
     private String title;
+    private Quiz quiz;
 
     public Chapter() {
     }
@@ -36,6 +37,9 @@ public class Chapter {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public Quiz getQuiz() { return quiz; }
+    public void setQuiz(Quiz quiz) { this.quiz = quiz; }
 
     @Override
     public String toString() {

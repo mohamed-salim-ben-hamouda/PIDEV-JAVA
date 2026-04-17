@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
@@ -18,6 +19,8 @@
                 <Button fx:id="backButton" onAction="#onBack" text="Retour" styleClass="courses-action-btn secondary" />
                 <FontIcon iconLiteral="fas-book-open" styleClass="section-title-icon" />
                 <Label fx:id="courseTitleLabel" styleClass="section-title" text="Cours" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="chapterCompletionLabel" styleClass="section-pill" text="0 / 0 chapitres valides" />
             </children>
             <padding>
                 <Insets bottom="18.0" left="24.0" right="24.0" top="20.0" />
@@ -32,44 +35,82 @@
                         <Insets bottom="28.0" left="28.0" right="28.0" top="10.0" />
                     </padding>
                     <children>
-                        <VBox spacing="12.0" styleClass="course-detail-card">
+                        <VBox spacing="10.0" styleClass="course-detail-hero">
                             <children>
-                                <Label styleClass="assessment-title" text="Contenu du cours" />
-                                <Label fx:id="courseContentLabel" wrapText="true" styleClass="course-card-description" />
+                                <Label styleClass="course-detail-hero-title" text="Parcours du cours" />
+                                <Label fx:id="courseContentLabel" wrapText="true" styleClass="course-detail-hero-subtitle" />
                             </children>
                         </VBox>
 
-                        <VBox spacing="12.0" styleClass="course-detail-card">
+                        <HBox spacing="18.0" alignment="TOP_LEFT" styleClass="course-layout-row">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                    <children>
-                                        <Label fx:id="quizTitleLabel" styleClass="assessment-title" text="Quiz" />
-                                        <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Commencer le quiz" styleClass="courses-action-btn primary" />
-                                    </children>
-                                </HBox>
-
-                                <VBox fx:id="quizSection" spacing="14.0" visible="false" managed="false">
+                                <VBox spacing="10.0" styleClass="course-detail-card chapter-rail" prefWidth="360.0">
                                     <children>
                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <Label styleClass="section-pill" text="Question" />
-                                                <Label fx:id="quizProgressLabel" styleClass="section-pill" text="0 / 0" />
-                                                <Label fx:id="quizScoreLabel" styleClass="section-pill" text="Score: 0 / 0" />
+                                                <FontIcon iconLiteral="fas-stream" styleClass="section-title-icon" />
+                                                <Label styleClass="assessment-title" text="Chapitres" />
                                             </children>
                                         </HBox>
+                                        <VBox fx:id="chapterContainer" spacing="10.0" />
+                                    </children>
+                                </VBox>
 
-                                        <VBox fx:id="questionCardContainer" spacing="10.0" />
-
-                                        <HBox spacing="10.0">
+                                <VBox spacing="14.0" styleClass="course-detail-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
                                             <children>
-                                                <Button fx:id="nextQuestionButton" onAction="#onNextQuestion" text="Suivant" styleClass="courses-action-btn primary" />
-                                                <Button fx:id="finishQuizButton" onAction="#onFinishQuiz" text="Terminer le quiz" styleClass="courses-action-btn primary" />
+                                                <Label fx:id="quizTitleLabel" styleClass="assessment-title" text="Quiz" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="quizStateBadge" styleClass="status-badge status-pending" text="EN ATTENTE" />
+                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Commencer le quiz" styleClass="courses-action-btn primary" />
                                             </children>
                                         </HBox>
+
+                                        <Label fx:id="quizMetaLabel" styleClass="course-card-description" text="" />
+                                        <Label fx:id="quizHintLabel" styleClass="course-empty-subtitle" text="" />
+
+                                        <VBox fx:id="quizSection" spacing="14.0" visible="false" managed="false">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <Label fx:id="questionNavLabel" styleClass="section-pill" text="Question 0 sur 0" />
+                                                        <Label styleClass="section-pill" text="Progression" />
+                                                        <Label fx:id="quizProgressLabel" styleClass="section-pill" text="0 / 0" />
+                                                        <Label fx:id="quizScoreLabel" styleClass="section-pill" text="Score: 0 / 0" />
+                                                    </children>
+                                                </HBox>
+
+                                                <VBox fx:id="questionCardContainer" spacing="10.0" />
+
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Button fx:id="prevQuestionButton" onAction="#onPrevQuestion" text="Precedent" styleClass="courses-action-btn secondary" />
+                                                        <Button fx:id="nextQuestionButton" onAction="#onNextQuestion" text="Suivant" styleClass="courses-action-btn primary" />
+                                                        <Button fx:id="finishQuizButton" onAction="#onFinishQuiz" text="Terminer le quiz" styleClass="courses-action-btn primary" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox fx:id="resultCard" spacing="10.0" styleClass="quiz-result-card" visible="false" managed="false">
+                                            <children>
+                                                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label fx:id="resultTitleLabel" styleClass="assessment-title" text="Resultat" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label fx:id="resultScoreBadge" styleClass="result-score-badge" text="0%" />
+                                                    </children>
+                                                </HBox>
+                                                <Label fx:id="resultSummaryLabel" styleClass="course-card-description" text="" />
+                                                <Label fx:id="attemptInfoLabel" styleClass="course-empty-subtitle" text="" />
+                                                <VBox fx:id="resultDetailsBox" spacing="8.0" />
+                                            </children>
+                                        </VBox>
                                     </children>
                                 </VBox>
                             </children>
-                        </VBox>
+                        </HBox>
                     </children>
                 </VBox>
             </content>

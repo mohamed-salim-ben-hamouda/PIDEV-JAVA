@@ -95,4 +95,13 @@ public class User {
 
     public String getFaceDescriptor() { return face_descriptor; }
     public void setFaceDescriptor(String faceDescriptor) { this.face_descriptor = faceDescriptor; }
+
+    @Override
+    public String toString() {
+        String displayName = getDisplayName();
+        if (displayName == null || displayName.isBlank() || "Unknown".equals(displayName)) {
+            return id != null ? "User #" + id : "Utilisateur";
+        }
+        return displayName;
+    }
 }

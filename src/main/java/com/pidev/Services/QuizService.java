@@ -20,7 +20,9 @@ public class QuizService {
     }
 
     public List<Quiz> findAll() throws SQLException {
-        String sql = "SELECT id, course_id, chapter_id, title, passing_score, max_attempts, questions_per_attempt, time_limit, supervisor_id FROM quiz ORDER BY id DESC";
+        String sql = "SELECT q.id, q.course_id, q.chapter_id, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
+                + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
+                + "FROM quiz q LEFT JOIN user u ON q.supervisor_id = u.id ORDER BY q.id DESC";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql);
              ResultSet rs = statement.executeQuery()) {
             return mapResult(rs);
@@ -28,15 +30,17 @@ public class QuizService {
     }
 
     public List<Quiz> findPage(String search, Integer courseFilter, String sort, String direction, int page, int limit) throws SQLException {
-        StringBuilder sql = new StringBuilder("SELECT id, course_id, chapter_id, title, passing_score, max_attempts, questions_per_attempt, time_limit, supervisor_id FROM quiz WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT q.id, q.course_id, q.chapter_id, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
+                + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
+                + "FROM quiz q LEFT JOIN user u ON q.supervisor_id = u.id WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
         if (search != null && !search.isBlank()) {
-            sql.append(" AND title LIKE ?");
+            sql.append(" AND q.title LIKE ?");
             params.add("%" + search.trim() + "%");
         }
         if (courseFilter != null) {
-            sql.append(" AND course_id = ?");
+            sql.append(" AND q.course_id = ?");
             params.add(courseFilter);
         }
 
@@ -105,6 +109,12 @@ public class QuizService {
     }
 
     private void bindQuiz(PreparedStatement statement, Quiz quiz, boolean withId) throws SQLException {
+        if (quiz.getCourse() == null || quiz.getCourse().getId() == null) {
+            throw new SQLException("Course is required for quiz.");
+        }
+        if (quiz.getSupervisor() == null || quiz.getSupervisor().getId() == null) {
+            throw new SQLException("Supervisor is required for quiz.");
+        }
         statement.setInt(1, quiz.getCourse().getId());
 
         if (quiz.getChapter() != null && quiz.getChapter().getId() != null) {
@@ -115,7 +125,7 @@ public class QuizService {
 
         statement.setString(3, quiz.getTitle());
         statement.setFloat(4, quiz.getPassingScore());
-        statement.setInt(5, quiz.getMaxAttempts());
+        statement.setInt(5, quiz.getMaxAttempts() <= 0 ? 1 : quiz.getMaxAttempts());
 
         if (quiz.getQuestionsPerAttempt() != null) {
             statement.setInt(6, quiz.getQuestionsPerAttempt());
@@ -123,12 +133,8 @@ public class QuizService {
             statement.setNull(6, Types.INTEGER);
         }
 
-        statement.setInt(7, quiz.getTimeLimit());
-        if (quiz.getSupervisor() != null && quiz.getSupervisor().getId() != null) {
-            statement.setInt(8, quiz.getSupervisor().getId());
-        } else {
-            statement.setNull(8, Types.INTEGER);
-        }
+        statement.setInt(7, Math.max(quiz.getTimeLimit(), 0));
+        statement.setInt(8, quiz.getSupervisor().getId());
 
         if (withId) {
             statement.setInt(9, quiz.getId());
@@ -144,22 +150,38 @@ public class QuizService {
 
             int chapterId = rs.getInt("chapter_id");
             if (!rs.wasNull()) {
-                quiz.setChapter(new Chapter(chapterId));
+                Chapter chapter = new Chapter(chapterId);
+                quiz.setChapter(chapter);
+                chapter.setQuiz(quiz);
             }
 
             quiz.setTitle(rs.getString("title"));
             quiz.setPassingScore(rs.getFloat("passing_score"));
-            quiz.setMaxAttempts(rs.getInt("max_attempts"));
+            int maxAttempts = rs.getInt("max_attempts");
+            quiz.setMaxAttempts(maxAttempts <= 0 ? 1 : maxAttempts);
 
             int questionsPerAttempt = rs.getInt("questions_per_attempt");
             if (!rs.wasNull()) {
                 quiz.setQuestionsPerAttempt(questionsPerAttempt);
             }
 
-            quiz.setTimeLimit(rs.getInt("time_limit"));
+            quiz.setTimeLimit(Math.max(rs.getInt("time_limit"), 0));
             int supervisorId = rs.getInt("supervisor_id");
             if (!rs.wasNull()) {
-                quiz.setSupervisor(new User(supervisorId));
+                User supervisor = new User(supervisorId);
+                String nom = rs.getString("supervisor_nom");
+                String prenom = rs.getString("supervisor_prenom");
+                String email = rs.getString("supervisor_email");
+                if (nom != null) {
+                    supervisor.setNom(nom);
+                }
+                if (prenom != null) {
+                    supervisor.setPrenom(prenom);
+                }
+                if (email != null) {
+                    supervisor.setEmail(email);
+                }
+                quiz.setSupervisor(supervisor);
             }
             result.add(quiz);
         }
@@ -171,10 +193,10 @@ public class QuizService {
             return "id";
         }
         return switch (sort) {
-            case "title" -> "title";
-            case "passingScore" -> "passing_score";
-            case "maxAttempts" -> "max_attempts";
-            default -> "id";
+            case "title" -> "q.title";
+            case "passingScore" -> "q.passing_score";
+            case "maxAttempts" -> "q.max_attempts";
+            default -> "q.id";
         };
     }
 
