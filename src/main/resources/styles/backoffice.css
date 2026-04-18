@@ -38,7 +38,7 @@
 }
 
 .button.menu-item {
-    -fx-background-color: #eaf2ff;
+    -fx-background-color: linear-gradient(to right, #edf4ff 0%, #e3edff 100%);
     -fx-background-radius: 18;
     -fx-background-insets: 0;
     -fx-text-fill: #3d68b2;
@@ -52,14 +52,16 @@
     -fx-border-width: 0;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 76, 128, 0.05), 10, 0.12, 0, 2);
 }
 
 .button.menu-item:hover,
 .button.menu-item:focused,
 .button.menu-item:armed,
 .button.menu-item:pressed {
-    -fx-background-color: #ddeaff;
+    -fx-background-color: linear-gradient(to right, #dfeaff 0%, #d2e2ff 100%);
     -fx-text-fill: #2d5ca8;
+    -fx-effect: dropshadow(three-pass-box, rgba(92, 137, 255, 0.12), 14, 0.14, 0, 4);
 }
 
 .button.menu-item.active {
@@ -69,7 +71,7 @@
 }
 
 .button.menu-item-secondary {
-    -fx-background-color: #eaf2ff;
+    -fx-background-color: linear-gradient(to right, #edf4ff 0%, #e3edff 100%);
     -fx-text-fill: #3d68b2;
     -fx-border-color: transparent;
     -fx-border-radius: 18;
@@ -80,7 +82,7 @@
 .button.menu-item-secondary:focused,
 .button.menu-item-secondary:armed,
 .button.menu-item-secondary:pressed {
-    -fx-background-color: #ddeaff;
+    -fx-background-color: linear-gradient(to right, #dfeaff 0%, #d2e2ff 100%);
     -fx-text-fill: #2d5ca8;
 }
 
@@ -206,6 +208,7 @@
     -fx-font-weight: 700;
     -fx-padding: 11 18 11 18;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 76, 128, 0.05), 10, 0.10, 0, 2);
 }
 
 .button.management-btn:hover,
@@ -213,6 +216,7 @@
 .button.management-btn:armed,
 .button.management-btn:pressed {
     -fx-background-color: linear-gradient(to bottom, #dfeaff 0%, #d2e2ff 100%);
+    -fx-effect: dropshadow(three-pass-box, rgba(92, 137, 255, 0.12), 14, 0.14, 0, 4);
 }
 
 .management-rail-header {
@@ -803,4 +807,123 @@
     -fx-text-fill: #6b7f9d;
     -fx-font-size: 13px;
     -fx-font-weight: 700;
+}
+
+.intelligence-kpi-card {
+    -fx-background-radius: 14;
+    -fx-padding: 12 12 12 12;
+}
+
+.intelligence-kpi-primary {
+    -fx-background-color: linear-gradient(to bottom right, #4d8bd9 0%, #2f6fbe 100%);
+}
+
+.intelligence-kpi-danger {
+    -fx-background-color: linear-gradient(to bottom right, #ef5b62 0%, #d94149 100%);
+}
+
+.intelligence-kpi-warning {
+    -fx-background-color: linear-gradient(to bottom right, #f7b646 0%, #e89a19 100%);
+}
+
+.intelligence-kpi-success {
+    -fx-background-color: linear-gradient(to bottom right, #2fca97 0%, #16a577 100%);
+}
+
+.intelligence-kpi-info {
+    -fx-background-color: linear-gradient(to bottom right, #6d79e6 0%, #5b5fd1 100%);
+}
+
+.intelligence-kpi-value {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.intelligence-kpi-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.95);
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.intelligence-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #f9fcff 100%);
+    -fx-background-radius: 16;
+    -fx-border-color: #dce7f5;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(34, 61, 108, 0.08), 14, 0.13, 0, 4);
+}
+
+.intelligence-student-name {
+    -fx-text-fill: #14345d;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+}
+
+.intelligence-student-email {
+    -fx-text-fill: #7488a6;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.intelligence-risk-badge {
+    -fx-background-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.intelligence-risk-high {
+    -fx-background-color: #ffe2e4;
+    -fx-text-fill: #cc3e48;
+}
+
+.intelligence-risk-medium {
+    -fx-background-color: #ffeed1;
+    -fx-text-fill: #bc790d;
+}
+
+.intelligence-risk-low {
+    -fx-background-color: #dbf6ea;
+    -fx-text-fill: #1f9d71;
+}
+
+.intelligence-metric-pill {
+    -fx-background-color: #f2f7ff;
+    -fx-background-radius: 12;
+    -fx-border-color: #e0eaf8;
+    -fx-border-radius: 12;
+    -fx-padding: 8 10 8 10;
+    -fx-min-width: 120;
+}
+
+.intelligence-metric-value {
+    -fx-text-fill: #1d3f6f;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+}
+
+.intelligence-metric-label {
+    -fx-text-fill: #6f84a4;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.intelligence-reason {
+    -fx-text-fill: #2a4467;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.intelligence-section-title {
+    -fx-text-fill: #163a65;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.intelligence-list-item {
+    -fx-text-fill: #385474;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
 }

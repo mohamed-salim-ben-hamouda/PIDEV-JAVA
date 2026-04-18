@@ -98,6 +98,13 @@
                                         <FontIcon iconLiteral="fas-chart-bar" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadLearningIntelligence"
+                                        styleClass="menu-item" text="Learning Intelligence">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-brain" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
 
                                 <Label styleClass="menu-section" text="Community" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"

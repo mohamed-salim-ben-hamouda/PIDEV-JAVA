@@ -268,13 +268,7 @@ public class QuizSessionController {
             answersContainer.getChildren().add(answerButton);
         }
 
-        if (selectedId != null) {
-            boolean selectedIsCorrect = questionAnswers.stream()
-                    .anyMatch(answer -> Objects.equals(answer.getId(), selectedId) && answer.isCorrect());
-            questionFeedbackLabel.setText(selectedIsCorrect
-                    ? "Bonne reponse. Vous pouvez passer a la suivante."
-                    : "Reponse enregistree. Vous pouvez la modifier avant de soumettre.");
-        } else {
+        if (questionFeedbackLabel != null) {
             questionFeedbackLabel.setText("");
         }
 
@@ -306,9 +300,9 @@ public class QuizSessionController {
 
     private void onAnswerSelected(Question question, Answer answer) {
         selectedAnswerByQuestionId.put(question.getId(), answer.getId());
-        questionFeedbackLabel.setText(answer.isCorrect()
-                ? "Bonne reponse. Vous pouvez passer a la suivante."
-                : "Reponse enregistree. Vous pouvez la modifier avant de soumettre.");
+        if (questionFeedbackLabel != null) {
+            questionFeedbackLabel.setText("");
+        }
         renderCurrentQuestion();
     }
 

@@ -36,6 +36,11 @@ public class DashboardController {
 		loadAdminSection(event, BaseController::loadAnswers);
 	}
 
+	@FXML
+	private void loadLearningIntelligence(ActionEvent event) {
+		loadAdminSection(event, BaseController::loadLearningIntelligence);
+	}
+
 	private void loadAdminSection(ActionEvent event, AdminAction action) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/admin/base_back.fxml"));

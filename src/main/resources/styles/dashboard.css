@@ -162,7 +162,7 @@
     -fx-text-fill: #3d68b2;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
-    -fx-effect: none;
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 76, 128, 0.05), 10, 0.10, 0, 2);
 }
 
 .button.action-btn-primary {
@@ -185,10 +185,11 @@
 .button.action-btn-outline:pressed {
     -fx-background-color: linear-gradient(to bottom, #dfeaff 0%, #d2e2ff 100%);
     -fx-text-fill: #2d5ca8;
+    -fx-effect: dropshadow(three-pass-box, rgba(92, 137, 255, 0.12), 14, 0.14, 0, 4);
 }
 
 .button.action-btn-outline {
-    -fx-background-color: #eaf2ff;
+    -fx-background-color: linear-gradient(to bottom, #edf4ff 0%, #e3edff 100%);
     -fx-border-color: transparent;
     -fx-border-width: 0;
     -fx-text-fill: #3d68b2;

@@ -27,7 +27,7 @@
                                             <children>
                                                 <Label fx:id="quizTitleLabel" styleClass="quiz-session-hero-title" text="Quiz" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Fermer" />
+                                                <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter la session" />
                                             </children>
                                         </HBox>
                                         <Label fx:id="quizContextLabel" styleClass="quiz-session-hero-subtitle" text="Quiz du cours" />
@@ -72,7 +72,7 @@
 • Vous pouvez naviguer entre les questions a tout moment.
 • Vous pouvez modifier vos reponses avant de soumettre.
 • Un score minimum est requis pour valider." />
-                                        <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Commencer le quiz" styleClass="quiz-primary-cta" maxWidth="1.7976931348623157E308" />
+                                        <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Demarrer la session" styleClass="quiz-primary-cta" maxWidth="1.7976931348623157E308" />
                                     </children>
                                 </VBox>
 
@@ -101,10 +101,10 @@
 
                                         <HBox spacing="10.0">
                                             <children>
-                                                <Button fx:id="prevButton" onAction="#onPrevQuestion" styleClass="courses-action-btn secondary" text="Precedent" />
+                                                        <Button fx:id="prevButton" onAction="#onPrevQuestion" styleClass="quiz-nav-button quiz-nav-prev" text="Question precedente" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Button fx:id="nextButton" onAction="#onNextQuestion" styleClass="courses-action-btn primary" text="Suivant" />
-                                                <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="courses-action-btn secondary" text="Terminer le quiz" />
+                                                        <Button fx:id="nextButton" onAction="#onNextQuestion" styleClass="quiz-nav-button quiz-nav-next" text="Question suivante" />
+                                                        <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="quiz-nav-button quiz-nav-submit" text="Soumettre mes reponses" />
                                             </children>
                                         </HBox>
 
@@ -124,8 +124,8 @@
                                         <Label fx:id="resultScoreLabel" styleClass="result-score-badge" text="0 / 0" />
                                         <HBox spacing="10.0">
                                             <children>
-                                                <Button onAction="#onRetry" styleClass="courses-action-btn primary" text="Recommencer" />
-                                                <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Fermer" />
+                                                <Button onAction="#onRetry" styleClass="courses-action-btn primary" text="Recommencer la session" />
+                                                <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter" />
                                             </children>
                                         </HBox>
                                     </children>
