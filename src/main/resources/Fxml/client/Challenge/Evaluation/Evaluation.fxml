@@ -33,7 +33,7 @@
 
         <VBox fx:id="evaluationContent"  spacing="25" styleClass="main-card" style="-fx-padding: 25;">
             <VBox spacing="5">
-                <Label fx:id="activityIdLabel" text="Activity #-" styleClass="section-title"/>
+                <Label  text="Activity" styleClass="section-title"/>
                 <HBox spacing="5">
                     <Label text="Submission File:" style="-fx-font-weight: bold;"/>
                     <Button fx:id="fileBtn"

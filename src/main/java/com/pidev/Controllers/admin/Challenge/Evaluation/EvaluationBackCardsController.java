@@ -19,8 +19,7 @@ import java.util.function.Consumer;
 
 
 public class EvaluationBackCardsController {
-    @FXML
-    private Label idEvaluation;
+
     @FXML
     private Label GroupScore;
     @FXML
@@ -32,7 +31,6 @@ public class EvaluationBackCardsController {
     public void initData(Evaluation e, Consumer<Void> onDeleteCallback){
         this.onDeleteCallback = onDeleteCallback;
         this.e=e;
-        idEvaluation.setText("#"+e.getId());
         if(e.getGroupScore() != null){
             GroupScore.setText(e.getGroupScore().toString());
         }else {

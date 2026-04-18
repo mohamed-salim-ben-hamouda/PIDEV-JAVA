@@ -18,8 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 public class ActivityBackCardsController {
-    @FXML
-    private Label idActivity;
+
     @FXML
     private Label submissionDate;
     @FXML
@@ -35,7 +34,6 @@ public class ActivityBackCardsController {
         this.onDeleteCallback = onDeleteCallback;
         this.a=a;
 
-        idActivity.setText("#" + a.getId());
         if (a.getSubmissionDate() != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
             submissionDate.setText(a.getSubmissionDate().format(formatter));

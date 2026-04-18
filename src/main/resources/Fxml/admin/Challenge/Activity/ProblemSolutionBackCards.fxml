@@ -16,7 +16,6 @@
                 <Insets left="20" right="20"/>
             </padding>
             <columnConstraints>
-                <ColumnConstraints minWidth="50" prefWidth="60"/>
                 <ColumnConstraints minWidth="240" prefWidth="360"/>
                 <ColumnConstraints minWidth="160" prefWidth="240"/>
                 <ColumnConstraints minWidth="160" prefWidth="240"/>
@@ -24,13 +23,12 @@
                 <ColumnConstraints minWidth="110" prefWidth="120"/>
             </columnConstraints>
             <children>
-                <Label fx:id="idProblemSolution" styleClass="hero-side-text" text="#ID" GridPane.columnIndex="0"/>
-                <Label fx:id="problemDescription" styleClass="hero-side-text" text="problem" wrapText="true" GridPane.columnIndex="1"/>
-                <Label fx:id="groupSolution" styleClass="hero-side-text" text="solution" wrapText="true" GridPane.columnIndex="2"/>
-                <Label fx:id="supervisorSolution" styleClass="hero-side-text" text="solution" wrapText="true" GridPane.columnIndex="3"/>
-                <Label fx:id="idActivityRef" styleClass="hero-side-text" text="#1" GridPane.columnIndex="4"/>
+                <Label fx:id="problemDescription" styleClass="hero-side-text" text="problem" wrapText="true" GridPane.columnIndex="0"/>
+                <Label fx:id="groupSolution" styleClass="hero-side-text" text="solution" wrapText="true" GridPane.columnIndex="1"/>
+                <Label fx:id="supervisorSolution" styleClass="hero-side-text" text="solution" wrapText="true" GridPane.columnIndex="2"/>
+                <Label fx:id="idActivityRef" styleClass="hero-side-text" text="#1" GridPane.columnIndex="3"/>
 
-                <HBox alignment="CENTER_RIGHT" spacing="10" GridPane.columnIndex="5">
+                <HBox alignment="CENTER_RIGHT" spacing="10" GridPane.columnIndex="4">
                     <Button styleClass="action-btn, action-btn-primary" onAction="#OnDelete" text="Delete"/>
                 </HBox>
             </children>

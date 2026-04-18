@@ -15,8 +15,7 @@ import javafx.stage.StageStyle;
 import java.util.function.Consumer;
 
 public class MemberActivityBackCardsController {
-    @FXML
-    private Label idMemberActivity;
+
     @FXML
     private Label activityDescription;
     @FXML
@@ -32,7 +31,6 @@ public class MemberActivityBackCardsController {
     public void initData(MemberActivity memberActivity, Consumer<Void> onDeleteCallback) {
         this.memberActivity = memberActivity;
         this.onDeleteCallback = onDeleteCallback;
-        idMemberActivity.setText(memberActivity != null && memberActivity.getId() != null ? "#" + memberActivity.getId() : "N/A");
         String description = memberActivity != null ? memberActivity.getActivityDescription() : null;
         activityDescription.setText(description == null || description.isBlank() ? "No Data" : description);
         Double score = memberActivity != null ? memberActivity.getIndivScore() : null;

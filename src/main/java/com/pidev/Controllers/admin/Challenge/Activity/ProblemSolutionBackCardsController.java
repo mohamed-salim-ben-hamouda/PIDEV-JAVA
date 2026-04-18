@@ -15,8 +15,7 @@ import javafx.stage.StageStyle;
 import java.util.function.Consumer;
 
 public class ProblemSolutionBackCardsController {
-    @FXML
-    private Label idProblemSolution;
+
     @FXML
     private Label problemDescription;
     @FXML
@@ -32,7 +31,6 @@ public class ProblemSolutionBackCardsController {
     public void initData(ProblemSolution problemSolutionModel, Consumer<Void> onDeleteCallback) {
         this.problemSolutionModel = problemSolutionModel;
         this.onDeleteCallback = onDeleteCallback;
-        idProblemSolution.setText(problemSolutionModel != null ? "#" + problemSolutionModel.getId() : "N/A");
         String desc = problemSolutionModel != null ? problemSolutionModel.getProblemDescription() : null;
         problemDescription.setText(desc == null || desc.isBlank() ? "No Data" : desc);
         String grp = problemSolutionModel != null ? problemSolutionModel.getGroupSolution() : null;

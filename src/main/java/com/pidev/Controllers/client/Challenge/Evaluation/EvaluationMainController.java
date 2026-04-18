@@ -39,8 +39,7 @@ public class EvaluationMainController {
     private Label challengeTitleLabel;
     @FXML
     private Label challengeDescriptionLabel;
-    @FXML
-    private Label activityIdLabel;
+
    
     @FXML
     private VBox evaluationContent;
@@ -82,7 +81,6 @@ public class EvaluationMainController {
         }
 
         if (activity != null) {
-            activityIdLabel.setText("Activity #" + activity.getId());
             boolean isEvaluation = serviceEval.isEvaluation(activity.getId());
             if (!isEvaluation) {
                 evaluationContent.setVisible(false);

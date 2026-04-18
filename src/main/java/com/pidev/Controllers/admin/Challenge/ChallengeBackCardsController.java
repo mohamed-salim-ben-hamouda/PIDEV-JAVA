@@ -16,8 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 public class ChallengeBackCardsController {
-    @FXML
-    private Label idChallenge;
+
     @FXML
     private Label titleChallenge;
     @FXML
@@ -41,7 +40,6 @@ public class ChallengeBackCardsController {
         this.onDeleteCallback = onDeleteCallback;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String formattedDate = c.getDeadLine().format(formatter);
-        idChallenge.setText("#" + c.getId());
         titleChallenge.setText(c.getTitle());
         descChallenge.setText(c.getDescription());
         skillChallenge.setText(c.getTargetSkill());

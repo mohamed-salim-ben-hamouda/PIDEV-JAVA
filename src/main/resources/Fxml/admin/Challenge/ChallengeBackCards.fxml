@@ -14,7 +14,6 @@
                 <Insets left="20" right="20" />
             </padding>
             <columnConstraints>
-                <ColumnConstraints minWidth="50" prefWidth="60" />
                 <ColumnConstraints hgrow="ALWAYS" minWidth="150" prefWidth="200" />
                 <ColumnConstraints hgrow="ALWAYS" minWidth="200" prefWidth="250" />
                 <ColumnConstraints minWidth="120" prefWidth="140" />
@@ -25,17 +24,16 @@
                 <ColumnConstraints minWidth="110" prefWidth="120" />
             </columnConstraints>
             <children>
-                <Label fx:id="idChallenge" styleClass="hero-side-text" text="#22" GridPane.columnIndex="0" />
-                <Label fx:id="titleChallenge" styleClass="hero-side-title" text="Title" wrapText="true" GridPane.columnIndex="1" />
-                <Label fx:id="descChallenge" styleClass="hero-side-text" text="Description" wrapText="true" GridPane.columnIndex="2" />
-                <Label fx:id="skillChallenge" styleClass="hero-side-text" text="Skill" wrapText="true" GridPane.columnIndex="3" />
-                <StackPane alignment="CENTER_LEFT" GridPane.columnIndex="4">
+                <Label fx:id="titleChallenge" styleClass="hero-side-title" text="Title" wrapText="true" GridPane.columnIndex="0" />
+                <Label fx:id="descChallenge" styleClass="hero-side-text" text="Description" wrapText="true" GridPane.columnIndex="1" />
+                <Label fx:id="skillChallenge" styleClass="hero-side-text" text="Skill" wrapText="true" GridPane.columnIndex="2" />
+                <StackPane alignment="CENTER_LEFT" GridPane.columnIndex="3">
                     <Label fx:id="levelChallenge" style="-fx-background-color: #fef3c7; -fx-text-fill: #92400e; -fx-padding: 4 10; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 10;" text="MEDIUM" />
                 </StackPane>
-                <Label fx:id="minChallenge" styleClass="hero-side-text" text="0" GridPane.columnIndex="5" />
-                <Label fx:id="maxChallenge" styleClass="hero-side-text" text="0" GridPane.columnIndex="6" />
-                <Label fx:id="deadlineChallenge" styleClass="hero-side-text" text="2026-04-29" GridPane.columnIndex="7" />
-                <HBox alignment="CENTER_RIGHT" spacing="10" GridPane.columnIndex="8">
+                <Label fx:id="minChallenge" styleClass="hero-side-text" text="0" GridPane.columnIndex="4" />
+                <Label fx:id="maxChallenge" styleClass="hero-side-text" text="0" GridPane.columnIndex="5" />
+                <Label fx:id="deadlineChallenge" styleClass="hero-side-text" text="2026-04-29" GridPane.columnIndex="6" />
+                <HBox alignment="CENTER_RIGHT" spacing="10" GridPane.columnIndex="7">
                     <Button fx:id="deleteBtn" onAction="#OnDelete" styleClass="action-btn, action-btn-delete" text="Delete" />
                 </HBox>
             </children>
