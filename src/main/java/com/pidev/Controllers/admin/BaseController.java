@@ -42,6 +42,11 @@ public class BaseController implements Initializable {
     }
 
     @FXML
+    public void loadQuizResults() {
+        loadView("quiz_results");
+    }
+
+    @FXML
     public void loadQuestions() {
         loadView("question_management");
     }

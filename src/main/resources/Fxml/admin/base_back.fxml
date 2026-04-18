@@ -92,6 +92,7 @@
 
                                 <Label styleClass="menu-section" text="Student Results" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadQuizResults"
                                         styleClass="menu-item" text="Quiz Results">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-chart-bar" styleClass="menu-icon" />

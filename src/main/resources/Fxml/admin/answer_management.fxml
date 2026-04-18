@@ -17,7 +17,6 @@
                 <ComboBox fx:id="sortFieldCombo" onAction="#onSortChanged" prefWidth="150.0" promptText="Trier par" />
                 <ComboBox fx:id="directionCombo" onAction="#onSortChanged" prefWidth="110.0" promptText="Ordre" />
                 <Button onAction="#onSearch" styleClass="management-btn" text="Rechercher" />
-                <Button onAction="#onRefresh" styleClass="management-btn" text="Rafraichir" />
             </children>
         </HBox>
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
@@ -39,7 +38,6 @@
                 <Button onAction="#onAdd" styleClass="management-btn" text="Ajouter" />
                 <Button onAction="#onEdit" styleClass="management-btn" text="Modifier" />
                 <Button onAction="#onDelete" styleClass="management-btn" text="Supprimer" />
-                <Button onAction="#onRefresh" styleClass="management-btn" text="Rafraichir" />
             </children>
         </HBox>
     </children>

@@ -20,9 +20,12 @@ public class QuizService {
     }
 
     public List<Quiz> findAll() throws SQLException {
-        String sql = "SELECT q.id, q.course_id, q.chapter_id, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
-                + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
-                + "FROM quiz q LEFT JOIN user u ON q.supervisor_id = u.id ORDER BY q.id DESC";
+        String sql = "SELECT q.id, q.course_id, c.title AS course_title, q.chapter_id, ch.title AS chapter_title, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
+            + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
+            + "FROM quiz q "
+            + "LEFT JOIN course c ON q.course_id = c.id "
+            + "LEFT JOIN chapter ch ON q.chapter_id = ch.id "
+            + "LEFT JOIN user u ON q.supervisor_id = u.id ORDER BY q.id DESC";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql);
              ResultSet rs = statement.executeQuery()) {
             return mapResult(rs);
@@ -30,9 +33,9 @@ public class QuizService {
     }
 
     public List<Quiz> findPage(String search, Integer courseFilter, String sort, String direction, int page, int limit) throws SQLException {
-        StringBuilder sql = new StringBuilder("SELECT q.id, q.course_id, q.chapter_id, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
-                + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
-                + "FROM quiz q LEFT JOIN user u ON q.supervisor_id = u.id WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT q.id, q.course_id, c.title AS course_title, q.chapter_id, ch.title AS chapter_title, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
+            + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
+            + "FROM quiz q LEFT JOIN course c ON q.course_id = c.id LEFT JOIN chapter ch ON q.chapter_id = ch.id LEFT JOIN user u ON q.supervisor_id = u.id WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
         if (search != null && !search.isBlank()) {
@@ -146,11 +149,20 @@ public class QuizService {
         while (rs.next()) {
             Quiz quiz = new Quiz();
             quiz.setId(rs.getInt("id"));
-            quiz.setCourse(new Course(rs.getInt("course_id")));
+            Course course = new Course(rs.getInt("course_id"));
+            String courseTitle = rs.getString("course_title");
+            if (courseTitle != null) {
+                course.setTitle(courseTitle);
+            }
+            quiz.setCourse(course);
 
             int chapterId = rs.getInt("chapter_id");
             if (!rs.wasNull()) {
                 Chapter chapter = new Chapter(chapterId);
+                String chapterTitle = rs.getString("chapter_title");
+                if (chapterTitle != null) {
+                    chapter.setTitle(chapterTitle);
+                }
                 quiz.setChapter(chapter);
                 chapter.setQuiz(quiz);
             }

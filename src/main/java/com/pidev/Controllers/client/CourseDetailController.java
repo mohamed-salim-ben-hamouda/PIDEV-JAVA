@@ -194,6 +194,17 @@ public class CourseDetailController {
             return;
         }
 
+        int unanswered = questions.size() - selectedAnswerByQuestionId.size();
+        if (unanswered > 0) {
+            Alert confirm = new Alert(AlertType.CONFIRMATION);
+            confirm.setTitle("Soumettre le quiz");
+            confirm.setHeaderText("Questions non repondues: " + unanswered);
+            confirm.setContentText("Voulez-vous terminer le quiz ? Les questions non repondues seront considerees incorrectes.");
+            if (confirm.showAndWait().isEmpty() || confirm.getResult().getButtonData().isCancelButton()) {
+                return;
+            }
+        }
+
         QuizComputation computation = computeQuizResult();
         int threshold = Math.round(quiz.getPassingScore() <= 0 ? 70f : quiz.getPassingScore());
         boolean passed = computation.percentage >= threshold;
@@ -364,7 +375,7 @@ public class CourseDetailController {
         questionCardContainer.getChildren().setAll(questionCard);
         prevQuestionButton.setDisable(currentQuestionIndex == 0);
         nextQuestionButton.setDisable(currentQuestionIndex >= questions.size() - 1);
-        finishQuizButton.setDisable(selectedAnswerByQuestionId.size() < questions.size());
+        finishQuizButton.setDisable(false);
     }
 
     private void updateScoreLabel() {

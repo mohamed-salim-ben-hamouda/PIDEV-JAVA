@@ -140,6 +140,17 @@ public class QuizSessionController {
             return;
         }
 
+        int unanswered = questions.size() - selectedAnswerByQuestionId.size();
+        if (unanswered > 0) {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Soumettre le quiz");
+            confirm.setHeaderText("Questions non repondues: " + unanswered);
+            confirm.setContentText("Voulez-vous terminer le quiz maintenant ? Les questions non repondues seront comptees comme incorrectes.");
+            if (confirm.showAndWait().isEmpty() || confirm.getResult().getButtonData().isCancelButton()) {
+                return;
+            }
+        }
+
         stopCountdown();
 
         int total = questions.size();
@@ -238,7 +249,6 @@ public class QuizSessionController {
         double progress = questions.isEmpty() ? 0.0 : (currentQuestionIndex + 1) / (double) questions.size();
         questionProgressBar.setProgress(progress);
         questionTextLabel.setText(question.getContent() == null ? "Sans contenu" : question.getContent());
-        questionFeedbackLabel.setText("");
 
         answersContainer.getChildren().clear();
         Integer selectedId = selectedAnswerByQuestionId.get(question.getId());
@@ -258,10 +268,20 @@ public class QuizSessionController {
             answersContainer.getChildren().add(answerButton);
         }
 
+        if (selectedId != null) {
+            boolean selectedIsCorrect = questionAnswers.stream()
+                    .anyMatch(answer -> Objects.equals(answer.getId(), selectedId) && answer.isCorrect());
+            questionFeedbackLabel.setText(selectedIsCorrect
+                    ? "Bonne reponse. Vous pouvez passer a la suivante."
+                    : "Reponse enregistree. Vous pouvez la modifier avant de soumettre.");
+        } else {
+            questionFeedbackLabel.setText("");
+        }
+
         renderQuickNav();
         prevButton.setDisable(currentQuestionIndex == 0);
         nextButton.setDisable(currentQuestionIndex >= questions.size() - 1);
-        finishButton.setDisable(selectedAnswerByQuestionId.size() < questions.size());
+        finishButton.setDisable(false);
     }
 
     private void renderQuickNav() {

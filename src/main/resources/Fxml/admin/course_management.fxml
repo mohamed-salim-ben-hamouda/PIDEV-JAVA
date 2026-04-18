@@ -37,7 +37,6 @@
                 <Button mnemonicParsing="false" onAction="#onAddCourse" styleClass="management-btn" text="Ajouter" />
                 <Button mnemonicParsing="false" onAction="#onEditCourse" styleClass="management-btn" text="Modifier" />
                 <Button mnemonicParsing="false" onAction="#onDeleteCourse" styleClass="management-btn" text="Supprimer" />
-                <Button mnemonicParsing="false" onAction="#onRefresh" styleClass="management-btn" text="Rafraichir" />
             </children>
         </HBox>
     </children>
