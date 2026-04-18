@@ -607,3 +607,200 @@
 .quiz-results-subtitle {
     -fx-padding: 0 0 4 0;
 }
+
+.quiz-detail-dialog-pane {
+    -fx-background-color: #f6f9ff;
+}
+
+.quiz-detail-shell {
+    -fx-background-color: #f6f9ff;
+}
+
+.quiz-detail-breadcrumb {
+    -fx-text-fill: #7391c5;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.quiz-detail-title {
+    -fx-text-fill: #102e57;
+    -fx-font-size: 36px;
+    -fx-font-weight: 800;
+}
+
+.quiz-detail-subtitle {
+    -fx-text-fill: #2f476b;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 6 0;
+}
+
+.quiz-detail-kpi-card {
+    -fx-background-radius: 14;
+    -fx-padding: 14 10 14 10;
+}
+
+.quiz-detail-kpi-violet {
+    -fx-background-color: linear-gradient(to bottom right, #5967dd 0%, #7a4bbf 100%);
+}
+
+.quiz-detail-kpi-cyan {
+    -fx-background-color: linear-gradient(to bottom right, #23b5db 0%, #1697c6 100%);
+}
+
+.quiz-detail-kpi-green {
+    -fx-background-color: linear-gradient(to bottom right, #1dbf93 0%, #16a574 100%);
+}
+
+.quiz-detail-kpi-red {
+    -fx-background-color: linear-gradient(to bottom right, #f1454a 0%, #df2a30 100%);
+}
+
+.quiz-detail-kpi-orange {
+    -fx-background-color: linear-gradient(to bottom right, #f4a30c 0%, #de8a00 100%);
+}
+
+.quiz-detail-kpi-purple {
+    -fx-background-color: linear-gradient(to bottom right, #8d64ef 0%, #7743e0 100%);
+}
+
+.quiz-detail-kpi-value {
+    -fx-text-fill: white;
+    -fx-font-size: 44px;
+    -fx-font-weight: 800;
+}
+
+.quiz-detail-kpi-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.95);
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.quiz-detail-search,
+.quiz-detail-status-filter {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-color: #dbe5f4;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 14px;
+}
+
+.button.quiz-detail-filter-btn {
+    -fx-background-color: linear-gradient(to bottom, #6da0f0 0%, #5b90e3 100%);
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-padding: 11 18 11 18;
+}
+
+.button.quiz-detail-filter-btn:hover,
+.button.quiz-detail-filter-btn:focused,
+.button.quiz-detail-filter-btn:armed,
+.button.quiz-detail-filter-btn:pressed {
+    -fx-background-color: linear-gradient(to bottom, #5f95ea 0%, #4f86dc 100%);
+}
+
+.quiz-detail-table-header {
+    -fx-padding: 2 10 4 10;
+}
+
+.quiz-detail-header-cell {
+    -fx-text-fill: #18375f;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.quiz-detail-table-scroll {
+    -fx-background-color: transparent;
+}
+
+.quiz-detail-table-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.quiz-detail-row {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: #dfe8f5;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 10 12 10 12;
+}
+
+.quiz-detail-student-name {
+    -fx-text-fill: #1c3c64;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+}
+
+.quiz-detail-student-email {
+    -fx-text-fill: #7b8ba2;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.quiz-detail-cell {
+    -fx-text-fill: #2a4467;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.quiz-detail-score-progress {
+    -fx-pref-height: 8;
+}
+
+.quiz-detail-score-progress .track {
+    -fx-background-color: #e9edf5;
+    -fx-background-radius: 999;
+}
+
+.quiz-detail-score-progress .bar {
+    -fx-background-radius: 999;
+}
+
+.quiz-detail-score-pass {
+    -fx-text-fill: #17a974;
+}
+
+.quiz-detail-score-fail {
+    -fx-text-fill: #e14b56;
+}
+
+.quiz-detail-status-badge {
+    -fx-background-radius: 999;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-alignment: center;
+}
+
+.quiz-detail-status-pass {
+    -fx-background-color: #d7f6ea;
+    -fx-text-fill: #1e9a6f;
+}
+
+.quiz-detail-status-fail {
+    -fx-background-color: #ffe1e4;
+    -fx-text-fill: #d94653;
+}
+
+.button.quiz-detail-row-action {
+    -fx-background-color: #eef4ff;
+    -fx-background-radius: 10;
+    -fx-text-fill: #3f6fbe;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.button.quiz-detail-row-action:disabled {
+    -fx-opacity: 1;
+}
+
+.quiz-detail-empty {
+    -fx-text-fill: #6b7f9d;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}

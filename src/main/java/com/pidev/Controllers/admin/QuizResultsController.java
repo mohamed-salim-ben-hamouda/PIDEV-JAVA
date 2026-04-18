@@ -1,7 +1,7 @@
 package com.pidev.Controllers.admin;
 
 import com.pidev.Services.QuizStatisticsService;
-import com.pidev.models.QuestionStatistic;
+import com.pidev.models.QuizAttemptDetail;
 import com.pidev.models.QuizStatisticsSummary;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -25,7 +26,10 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 public class QuizResultsController {
     @FXML private TextField searchField;
@@ -36,6 +40,7 @@ public class QuizResultsController {
     private final QuizStatisticsService statisticsService = new QuizStatisticsService();
     private final ObservableList<QuizStatisticsSummary> allSummaries = FXCollections.observableArrayList();
     private final FilteredList<QuizStatisticsSummary> filteredSummaries = new FilteredList<>(allSummaries, item -> true);
+    private static final DateTimeFormatter DETAIL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.FRANCE);
 
     @FXML
     public void initialize() {
@@ -198,71 +203,210 @@ public class QuizResultsController {
 
     private void showDetailsDialog(QuizStatisticsSummary summary) {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Détails du quiz");
-        dialog.setHeaderText(summary.getQuiz().getTitle());
+        dialog.setTitle("Résultats détaillés");
+        dialog.setHeaderText(null);
+        dialog.getDialogPane().getStyleClass().add("quiz-detail-dialog-pane");
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles/backoffice.css").toExternalForm());
+        dialog.getDialogPane().setPrefWidth(1260);
+        dialog.getDialogPane().setPrefHeight(760);
         dialog.getDialogPane().getButtonTypes().add(new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE));
 
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(8));
+        VBox shell = new VBox(14);
+        shell.getStyleClass().add("quiz-detail-shell");
+        shell.setPadding(new Insets(14, 14, 14, 14));
 
-        Label summaryLabel = new Label(String.format(
-                "Tentatives: %d | Étudiants: %d | Moyenne: %.1f%% | Réussite: %.1f%%",
-                summary.getTotalAttempts(),
-                summary.getUniqueStudents(),
-                summary.getAverageScore(),
-                summary.getPassRate()
-        ));
-        summaryLabel.getStyleClass().add("management-card-muted");
-        content.getChildren().add(summaryLabel);
+        Label breadcrumb = new Label("Résultats  >  " + safe(summary.getQuiz().getTitle()));
+        breadcrumb.getStyleClass().add("quiz-detail-breadcrumb");
 
+        Label title = new Label("Quiz " + safe(summary.getQuiz().getTitle()));
+        title.getStyleClass().add("quiz-detail-title");
+
+        String courseTitle = summary.getQuiz().getCourse() != null && summary.getQuiz().getCourse().getTitle() != null
+                ? summary.getQuiz().getCourse().getTitle()
+                : "Cours non renseigné";
+        String chapterTitle = summary.getQuiz().getChapter() != null && summary.getQuiz().getChapter().getTitle() != null
+                ? summary.getQuiz().getChapter().getTitle()
+                : "Chapitre optionnel";
+        Label subtitle = new Label("Cours: " + courseTitle + " • Chapitre: " + chapterTitle);
+        subtitle.getStyleClass().add("quiz-detail-subtitle");
+
+        HBox kpiRow = new HBox(12,
+                createDetailKpiCard(String.valueOf(summary.getTotalAttempts()), "Tentatives totales", "violet"),
+                createDetailKpiCard(String.valueOf(summary.getUniqueStudents()), "Étudiants uniques", "cyan"),
+                createDetailKpiCard(String.valueOf(summary.getPassedCount()), "Réussites", "green"),
+                createDetailKpiCard(String.valueOf(summary.getFailedCount()), "Échecs", "red"),
+                createDetailKpiCard(String.format("%.1f%%", summary.getAverageScore()), "Score moyen", "orange"),
+                createDetailKpiCard(String.format("%.1f%%", summary.getPassRate()), "Taux de réussite", "purple")
+        );
+
+        HBox filterRow = new HBox(10);
+        filterRow.setAlignment(Pos.CENTER_LEFT);
+        TextField detailSearchField = new TextField();
+        detailSearchField.setPromptText("Rechercher un étudiant...");
+        detailSearchField.getStyleClass().add("quiz-detail-search");
+        HBox.setHgrow(detailSearchField, Priority.ALWAYS);
+
+        ComboBox<String> statusFilterCombo = new ComboBox<>();
+        statusFilterCombo.setItems(FXCollections.observableArrayList("Tous les statuts", "Réussi", "Échoué"));
+        statusFilterCombo.setValue("Tous les statuts");
+        statusFilterCombo.getStyleClass().add("quiz-detail-status-filter");
+
+        Button applyFilterBtn = new Button("Filtrer");
+        applyFilterBtn.getStyleClass().add("quiz-detail-filter-btn");
+        filterRow.getChildren().addAll(detailSearchField, statusFilterCombo, applyFilterBtn);
+
+        HBox tableHeader = new HBox(10,
+                headerCell("Étudiant", 300),
+                headerCell("Tentative", 90),
+                headerCell("Score", 150),
+                headerCell("Statut", 120),
+                headerCell("Date", 180),
+                headerCell("Actions", 100)
+        );
+        tableHeader.getStyleClass().add("quiz-detail-table-header");
+
+        VBox rowsBox = new VBox(8);
+        rowsBox.getStyleClass().add("quiz-detail-rows-box");
+
+        Label emptyRowsLabel = new Label("Aucune tentative trouvée.");
+        emptyRowsLabel.getStyleClass().add("quiz-detail-empty");
+        emptyRowsLabel.setVisible(false);
+        emptyRowsLabel.setManaged(false);
+
+        List<QuizAttemptDetail> loadedAttempts;
         try {
-            List<QuestionStatistic> statistics = statisticsService.findQuestionStatistics(summary.getQuiz().getId());
-            if (statistics.isEmpty()) {
-                content.getChildren().add(new Label("Aucune statistique question disponible."));
-            } else {
-                for (QuestionStatistic statistic : statistics) {
-                    content.getChildren().add(createQuestionRow(statistic));
-                }
-            }
+            loadedAttempts = statisticsService.findAttemptsForQuiz(summary.getQuiz().getId(), summary.getQuiz().getPassingScore());
         } catch (SQLException e) {
-            content.getChildren().add(new Label("Erreur lors du chargement des détails."));
+            showError("DB Error", e.getMessage());
+            loadedAttempts = List.of();
         }
+        final List<QuizAttemptDetail> attempts = loadedAttempts;
 
-        ScrollPane scrollPane = new ScrollPane(content);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefViewportHeight(420);
-        dialog.getDialogPane().setContent(scrollPane);
+        Runnable refreshRows = () -> renderAttemptRows(rowsBox, emptyRowsLabel, attempts, detailSearchField.getText(), statusFilterCombo.getValue());
+        detailSearchField.textProperty().addListener((obs, oldVal, newVal) -> refreshRows.run());
+        statusFilterCombo.valueProperty().addListener((obs, oldVal, newVal) -> refreshRows.run());
+        applyFilterBtn.setOnAction(evt -> refreshRows.run());
+        refreshRows.run();
+
+        ScrollPane rowsScroll = new ScrollPane(rowsBox);
+        rowsScroll.setFitToWidth(true);
+        rowsScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        rowsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        rowsScroll.getStyleClass().add("quiz-detail-table-scroll");
+        rowsScroll.setPrefViewportHeight(360);
+
+        shell.getChildren().addAll(
+                breadcrumb,
+                title,
+                subtitle,
+                kpiRow,
+                filterRow,
+                tableHeader,
+                rowsScroll,
+                emptyRowsLabel
+        );
+
+        dialog.getDialogPane().setContent(shell);
 
         dialog.showAndWait();
     }
 
-    private HBox createQuestionRow(QuestionStatistic statistic) {
-        Label questionLabel = new Label(statistic.getQuestion().toString());
-        questionLabel.setWrapText(true);
-        questionLabel.setMaxWidth(Double.MAX_VALUE);
-        questionLabel.getStyleClass().add("management-card-label");
+    private VBox createDetailKpiCard(String value, String label, String variant) {
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().addAll("quiz-detail-kpi-value", "quiz-detail-kpi-value-" + variant);
+        Label labelLabel = new Label(label);
+        labelLabel.getStyleClass().add("quiz-detail-kpi-label");
 
-        Label attemptsLabel = new Label(String.valueOf(statistic.getTotalResponses()));
-        attemptsLabel.getStyleClass().add("management-card-label");
+        VBox box = new VBox(6, valueLabel, labelLabel);
+        box.getStyleClass().addAll("quiz-detail-kpi-card", "quiz-detail-kpi-" + variant);
+        box.setAlignment(Pos.CENTER);
+        box.setPrefWidth(180);
+        HBox.setHgrow(box, Priority.ALWAYS);
+        return box;
+    }
 
-        Label correctLabel = new Label(String.valueOf(statistic.getCorrectCount()));
-        correctLabel.getStyleClass().add("management-card-label");
+    private Label headerCell(String text, double minWidth) {
+        Label label = new Label(text);
+        label.getStyleClass().add("quiz-detail-header-cell");
+        label.setMinWidth(minWidth);
+        return label;
+    }
 
-        Label rateLabel = new Label(String.format("%.1f%%", statistic.getSuccessRate()));
-        rateLabel.getStyleClass().add("management-card-label");
+    private void renderAttemptRows(VBox rowsBox, Label emptyRowsLabel, List<QuizAttemptDetail> allAttempts, String search, String status) {
+        rowsBox.getChildren().clear();
+        String normalized = search == null ? "" : search.trim().toLowerCase();
+        boolean filterPassed = "Réussi".equals(status);
+        boolean filterFailed = "Échoué".equals(status);
 
-        ProgressBar progressBar = new ProgressBar(statistic.getSuccessRate() / 100.0);
-        progressBar.setPrefWidth(180.0);
-        progressBar.setMaxWidth(Double.MAX_VALUE);
+        for (QuizAttemptDetail attempt : allAttempts) {
+            boolean matchesSearch = normalized.isEmpty()
+                    || safe(attempt.getStudentName()).toLowerCase().contains(normalized)
+                    || safe(attempt.getStudentEmail()).toLowerCase().contains(normalized);
+            boolean matchesStatus = !filterPassed && !filterFailed
+                    || (filterPassed && attempt.isPassed())
+                    || (filterFailed && !attempt.isPassed());
 
-        VBox questionBox = new VBox(6, questionLabel, progressBar);
-        questionBox.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(questionBox, Priority.ALWAYS);
+            if (matchesSearch && matchesStatus) {
+                rowsBox.getChildren().add(createAttemptRow(attempt));
+            }
+        }
 
-        HBox row = new HBox(14, questionBox, attemptsLabel, correctLabel, rateLabel);
-        row.getStyleClass().add("management-card");
-        row.setStyle("-fx-alignment: center-left;");
+        boolean empty = rowsBox.getChildren().isEmpty();
+        emptyRowsLabel.setVisible(empty);
+        emptyRowsLabel.setManaged(empty);
+    }
+
+    private HBox createAttemptRow(QuizAttemptDetail attempt) {
+        VBox studentCol = new VBox(2);
+        Label nameLabel = new Label(safe(attempt.getStudentName()));
+        nameLabel.getStyleClass().add("quiz-detail-student-name");
+        Label emailLabel = new Label(safe(attempt.getStudentEmail()));
+        emailLabel.getStyleClass().add("quiz-detail-student-email");
+        studentCol.getChildren().addAll(nameLabel, emailLabel);
+        studentCol.setMinWidth(300);
+
+        Label attemptLabel = new Label("#" + attempt.getAttemptNumber());
+        attemptLabel.getStyleClass().add("quiz-detail-cell");
+        attemptLabel.setMinWidth(90);
+
+        ProgressBar scoreProgress = new ProgressBar(Math.max(0, Math.min(1, attempt.getScore() / 100.0)));
+        scoreProgress.setPrefWidth(90);
+        scoreProgress.getStyleClass().add("quiz-detail-score-progress");
+        scoreProgress.setStyle(attempt.isPassed() ? "-fx-accent: #24c08f;" : "-fx-accent: #ef4444;");
+        Label scoreLabel = new Label(String.format("%.1f%%", attempt.getScore()));
+        scoreLabel.getStyleClass().addAll("quiz-detail-cell", attempt.isPassed() ? "quiz-detail-score-pass" : "quiz-detail-score-fail");
+        HBox scoreCol = new HBox(8, scoreProgress, scoreLabel);
+        scoreCol.setAlignment(Pos.CENTER_LEFT);
+        scoreCol.setMinWidth(150);
+
+        Label statusBadge = new Label(attempt.isPassed() ? "Réussi" : "Échoué");
+        statusBadge.getStyleClass().addAll("quiz-detail-status-badge", attempt.isPassed() ? "quiz-detail-status-pass" : "quiz-detail-status-fail");
+        statusBadge.setMinWidth(120);
+
+        Label dateLabel = new Label(formatDate(attempt.getSubmittedAt()));
+        dateLabel.getStyleClass().add("quiz-detail-cell");
+        dateLabel.setMinWidth(180);
+
+        Button actionBtn = new Button("Voir");
+        actionBtn.getStyleClass().add("quiz-detail-row-action");
+        actionBtn.setDisable(true);
+        actionBtn.setMinWidth(88);
+
+        HBox row = new HBox(10, studentCol, attemptLabel, scoreCol, statusBadge, dateLabel, actionBtn);
+        row.getStyleClass().add("quiz-detail-row");
+        row.setAlignment(Pos.CENTER_LEFT);
         return row;
+    }
+
+    private String formatDate(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "-";
+        }
+        return DETAIL_DATE_FORMAT.format(dateTime);
+    }
+
+    private String safe(String value) {
+        return value == null ? "-" : value;
     }
 
     private void adaptTileColumns(double viewportWidth) {

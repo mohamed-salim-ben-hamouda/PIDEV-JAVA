@@ -3,6 +3,7 @@ package com.pidev.Services;
 import com.pidev.models.Course;
 import com.pidev.models.Question;
 import com.pidev.models.QuestionStatistic;
+import com.pidev.models.QuizAttemptDetail;
 import com.pidev.models.Quiz;
 import com.pidev.models.QuizStatisticsSummary;
 import com.pidev.models.User;
@@ -12,6 +13,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +95,39 @@ public class QuizStatisticsService {
             }
         }
         return statistics;
+    }
+
+    public List<QuizAttemptDetail> findAttemptsForQuiz(int quizId, float passingScore) throws SQLException {
+        String sql = "SELECT qa.attempt_nbr, qa.score, qa.submitted_at, u.prenom, u.nom, u.email "
+                + "FROM quiz_attempts qa "
+                + "LEFT JOIN user u ON qa.student_id = u.id "
+                + "WHERE qa.quiz_id = ? "
+                + "ORDER BY qa.submitted_at DESC";
+
+        List<QuizAttemptDetail> attempts = new ArrayList<>();
+        try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+            statement.setInt(1, quizId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    int attemptNumber = rs.getInt("attempt_nbr");
+                    double score = roundOneDecimal(rs.getDouble("score"));
+                    boolean passed = score >= passingScore;
+                    Timestamp submittedAtTs = rs.getTimestamp("submitted_at");
+                    LocalDateTime submittedAt = submittedAtTs == null ? null : submittedAtTs.toLocalDateTime();
+
+                    String prenom = rs.getString("prenom");
+                    String nom = rs.getString("nom");
+                    String email = rs.getString("email");
+                    String studentName = ((prenom == null ? "" : prenom.trim()) + " " + (nom == null ? "" : nom.trim())).trim();
+                    if (studentName.isEmpty()) {
+                        studentName = email == null || email.isBlank() ? "Etudiant" : email;
+                    }
+
+                    attempts.add(new QuizAttemptDetail(attemptNumber, score, passed, submittedAt, studentName, email == null ? "-" : email));
+                }
+            }
+        }
+        return attempts;
     }
 
     private Connection requireConnection() throws SQLException {
