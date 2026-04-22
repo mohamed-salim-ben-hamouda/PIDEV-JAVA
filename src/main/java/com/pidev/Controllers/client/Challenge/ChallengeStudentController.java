@@ -46,7 +46,6 @@ public class ChallengeStudentController implements Initializable {
                 cardController.setData(c,v -> refreshChallenges());
                 cardController.StudentCard(cardController.editBtn);
                 cardController.StudentCard(cardController.deleteBtn);
-                cardController.StudentCard(cardController.groupsBtn);
                 challengeListContainer.getChildren().add(card);
             } catch (Exception e) {
                 e.printStackTrace();

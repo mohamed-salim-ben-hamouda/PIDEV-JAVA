@@ -4,36 +4,31 @@ import com.pidev.Controllers.client.BaseController;
 import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationController;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
-import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.models.*;
+import com.pidev.utils.ImageAssets;
 import com.pidev.utils.OpenPdfUtil;
 import com.pidev.utils.PreFeedbackPdfUtil;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
+import javafx.scene.image.ImageView;
 
 import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 
 public class OldActivitiesCardsController {
     private Activity a;
+    @FXML
+    private ImageView trophyImage;
     @FXML
     private Label titleChallenge;
     @FXML
     private Label metaLabel;
     @FXML
     private Label descriptionChallenge;
-    @FXML
-    private Label submissionActivity;
+
     @FXML
     private Label statusAct;
     @FXML
@@ -42,11 +37,22 @@ public class OldActivitiesCardsController {
     private Button ModifyBtn;
     @FXML
     private Button preFeedbackBtn;
-    private ServiceEvaluation serviceEva = new ServiceEvaluation();
-    private ServiceMemberActivity serviceMA = new ServiceMemberActivity();
-    private ServiceActivity serviceA = new ServiceActivity();
+    private final ServiceEvaluation serviceEva = new ServiceEvaluation();
+    private final ServiceActivity serviceA = new ServiceActivity();
+
+    @FXML
+    public void initialize() {
+        trophyImage.setImage(ImageAssets.TROPHY_ICON_60);
+    }
 
     public void setData(Activity a) {
+        int user_id = 2;
+        boolean isAdmin = serviceA.isUserLeader(a.getGroup().getId(), user_id);
+        boolean hasEvaluation = serviceEva.isEvaluation(a.getId());
+        setData(a, isAdmin, hasEvaluation);
+    }
+
+    public void setData(Activity a, boolean isAdmin, boolean hasEvaluation) {
         this.a = a;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if (a.getChallenge() != null) {
@@ -60,32 +66,27 @@ public class OldActivitiesCardsController {
             metaLabel.setText("Deadline: " + deadlineStr + " • Difficulty: " + a.getChallenge().getDifficulty());
         }
 
-        if (a.getSubmissionDate() != null) {
-            submissionActivity.setText("Submitted on: " + a.getSubmissionDate().format(formatter));
-        } else {
-            submissionActivity.setText("No submission date recorded");
-        }
-
         String status = (a.getStatus() != null) ? a.getStatus() : "unknown";
         statusAct.setText("Status: " + status);
-        int user_id = 2;
-        boolean is_admin = serviceA.isUserLeader(a.getGroup().getId(),user_id);
-        boolean is_evaluation = serviceEva.isEvaluation(a.getId());
-        if(!is_admin || is_evaluation){
+        applyActionState(status, isAdmin, hasEvaluation);
+    }
+
+    private void applyActionState(String status, boolean isAdmin, boolean hasEvaluation) {
+        if (!isAdmin || hasEvaluation) {
             ModifyBtn.setVisible(false);
             ModifyBtn.setManaged(false);
-        }else {
+        } else {
             ModifyBtn.setVisible(true);
             ModifyBtn.setManaged(true);
         }
-        if(status.equalsIgnoreCase("evaluated") || status.equalsIgnoreCase("submitted")){
+
+        if (status.equalsIgnoreCase("evaluated") || status.equalsIgnoreCase("submitted")) {
             preFeedbackBtn.setVisible(true);
             preFeedbackBtn.setManaged(true);
-        }else {
+        } else {
             preFeedbackBtn.setVisible(false);
             preFeedbackBtn.setManaged(false);
         }
-
 
         if (status.equalsIgnoreCase("evaluated")) {
             evaluationBtn.setDisable(false);

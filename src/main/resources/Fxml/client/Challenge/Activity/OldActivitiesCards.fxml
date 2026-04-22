@@ -4,16 +4,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<VBox prefWidth="350.0" spacing="15" styleClass="challenge-card"
+<VBox minHeight="720.0" prefHeight="720.0" maxHeight="720.0" minWidth="350.0" prefWidth="350.0" maxWidth="350.0" spacing="15" styleClass="challenge-card"
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pidev.Controllers.client.Challenge.Activity.OldActivitiesCardsController">
     <children>
         <VBox alignment="CENTER" spacing="5">
-            <ImageView fx:id="trophyImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
-                <image>
-                    <Image url="@../../../../images/trophy.jpg" />
-                </image>
-            </ImageView>
+            <ImageView fx:id="trophyImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
             <Label fx:id="titleChallenge" styleClass="challenge-title" text="Challenge Title" />
             <Label fx:id="metaLabel" styleClass="meta-text" text="Deadline • Difficulty" />
             <Label fx:id="descriptionChallenge" alignment="CENTER" styleClass="challenge-description" text="Description..." wrapText="true" />
@@ -21,19 +17,7 @@
 
         <Separator />
 
-        <VBox spacing="10">
-            <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label style="-fx-font-size: 18px;" text="📄" />
-                <Label styleClass="section-title" text="Your Submitted Activity" />
-            </HBox>
-            <VBox alignment="CENTER" spacing="12" styleClass="inner-section-container">
-                <children>
-                    <Label styleClass="input-label" text="Submission Summary" />
-                    <Button fx:id="openButton" styleClass="open-btn" text="📂 Open" />
-                    <Label fx:id="submissionActivity" styleClass="meta-text" text="Submitted on: Date" />
-                </children>
-            </VBox>
-        </VBox>
+
 
         <VBox spacing="10">
             <HBox alignment="CENTER_LEFT" spacing="10">

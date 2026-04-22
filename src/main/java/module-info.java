@@ -12,6 +12,8 @@ module com.pidev.challenge_module {
     requires javafx.web;
     requires org.apache.pdfbox;
     requires org.json;
+    requires com.fasterxml.jackson.databind;
+
     opens challenge_module.evaluation_pdf to javafx.graphics, javafx.web;
     opens com.pidev.Controllers.admin.Challenge to javafx.fxml;
     opens com.pidev.Controllers.admin.Challenge.Activity to javafx.fxml;
@@ -25,6 +27,7 @@ module com.pidev.challenge_module {
     opens com.pidev.Controllers.client.Challenge.Activity to javafx.fxml;
     opens com.pidev.Controllers.client.Challenge.Evaluation to javafx.fxml;
     opens com.pidev.Controllers.client.Challenge to javafx.fxml;
+    opens com.pidev.utils to javafx.fxml, com.fasterxml.jackson.databind;
 
     exports com.pidev.Controllers.client.Challenge to javafx.fxml;
     exports com.pidev.Controllers.client.Challenge.Activity to javafx.fxml;

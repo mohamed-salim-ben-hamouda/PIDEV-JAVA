@@ -63,7 +63,6 @@
 }
 
 .challenge-card:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.12), 24, 0, 0, 10);
     -fx-border-color: #c7d2fe;
 }
 
@@ -138,6 +137,7 @@
     -fx-text-fill: white;
 }
 
+
 .action-btn-delete {
     -fx-background-color: #fef2f2;
     -fx-background-radius: 999px;
@@ -175,10 +175,8 @@
     -fx-background-radius: 999px;
     -fx-border-color: #bfdbfe;
     -fx-border-radius: 999px;
-    -fx-border-width: 1px;
     -fx-alignment: CENTER_LEFT;
     -fx-text-fill: #2563eb;
-    -fx-font-size: 11px;
     -fx-font-weight: 700;
     -fx-cursor: hand;
     -fx-padding: 6 12;
@@ -435,7 +433,7 @@
     -fx-background-color: white;
     -fx-background-radius: 28px; /* Rounder corners */
     -fx-padding: 30px; /* More internal breathing room */
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 20, 0, 0, 10);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.06), 10, 0, 0, 4);
     -fx-border-color: #f1f5f9;
 }
 

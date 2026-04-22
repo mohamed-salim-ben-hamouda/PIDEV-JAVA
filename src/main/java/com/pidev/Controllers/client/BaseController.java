@@ -4,9 +4,11 @@ import com.pidev.Controllers.client.Challenge.Activity.ActivityController;
 import com.pidev.Controllers.client.Challenge.Activity.ModifyActivityController;
 import com.pidev.Controllers.client.Challenge.Evaluation.EvaluationMainController;
 import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationController;
+import com.pidev.Controllers.client.Challenge.GrpsPredictionController;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.models.Activity;
 import com.pidev.models.Challenge;
+import com.pidev.models.Group;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import javafx.scene.control.MenuButton;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class BaseController implements Initializable {
@@ -146,6 +149,18 @@ public class BaseController implements Initializable {
     @FXML
     public void loadOldActivities() {
         loadViewFront("client/Challenge/Activity/SelectOldActivities");
+    }
+    @FXML
+    public void loadPredictions(Challenge c , List<Group> grps){
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/GrpsPrediction.fxml"));
+            Parent root = loader.load();
+            GrpsPredictionController controller = loader.getController();
+            controller.initData(grps,c);
+            contentArea.getChildren().setAll(root);
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     @FXML
     public EvaluationMainController loadEvaluationMainPage() {

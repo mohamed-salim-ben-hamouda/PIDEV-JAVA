@@ -410,7 +410,6 @@ public final class PreFeedbackPdfUtil {
             return String.valueOf((long) v);
         }
         String s = String.valueOf(v);
-        // Avoid scientific notation for small decimals (unlikely here).
         return s;
     }
 

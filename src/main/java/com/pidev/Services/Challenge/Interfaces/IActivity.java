@@ -3,6 +3,7 @@ package com.pidev.Services.Challenge.Interfaces;
 import com.pidev.models.Activity;
 import com.pidev.models.Challenge;
 import com.pidev.models.Group;
+import com.pidev.models.PredictionInput;
 
 import java.util.List;
 
@@ -20,4 +21,5 @@ public interface IActivity {
     void delete(int a);
     List<Activity> displayAll();
     //boolean isActivitySubmitted(int a_id);
+    PredictionInput getPredictionInput(int groupId, int challengeId);
 }

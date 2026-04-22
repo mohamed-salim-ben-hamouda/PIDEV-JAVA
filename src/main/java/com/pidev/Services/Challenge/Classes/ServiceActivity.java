@@ -4,6 +4,7 @@ import com.pidev.Services.Challenge.Interfaces.IActivity;
 import com.pidev.models.Activity;
 import com.pidev.models.Challenge;
 import com.pidev.models.Group;
+import com.pidev.models.PredictionInput;
 import com.pidev.utils.DataSource;
 
 import java.sql.*;
@@ -21,12 +22,13 @@ public class ServiceActivity implements IActivity {
 
     @Override
     public void StartActivity(Activity a, Challenge c, Group g) {
-        String query = "INSERT INTO ACTIVITY (id_challenge_id,group_id_id,status) " +
-                "VALUES (?,?,?)";
+        String query = "INSERT INTO ACTIVITY (id_challenge_id,group_id_id,status,start_time) " +
+                "VALUES (?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, c.getId());
             ps.setInt(2, g.getId());
             ps.setString(3, "in_progress");
+            ps.setTimestamp(4,java.sql.Timestamp.valueOf(a.getActivity_start_time()));
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -235,19 +237,29 @@ public class ServiceActivity implements IActivity {
     @Override
     public List<Activity> getOldActivitiesForUser(int userId) {
         List<Activity> list = new ArrayList<>();
-        String query = "SELECT a.id AS activityId , c.*, a.*, g.name as group_name " +
+        String query = "SELECT DISTINCT " +
+                "a.id AS activityId, " +
+                "a.status AS activity_status, " +
+                "a.group_id_id, " +
+                "a.submission_file AS activity_submission, " +
+                "g.name AS group_name, " +
+                "c.id AS challenge_id, " +
+                "c.title, " +
+                "c.description, " +
+                "c.difficulty, " +
+                "c.dead_line " +
                 "FROM activity a " +
                 "JOIN challenge c ON a.id_challenge_id = c.id " +
                 "JOIN `group` g ON a.group_id_id = g.id " +
-                "JOIN membership m ON g.id = m.group_id_id " +
-                "WHERE m.user_id_id = ? " +
-                "AND a.status IN ('submitted', 'evaluated') " +
+                "JOIN membership m ON m.group_id_id = a.group_id_id AND m.user_id_id = ? " +
+                "WHERE a.status IN ('submitted', 'evaluated') " +
                 "ORDER BY a.submission_date DESC";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Challenge challenge = new Challenge();
+                challenge.setId(rs.getInt("challenge_id"));
                 challenge.setTitle(rs.getString("title"));
                 challenge.setDescription(rs.getString("description"));
                 challenge.setDifficulty(rs.getString("difficulty"));
@@ -262,12 +274,9 @@ public class ServiceActivity implements IActivity {
 
                 Activity activity = new Activity();
                 activity.setId(rs.getInt("activityId"));
-                activity.setStatus(rs.getString("status"));
-                activity.setSubmissionFile(rs.getString("submission_file"));
-                Timestamp subTs = rs.getTimestamp("submission_date");
-                if (subTs != null) {
-                    activity.setSubmissionDate(subTs.toLocalDateTime());
-                }
+                activity.setStatus(rs.getString("activity_status"));
+                activity.setSubmissionFile(rs.getString("activity_submission"));
+
                 activity.setChallenge(challenge);
                 activity.setGroup(group);
 
@@ -277,6 +286,93 @@ public class ServiceActivity implements IActivity {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public List<OldActivityCardData> getOldActivityCardDataForUser(int userId) {
+        List<OldActivityCardData> list = new ArrayList<>();
+        String query = "SELECT DISTINCT " +
+                "a.id AS activityId, " +
+                "a.status AS activity_status, " +
+                "a.group_id_id, " +
+                "a.submission_file AS activity_submission, " +
+                "g.name AS group_name, " +
+                "c.id AS challenge_id, " +
+                "c.title, " +
+                "c.description, " +
+                "c.difficulty, " +
+                "c.dead_line, " +
+                "EXISTS(SELECT 1 FROM membership ml WHERE ml.group_id_id = a.group_id_id AND ml.user_id_id = ? AND LOWER(ml.role) = 'leader') AS is_leader, " +
+                "EXISTS(SELECT 1 FROM evaluation e WHERE e.activity_id_id = a.id AND e.status IS NOT NULL) AS has_evaluation " +
+                "FROM activity a " +
+                "JOIN challenge c ON a.id_challenge_id = c.id " +
+                "JOIN `group` g ON a.group_id_id = g.id " +
+                "JOIN membership m ON m.group_id_id = a.group_id_id AND m.user_id_id = ? " +
+                "WHERE a.status IN ('submitted', 'evaluated') " +
+                "ORDER BY a.submission_date DESC";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Challenge challenge = new Challenge();
+                challenge.setId(rs.getInt("challenge_id"));
+                challenge.setTitle(rs.getString("title"));
+                challenge.setDescription(rs.getString("description"));
+                challenge.setDifficulty(rs.getString("difficulty"));
+
+                Timestamp deadlineTs = rs.getTimestamp("dead_line");
+                if (deadlineTs != null) {
+                    challenge.setDeadLine(deadlineTs.toLocalDateTime());
+                }
+
+                Group group = new Group();
+                group.setId(rs.getInt("group_id_id"));
+                group.setName(rs.getString("group_name"));
+
+                Activity activity = new Activity();
+                activity.setId(rs.getInt("activityId"));
+                activity.setStatus(rs.getString("activity_status"));
+                activity.setSubmissionFile(rs.getString("activity_submission"));
+                activity.setChallenge(challenge);
+                activity.setGroup(group);
+
+                list.add(new OldActivityCardData(
+                        activity,
+                        rs.getBoolean("is_leader"),
+                        rs.getBoolean("has_evaluation")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public static final class OldActivityCardData {
+        private final Activity activity;
+        private final boolean leader;
+        private final boolean evaluation;
+
+        public OldActivityCardData(Activity activity, boolean leader, boolean evaluation) {
+            this.activity = activity;
+            this.leader = leader;
+            this.evaluation = evaluation;
+        }
+
+        public Activity getActivity() {
+            return activity;
+        }
+
+        public boolean isLeader() {
+            return leader;
+        }
+
+        public boolean hasEvaluation() {
+            return evaluation;
+        }
     }
 
     public void updateActivityFile(Activity a) {
@@ -347,6 +443,94 @@ public class ServiceActivity implements IActivity {
 
         return false;
     }*/
+    public PredictionInput getPredictionInput(int groupId, int challengeId) {
+        String query = """
+        SELECT
+            hist.avg_group_score,
+            hist.avg_completion_time,
+            target.difficulty,
+            target.deadline_days,
+            hist.group_skill_variance,
+            grp.group_size
+        FROM
+        (
+            SELECT
+                a.group_id_id AS group_id,
+                AVG(e.group_score) AS avg_group_score,
+                AVG(TIMESTAMPDIFF(SECOND, a.start_time, a.submission_date) / 86400.0) AS avg_completion_time,
+                AVG(COALESCE(ma_stats.skill_variance, 0)) AS group_skill_variance
+            FROM activity a
+            JOIN evaluation e ON e.activity_id_id = a.id
+            LEFT JOIN (
+                SELECT
+                    ma.id_activity_id,
+                    COALESCE(VAR_SAMP(ma.indiv_score), 0) AS skill_variance
+                FROM member_activity ma
+                GROUP BY ma.id_activity_id
+            ) ma_stats ON ma_stats.id_activity_id = a.id
+            WHERE a.group_id_id = ?
+              AND (a.status = 'submitted' OR a.status = 'evaluated')
+              AND a.id_challenge_id <> ?
+            GROUP BY a.group_id_id
+        ) hist
+        JOIN
+        (
+            SELECT
+                c.id,
+                CASE
+                    WHEN c.difficulty = 'Hard' THEN 2
+                    WHEN c.difficulty = 'Medium' THEN 1
+                    ELSE 0
+                END AS difficulty,
+                DATEDIFF(c.dead_line, c.created_at) AS deadline_days
+            FROM challenge c
+            WHERE c.id = ?
+        ) target
+        JOIN
+        (
+            SELECT
+                m.group_id_id AS group_id,
+                COUNT(m.id) AS group_size
+            FROM membership m
+            WHERE m.group_id_id = ?
+            GROUP BY m.group_id_id
+        ) grp ON grp.group_id = hist.group_id
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, challengeId);
+            ps.setInt(3, challengeId);
+            ps.setInt(4, groupId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalStateException(
+                            "No historical submitted challenges found for group " + groupId
+                    );
+                }
+
+                int deadlineDays = rs.getInt("deadline_days");
+                if (deadlineDays <= 0) {
+                    throw new IllegalStateException(
+                            "Invalid deadline_days for challenge " + challengeId
+                    );
+                }
+
+                return new PredictionInput(
+                        rs.getDouble("avg_group_score"),
+                        rs.getDouble("avg_completion_time"),
+                        rs.getInt("difficulty"),
+                        deadlineDays,
+                        rs.getDouble("group_skill_variance"),
+                        rs.getInt("group_size")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load prediction input", e);
+        }
+    }
+
 
 
 }

@@ -312,6 +312,8 @@ public class ChallengeController implements Initializable {
                 ChallengeCardController cardController = loader.getController();
                 cardController.setData(c,v -> refreshChallenges());
                 cardController.SupervisorCard(cardController.participationBtn);
+                cardController.SupervisorCard(cardController.groupsBtn);
+
                 challengeListContainer.getChildren().add(card);
             } catch (Exception e) {
                 loadError = true;

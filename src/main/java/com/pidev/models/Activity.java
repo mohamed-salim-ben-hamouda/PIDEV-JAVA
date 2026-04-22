@@ -10,6 +10,8 @@ public class Activity {
     String submissionFile;
     private LocalDateTime submissionDate;
     private String status;
+    private LocalDateTime activity_start_time;
+
 
     public Activity() {
     }
@@ -51,9 +53,19 @@ public class Activity {
         return submissionDate;
     }
 
+    public LocalDateTime getActivity_start_time() {
+        return activity_start_time;
+    }
+
+
     public void setSubmissionDate(LocalDateTime submissionDate) {
         this.submissionDate = submissionDate;
     }
+
+    public void setActivity_start_time(LocalDateTime activityStartTime) {
+        this.activity_start_time = activityStartTime;
+    }
+
 
     public String getStatus() {
         return status;

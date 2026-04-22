@@ -28,9 +28,7 @@
                     <children>
 
                         <VBox alignment="CENTER" spacing="15" styleClass="main-card" style="-fx-padding: 40;">
-                            <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
-                                <Image url="@../../../../images/trophy.jpg"/>
-                            </ImageView>
+                            <ImageView fx:id="trophyImage" fitHeight="80" fitWidth="80" preserveRatio="true"/>
                             <Label fx:id="challengeTitle" text="Challenge Name" styleClass="challenge-title"
                                    style="-fx-font-size: 26;"/>
                             <Label fx:id="challengeDescription" text="Challenge description goes here"
@@ -47,8 +45,7 @@
                                 </HBox>
                                 <VBox spacing="12" styleClass="inner-section-container" alignment="CENTER"
                                       style="-fx-padding: 25;">
-                                    <Label fx:id="activityId" text="Activity ID: 90" styleClass="meta-text"
-                                           style="-fx-font-size: 14;"/>
+
                                     <Button text="Open Submission" styleClass="primary-btn"
                                             style="-fx-padding: 10 25; -fx-font-size: 14;" onAction="#openPdfSubmission"/>
                                     <Label fx:id="submittedDate" text="Submitted on: 2026-05-05"

@@ -18,8 +18,8 @@
                styleClass="challenge-title"
                HBox.hgrow="ALWAYS"/>
         <HBox spacing="10.0" alignment="CENTER_RIGHT" styleClass="challenge-card-actions">
-            <Button fx:id="groupsBtn" text="Groups" styleClass="action-btn-outline"/>
-            <Button fx:id="participationBtn" text="choose your group" styleClass="primary-btn"/>
+            <Button fx:id="groupsBtn" onAction="#onSuccessPrediction" text="success predictions" styleClass="file-link-btn"/>
+            <Button fx:id="participationBtn" text="choose your group" styleClass="action-btn-outline"/>
             <Button fx:id="deleteBtn" text="Delete" onAction="#OnDelete" styleClass="action-btn-delete"/>
             <Button fx:id="editBtn" text="Edit" onAction="#handleEdit" styleClass="action-btn-outline"/>
         </HBox>

@@ -1,5 +1,6 @@
 package com.pidev.Controllers.client.Challenge;
 
+import com.pidev.Controllers.client.BaseController;
 import com.pidev.Services.Membership.ServiceMembership;
 import com.pidev.models.Challenge;
 import com.pidev.models.Group;
@@ -67,7 +68,8 @@ public class ChallengeCardController {
     }
     private void loadUserGroups() {
         groupsContainer.getChildren().clear();
-        List<Group> userGroups = groupService.FindAdminGroups(2);
+        int user_id = 2;
+        List<Group> userGroups = groupService.FindAdminGroups(user_id);
         groupsContainer.getChildren().clear();
 
         if (userGroups.isEmpty()) {
@@ -197,6 +199,13 @@ public class ChallengeCardController {
         alert.setHeaderText("Unable to open PDF");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    @FXML
+    private void onSuccessPrediction(){
+        int user_id = 2;
+        List<Group> userGroups = groupService.FindAdminGroups(user_id);
+
+        BaseController.getInstance().loadPredictions(c,userGroups);
     }
 
 }

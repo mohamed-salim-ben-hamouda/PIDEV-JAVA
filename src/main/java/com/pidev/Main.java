@@ -29,6 +29,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        configureJavaFxRendering();
         System.out.println("--- Testing Database Connection ---");
         DataSource ds = DataSource.getInstance();
         Connection conn = ds.getConnection();
@@ -41,5 +42,12 @@ public class Main extends Application {
         System.out.println("-----------------------------------");
 
         launch(args);
+    }
+
+    private static void configureJavaFxRendering() {
+        if (System.getProperty("prism.order") == null) {
+            // Prefer the hardware pipeline on Windows before falling back to software.
+            System.setProperty("prism.order", "d3d,sw");
+        }
     }
 }

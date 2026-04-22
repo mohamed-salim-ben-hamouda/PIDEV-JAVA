@@ -3,6 +3,7 @@ package com.pidev.Controllers.client.Challenge.Evaluation;
 import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.Services.Challenge.Classes.ServiceProblemSolution;
+import com.pidev.utils.ImageAssets;
 import com.pidev.utils.OpenPdfUtil;
 import com.pidev.models.Activity;
 import com.pidev.models.Evaluation;
@@ -12,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -21,11 +23,12 @@ import java.util.List;
 
 public class StudentEvaluationController {
     @FXML
+    private ImageView trophyImage;
+    @FXML
     private Label challengeTitle;
     @FXML
     private Label challengeDescription;
-    @FXML
-    private Label activityId;
+
     @FXML
     private Label submittedDate;
     @FXML
@@ -45,12 +48,17 @@ public class StudentEvaluationController {
     private ServiceProblemSolution servicePS = new ServiceProblemSolution();
     private ServiceMemberActivity serviceMA = new ServiceMemberActivity();
     private ServiceEvaluation serviceEval = new ServiceEvaluation();
+
+    @FXML
+    public void initialize() {
+        trophyImage.setImage(ImageAssets.TROPHY_ICON_80);
+    }
+
     public void setData(Evaluation e, Activity a){
         this.a=a;
         this.e=e;
         challengeTitle.setText(this.a.getChallenge().getTitle());
         challengeDescription.setText(this.a.getChallenge().getDescription());
-        activityId.setText("Activity ID: #" + this.a.getId());
         if (a.getSubmissionDate() != null) {
             submittedDate.setText("Submitted on: " + a.getSubmissionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         } else {
