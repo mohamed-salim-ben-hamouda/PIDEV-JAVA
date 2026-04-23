@@ -8,6 +8,8 @@ module com.pidev.challenge_module {
     requires org.kordamp.ikonli.fontawesome5;
     requires java.desktop;
     requires org.kordamp.ikonli.core;
+    requires com.google.gson;
+    requires java.net.http;
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
     opens com.pidev.Controllers.client to javafx.fxml;

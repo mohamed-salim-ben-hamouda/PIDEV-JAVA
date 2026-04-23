@@ -32,7 +32,12 @@
                             </children>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleShowCreateForm" styleClass="primary-btn" text="+ Nouveau CV" />
+                        <HBox spacing="10.0">
+                            <children>
+                                <Button onAction="#handleShowAIForm" styleClass="ai-btn" text="✨ Créer avec l'IA" />
+                                <Button onAction="#handleShowCreateForm" styleClass="primary-btn" text="+ Nouveau CV" />
+                            </children>
+                        </HBox>
                     </children>
                 </HBox>
 
@@ -45,6 +50,69 @@
                 </HBox>
 
                 <FlowPane fx:id="cardsContainer" hgap="18.0" prefWrapLength="1080.0" vgap="18.0" />
+            </children>
+        </VBox>
+
+        <VBox fx:id="aiPage" managed="false" spacing="24.0" visible="false">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Créer un CV avec l'IA" styleClass="cv-page-title" />
+                                <Label text="Laissez l'IA vous aider à créer un CV professionnel" styleClass="cv-page-subtitle" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleBackToList" styleClass="cv-secondary-btn" text="← Retour" />
+                    </children>
+                </HBox>
+
+                <VBox spacing="18.0" styleClass="cv-section-card">
+                    <children>
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Langue du CV" styleClass="cv-field-label" />
+                                <ComboBox fx:id="aiLangueComboBox" promptText="Sélectionnez la langue" styleClass="cv-form-field" maxWidth="Infinity" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Poste *" styleClass="cv-field-label" />
+                                <TextField fx:id="aiJobTitleField" promptText="ex. : Ingénieur Logiciel, Responsable Marketing" styleClass="cv-form-field" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label text="Vos informations et notes *" styleClass="cv-field-label" />
+                                <TextArea fx:id="aiNotesArea" prefRowCount="6" promptText="Exemple : 5 ans d'expérience, Maîtrise de Java, React..." styleClass="cv-form-field cv-form-textarea" wrapText="true" />
+                                <Label text="💡 Astuce : Fournissez des informations détaillées pour de meilleurs résultats" styleClass="cv-section-helper" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12.0">
+                            <children>
+                                <Label text="Générer les sections suivantes :" styleClass="cv-field-label" />
+                                <HBox spacing="20.0">
+                                    <children>
+                                        <javafx.scene.control.CheckBox fx:id="aiGenSummary" text="Résumé" selected="true" />
+                                        <javafx.scene.control.CheckBox fx:id="aiGenExp" text="Expériences" selected="true" />
+                                        <javafx.scene.control.CheckBox fx:id="aiGenEdu" text="Formations" selected="true" />
+                                        <javafx.scene.control.CheckBox fx:id="aiGenSkills" text="Compétences" selected="true" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="cv-actions-row">
+                            <children>
+                                <Button onAction="#handleGenerateWithAI" styleClass="primary-btn" text="✨ Générer le contenu" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
             </children>
         </VBox>
 

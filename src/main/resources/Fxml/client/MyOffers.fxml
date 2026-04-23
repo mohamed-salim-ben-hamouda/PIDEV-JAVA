@@ -15,7 +15,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
                                 <VBox spacing="5.0">
-                                    <Label text="Tableau de bord des offres" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #0f172a;">
+                                    <Label text="mes offres" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #0f172a;">
                                         <font><Font name="Segoe UI Bold" size="28.0" /></font>
                                     </Label>
                                     <Label text="Pilotez vos recrutements et gérez vos publications d'offres." style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
@@ -27,13 +27,7 @@
 
                         <Separator style="-fx-opacity: 0.5;" />
 
-                        <HBox spacing="15.0" alignment="CENTER_LEFT">
-                            <children>
-                                <Label text="Filtres :" style="-fx-font-weight: bold; -fx-text-fill: #475569;"/>
-                                <TextField promptText="Rechercher par titre..." style="-fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-pref-width: 250;"/>
-                                <ComboBox promptText="Statut" style="-fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;"/>
-                            </children>
-                        </HBox>
+
                     </children>
                 </VBox>
 

@@ -43,6 +43,22 @@
     -fx-translate-y: -2;
 }
 
+.ai-btn {
+    -fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 14 35;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(139, 92, 246, 0.3), 10, 0, 0, 4);
+}
+
+.ai-btn:hover {
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(three-pass-box, rgba(139, 92, 246, 0.5), 15, 0, 0, 6);
+}
+
 /* --- Section Typography --- */
 .section-title {
     -fx-font-size: 32px;

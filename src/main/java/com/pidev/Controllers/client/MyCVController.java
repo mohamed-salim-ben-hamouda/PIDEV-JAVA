@@ -2,6 +2,8 @@ package com.pidev.Controllers.client;
 
 import com.pidev.models.*;
 import com.pidev.Services.CVService;
+import com.pidev.Services.AIService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -43,7 +45,26 @@ public class MyCVController implements Initializable {
     @FXML
     private VBox previewPage;
     @FXML
+    private VBox aiPage;
+    @FXML
     private FlowPane cardsContainer;
+
+    // AI Fields
+    @FXML
+    private ComboBox<String> aiLangueComboBox;
+    @FXML
+    private TextField aiJobTitleField;
+    @FXML
+    private TextArea aiNotesArea;
+    @FXML
+    private CheckBox aiGenSummary;
+    @FXML
+    private CheckBox aiGenExp;
+    @FXML
+    private CheckBox aiGenEdu;
+    @FXML
+    private CheckBox aiGenSkills;
+
     @FXML
     private TextField searchField;
     @FXML
@@ -104,6 +125,7 @@ public class MyCVController implements Initializable {
     private Button addLanguageBtn;
 
     private final CVService cvService = new CVService();
+    private final AIService aiService = new AIService();
     private List<Cv> allCvs = new ArrayList<>();
     private Cv selectedCv;
     private boolean readOnlyMode;
@@ -111,6 +133,8 @@ public class MyCVController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         langueComboBox.getItems().setAll("Francais", "Anglais", "Arabe");
+        aiLangueComboBox.getItems().setAll("Francais", "Anglais", "Arabe");
+        aiLangueComboBox.setValue("Francais");
         templateComboBox.getItems().setAll(1, 2, 3); // Example templates
         filterLangueComboBox.getItems().setAll("Toutes les langues", "Francais", "Anglais", "Arabe");
         filterLangueComboBox.setValue("Toutes les langues");
@@ -815,6 +839,8 @@ public class MyCVController implements Initializable {
         formPage.setManaged(false);
         previewPage.setVisible(false);
         previewPage.setManaged(false);
+        aiPage.setVisible(false);
+        aiPage.setManaged(false);
     }
 
     private void showFormPage() {
@@ -824,6 +850,8 @@ public class MyCVController implements Initializable {
         formPage.setManaged(true);
         previewPage.setVisible(false);
         previewPage.setManaged(false);
+        aiPage.setVisible(false);
+        aiPage.setManaged(false);
     }
 
     private void showPreviewPage() {
@@ -833,6 +861,100 @@ public class MyCVController implements Initializable {
         formPage.setManaged(false);
         previewPage.setVisible(true);
         previewPage.setManaged(true);
+        aiPage.setVisible(false);
+        aiPage.setManaged(false);
+    }
+
+    private void showAIPage() {
+        listPage.setVisible(false);
+        listPage.setManaged(false);
+        formPage.setVisible(false);
+        formPage.setManaged(false);
+        previewPage.setVisible(false);
+        previewPage.setManaged(false);
+        aiPage.setVisible(true);
+        aiPage.setManaged(true);
+    }
+
+    @FXML
+    private void handleShowAIForm() {
+        aiJobTitleField.clear();
+        aiNotesArea.clear();
+        showAIPage();
+    }
+
+    @FXML
+    private void handleGenerateWithAI() {
+        String jobTitle = aiJobTitleField.getText();
+        String notes = aiNotesArea.getText();
+        String language = aiLangueComboBox.getValue();
+
+        if (jobTitle == null || jobTitle.isBlank()) {
+            showError("Erreur", "Le poste est obligatoire.");
+            return;
+        }
+
+        List<String> sections = new ArrayList<>();
+        if (aiGenSummary.isSelected()) sections.add("Résumé");
+        if (aiGenExp.isSelected()) sections.add("Expériences");
+        if (aiGenEdu.isSelected()) sections.add("Formations");
+        if (aiGenSkills.isSelected()) sections.add("Compétences");
+
+        // Show loading indicator (could be improved)
+        submitButton.setDisable(true);
+
+        new Thread(() -> {
+            try {
+                Cv generatedCv = aiService.generateCvWithAI(jobTitle, notes, language, sections);
+                generatedCv.setNomCv("CV IA - " + jobTitle);
+                generatedCv.setLangue(language);
+
+                Platform.runLater(() -> {
+                    handleShowCreateForm(); // Switch to form page
+                    populateFormWithGeneratedCv(generatedCv);
+                    submitButton.setDisable(false);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    showError("Erreur", "Échec de la génération : " + e.getMessage());
+                    submitButton.setDisable(false);
+                });
+            }
+        }).start();
+    }
+
+    private void populateFormWithGeneratedCv(Cv cv) {
+        nomCvField.setText(cv.getNomCv());
+        langueComboBox.setValue(cv.getLangue());
+        summaryArea.setText(cv.getSummary());
+
+        clearContainers();
+
+        if (cv.getExperiences() != null) {
+            for (Experience exp : cv.getExperiences()) {
+                experiencesContainer.getChildren().add(createExperienceRow(exp));
+            }
+        }
+        if (cv.getEducations() != null) {
+            for (Education edu : cv.getEducations()) {
+                educationContainer.getChildren().add(createEducationRow(edu));
+            }
+        }
+        if (cv.getSkills() != null) {
+            for (Skill skill : cv.getSkills()) {
+                skillsContainer.getChildren().add(createSkillRow(skill));
+            }
+        }
+        if (cv.getCertifs() != null) {
+            for (Certif cert : cv.getCertifs()) {
+                certifsContainer.getChildren().add(createCertifRow(cert));
+            }
+        }
+        if (cv.getLanguages() != null) {
+            for (Langue lang : cv.getLanguages()) {
+                languagesContainer.getChildren().add(createLanguageRow(lang));
+            }
+        }
     }
 
     private boolean matchesSearch(Cv cv, String searchValue) {
