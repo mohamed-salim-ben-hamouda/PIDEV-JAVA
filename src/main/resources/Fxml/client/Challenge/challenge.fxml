@@ -25,6 +25,8 @@
                         styleClass="switcher-btn"/>
                 <Button fx:id="createChallengeBtn" text="Create Challenge" onAction="#onShowCreateChallenge"
                         styleClass="switcher-btn"/>
+                <Button fx:id="calendarBtn" text="Calendar" onAction="#onShowCalendar"
+                        styleClass="switcher-btn"/>
                 <Region HBox.hgrow="ALWAYS"/>
             </children>
         </HBox>
@@ -38,6 +40,62 @@
                     <padding>
                         <Insets bottom="20.0" left="10.0" right="18.0" top="6.0"/>
                     </padding>
+                </VBox>
+            </children>
+        </VBox>
+
+        <VBox fx:id="calendarPane" minHeight="0.0" maxWidth="Infinity" spacing="18.0"
+              visible="false" managed="false" VBox.vgrow="ALWAYS">
+            <children>
+                <VBox spacing="18.0"
+                      style="-fx-background-color: linear-gradient(to bottom, #ffffff, #f8fbff); -fx-background-radius: 30; -fx-padding: 24; -fx-effect: dropshadow(three-pass-box, rgba(15,23,42,0.08), 16, 0, 0, 4);">
+                    <children>
+
+
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Button text="&#8249;" onAction="#previousWeek"
+                                        style="-fx-background-color: white; -fx-text-fill: #3559e0; -fx-border-color: #c7d2fe; -fx-border-radius: 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-padding: 6 12;"/>
+                                <Label fx:id="monthLabel" text="Apr 21 - Apr 27, 2026"
+                                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                                <Button text="&#8250;" onAction="#nextWeek"
+                                        style="-fx-background-color: white; -fx-text-fill: #3559e0; -fx-border-color: #c7d2fe; -fx-border-radius: 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-padding: 6 12;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="Published"
+                                       style="-fx-font-size: 12; -fx-text-fill: #3559e0;"/>
+                                <Label text="In Progress"
+                                       style="-fx-font-size: 12; -fx-text-fill: #f59e0b;"/>
+                                <Label text="Submitted"
+                                       style="-fx-font-size: 12; -fx-text-fill: #16a34a;"/>
+                                <Label text="Deadline"
+                                       style="-fx-font-size: 12; -fx-text-fill: #ef4444;"/>
+                                <Label text="Evaluated"
+                                       style="-fx-font-size: 12; -fx-text-fill: #0e7490;"/>
+                            </children>
+                        </HBox>
+
+                        <GridPane fx:id="calendarGrid" hgap="12.0" vgap="12.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857"/>
+                            </columnConstraints>
+                            <children>
+                                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Mon" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                                <StackPane GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Tue" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                                <StackPane GridPane.columnIndex="2" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Wed" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                                <StackPane GridPane.columnIndex="3" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Thu" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                                <StackPane GridPane.columnIndex="4" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Fri" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                                <StackPane GridPane.columnIndex="5" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Sat" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                                <StackPane GridPane.columnIndex="6" GridPane.rowIndex="0" style="-fx-background-color: #f1f5f9; -fx-background-radius: 14; -fx-padding: 10;"><children><Label text="Sun" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #64748b;"/></children></StackPane>
+                            </children>
+                        </GridPane>
+                    </children>
                 </VBox>
             </children>
         </VBox>
@@ -110,7 +168,7 @@
                                     <TextField fx:id="MaxGroupNbrInput" text="0" styleClass="modern-input"/>
                                 </VBox>
                             </HBox>
-                            <Label fx:id="GroupError" text="Invalid group numbers (Min must be â‰¤ Max)" textFill="RED"
+                            <Label fx:id="GroupError" text="Invalid group numbers (Min must be &lt;= Max)" textFill="RED"
                                    visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
 
@@ -128,7 +186,6 @@
                             <Label fx:id="DescriptionError" text="Description is required" textFill="RED"
                                    visible="false" managed="false" style="-fx-text-fill: red;"/>
                         </VBox>
-
 
                         <Button maxWidth="Infinity" styleClass="primary-btn" text="Create Challenge"
                                 onAction="#onCreateChallenge">

@@ -427,6 +427,122 @@ public class ServiceActivity implements IActivity {
         }
         return list;
     }
+
+    public List<CalendarActivityData> getCalendarActivitiesForSupervisor(int supervisorId) {
+        String query = "SELECT a.id, a.id_challenge_id, a.status, a.start_time, a.submission_date, c.title AS challenge_title, g.name AS group_name, " +
+                "EXISTS(SELECT 1 FROM evaluation e WHERE e.activity_id_id = a.id AND LOWER(COALESCE(e.status, '')) = 'finished') AS evaluation_finished " +
+                "FROM activity a " +
+                "JOIN challenge c ON c.id = a.id_challenge_id " +
+                "JOIN `group` g ON g.id = a.group_id_id " +
+                "WHERE c.creator_id = ?";
+        List<CalendarActivityData> activities = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, supervisorId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                CalendarActivityData data = new CalendarActivityData();
+                data.setActivityId(rs.getInt("id"));
+                data.setChallengeId(rs.getInt("id_challenge_id"));
+                data.setChallengeTitle(rs.getString("challenge_title"));
+                data.setGroupName(rs.getString("group_name"));
+                data.setStatus(rs.getString("status"));
+
+                Timestamp startTs = rs.getTimestamp("start_time");
+                if (startTs != null) {
+                    data.setStartTime(startTs.toLocalDateTime());
+                }
+
+                Timestamp submissionTs = rs.getTimestamp("submission_date");
+                if (submissionTs != null) {
+                    data.setSubmissionDate(submissionTs.toLocalDateTime());
+                }
+
+                data.setEvaluationFinished(rs.getBoolean("evaluation_finished"));
+                activities.add(data);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load calendar activities", e);
+        }
+
+        return activities;
+    }
+
+    public static final class CalendarActivityData {
+        private int activityId;
+        private int challengeId;
+        private String challengeTitle;
+        private String groupName;
+        private String status;
+        private LocalDateTime startTime;
+        private LocalDateTime submissionDate;
+        private boolean evaluationFinished;
+
+        public int getActivityId() {
+            return activityId;
+        }
+
+        public void setActivityId(int activityId) {
+            this.activityId = activityId;
+        }
+
+        public int getChallengeId() {
+            return challengeId;
+        }
+
+        public void setChallengeId(int challengeId) {
+            this.challengeId = challengeId;
+        }
+
+        public String getChallengeTitle() {
+            return challengeTitle;
+        }
+
+        public void setChallengeTitle(String challengeTitle) {
+            this.challengeTitle = challengeTitle;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public LocalDateTime getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(LocalDateTime startTime) {
+            this.startTime = startTime;
+        }
+
+        public LocalDateTime getSubmissionDate() {
+            return submissionDate;
+        }
+
+        public void setSubmissionDate(LocalDateTime submissionDate) {
+            this.submissionDate = submissionDate;
+        }
+
+        public boolean isEvaluationFinished() {
+            return evaluationFinished;
+        }
+
+        public void setEvaluationFinished(boolean evaluationFinished) {
+            this.evaluationFinished = evaluationFinished;
+        }
+    }
     /*public boolean isActivitySubmitted(int activity_id){
         String query ="SELECT COUNT(*) from activity WHERE id=? AND status IN (?, ?)";
         try (PreparedStatement ps= connection.prepareStatement(query)){
