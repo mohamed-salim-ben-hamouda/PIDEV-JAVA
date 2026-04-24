@@ -12,7 +12,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
@@ -146,18 +150,15 @@ public class HackathonAdminController implements Initializable {
         private final Button editBtn = new Button();
         private final Button deleteBtn = new Button();
         private final Region spacer = new Region();
-        private final StackPane iconCircle = new StackPane();
+        private final Rectangle imageRect = new Rectangle(64, 64);
         private final Label statusBadge = new Label();
 
         HackathonListCell() {
-            // Icône du hackathon
-            FontIcon codeIcon = new FontIcon("fas-code");
-            codeIcon.setIconSize(20);
-            codeIcon.getStyleClass().add("list-card-icon");
-            iconCircle.getChildren().add(codeIcon);
-            iconCircle.getStyleClass().add("list-card-icon-circle");
-            iconCircle.setMinSize(48, 48);
-            iconCircle.setMaxSize(48, 48);
+            // Rectangle avec coins arrondis pour l'image
+            imageRect.setArcWidth(20);
+            imageRect.setArcHeight(20);
+            imageRect.setStroke(javafx.scene.paint.Color.web("#e2e8f0"));
+            imageRect.setStrokeWidth(1);
 
             // Titre et Thème
             titleLabel.getStyleClass().add("list-card-title");
@@ -193,8 +194,7 @@ public class HackathonAdminController implements Initializable {
             actionsBox.setAlignment(Pos.CENTER_RIGHT);
 
             HBox.setHgrow(spacer, Priority.ALWAYS);
-
-            card.getChildren().addAll(iconCircle, infoBox, spacer, actionsBox);
+            card.getChildren().addAll(imageRect, infoBox, spacer, actionsBox);
             card.setAlignment(Pos.CENTER_LEFT);
             card.getStyleClass().add("list-card");
             card.setPadding(new Insets(18, 24, 18, 24));
@@ -214,6 +214,37 @@ public class HackathonAdminController implements Initializable {
                 titleLabel.setText(hackathon.getTitle());
                 themeLabel.setText(hackathon.getTheme());
                 
+                // Chargement de l'image avec fallback robuste
+                Image img = null;
+                try {
+                    if (hackathon.getCoverUrl() != null && !hackathon.getCoverUrl().isEmpty()) {
+                        img = new Image(hackathon.getCoverUrl(), true); // Background loading
+                    } else {
+                        img = new Image(getClass().getResource("/images/home_pic.jpg").toExternalForm());
+                    }
+                } catch (Exception e) {
+                    // Si le chargement échoue, on utilise le placeholder local
+                    img = new Image(getClass().getResource("/images/home_pic.jpg").toExternalForm());
+                }
+
+                // Utilisation d'un ImageView dans un StackPane pour le centrage
+                ImageView iv = new ImageView(img);
+                iv.setFitWidth(64);
+                iv.setFitHeight(64);
+                iv.setPreserveRatio(true);
+                
+                // Centrage forcé dans le conteneur
+                StackPane imgContainer = new StackPane(iv);
+                imgContainer.setMinSize(64, 64);
+                imgContainer.setMaxSize(64, 64);
+                imgContainer.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 12; -fx-overflow: hidden;");
+                
+                // Clip pour arrondir les coins de l'image elle-même
+                Rectangle clip = new Rectangle(64, 64);
+                clip.setArcWidth(20);
+                clip.setArcHeight(20);
+                imgContainer.setClip(clip);
+
                 String dateStr = hackathon.getStartAt() != null ? DATE_FMT.format(hackathon.getStartAt()) : "À définir";
                 detailsLabel.setText(hackathon.getLocation() + " • Début : " + dateStr);
 
@@ -223,6 +254,8 @@ public class HackathonAdminController implements Initializable {
                 editBtn.setOnAction(e -> showEditForm(hackathon));
                 deleteBtn.setOnAction(e -> handleDelete(hackathon));
 
+                card.getChildren().set(0, imgContainer); // Replace first element (the image)
+                
                 setGraphic(card);
                 setText(null);
                 setStyle("-fx-background-color: transparent; -fx-padding: 4 0 4 0;");

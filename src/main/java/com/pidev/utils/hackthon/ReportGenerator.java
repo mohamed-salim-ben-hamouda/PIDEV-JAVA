@@ -1,8 +1,8 @@
-package com.pidev.utils;
+package com.pidev.utils.hackthon;
 
-import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -61,7 +61,7 @@ public class ReportGenerator {
         }
     }
 
-    public static void generateSponsorshipContract(SponsorHackathon sh, String filePath) throws IOException {
+    public static void generateSponsorshipContract(SponsorHackathon sh, String filePath, String signaturePath) throws IOException {
         try (PdfWriter writer = new PdfWriter(filePath);
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
@@ -104,10 +104,33 @@ public class ReportGenerator {
             document.add(new Paragraph("3. This document serves as a binding agreement between both parties."));
 
             // Signatures
-            document.add(new Paragraph("\n\n\n\n"));
+            document.add(new Paragraph("\n\n"));
             Table signTable = new Table(2).useAllAvailableWidth();
+            
+            // Cell for Organizer
             signTable.addCell(new Paragraph("__________________________\nFor the Organizer").setTextAlignment(TextAlignment.CENTER));
-            signTable.addCell(new Paragraph("__________________________\nFor the Sponsor").setTextAlignment(TextAlignment.CENTER));
+            
+            // Cell for Sponsor with Signature Image
+            if (signaturePath != null) {
+                try {
+                    com.itextpdf.layout.element.Image signImg = new com.itextpdf.layout.element.Image(ImageDataFactory.create(signaturePath));
+                    signImg.setMaxWidth(100);
+                    signImg.setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER);
+                    
+                    Table sponsorCellTable = new Table(1).useAllAvailableWidth();
+                    sponsorCellTable.addCell(new Paragraph("").setBorder(com.itextpdf.layout.borders.Border.NO_BORDER));
+                    sponsorCellTable.addCell(signImg).setBorder(com.itextpdf.layout.borders.Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER);
+                    sponsorCellTable.addCell(new Paragraph("__________________________\nFor the Sponsor").setTextAlignment(TextAlignment.CENTER)).setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+                    
+                    signTable.addCell(sponsorCellTable);
+                } catch (Exception e) {
+                    // Fallback to empty if image fails
+                    signTable.addCell(new Paragraph("__________________________\nFor the Sponsor").setTextAlignment(TextAlignment.CENTER));
+                }
+            } else {
+                signTable.addCell(new Paragraph("__________________________\nFor the Sponsor").setTextAlignment(TextAlignment.CENTER));
+            }
+            
             document.add(signTable);
         }
     }

@@ -80,3 +80,107 @@
 .btn-participate:hover {
     -fx-opacity: 0.9;
 }
+
+.btn-ai-consult {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #6c5ce7;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-text-fill: #6c5ce7;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-padding: 10 0 10 0;
+    -fx-cursor: hand;
+}
+
+.btn-ai-consult:hover {
+    -fx-background-color: #6c5ce7;
+    -fx-text-fill: white;
+}
+
+/* AI Dialog Styling */
+.ai-advice-dialog {
+    -fx-background-color: #f8f9fa;
+}
+
+.ai-advice-dialog > .label.content {
+    -fx-font-size: 14px;
+    -fx-line-spacing: 5;
+    -fx-text-fill: #2d3436;
+}
+
+.ai-advice-dialog .header-panel {
+    -fx-background-color: linear-gradient(to right, #6c5ce7, #a29bfe);
+}
+
+.ai-advice-dialog .header-panel .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Advice Page Styling */
+.advice-page {
+    -fx-background-color: #f8fafc;
+}
+
+.advice-header {
+    -fx-background-color: white;
+    -fx-padding: 30 40;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 10, 0, 0, 5);
+}
+
+.advice-title {
+    -fx-text-fill: #1a202c;
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+}
+
+.advice-subtitle {
+    -fx-text-fill: #6c5ce7;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.btn-back {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 50;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-text-fill: #475569;
+    -fx-cursor: hand;
+}
+
+.btn-back:hover {
+    -fx-background-color: #6c5ce7;
+    -fx-text-fill: white;
+}
+
+.loading-container {
+    -fx-padding: 100 0;
+}
+
+.loading-icon {
+    -fx-icon-color: #6c5ce7;
+}
+
+.loading-text {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 18px;
+    -fx-font-style: italic;
+}
+
+.advice-card {
+    -fx-background-color: white;
+    -fx-padding: 40;
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(three-pass-box, rgba(108, 92, 231, 0.1), 30, 0, 0, 15);
+}
+
+.advice-text {
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 18px;
+    -fx-line-spacing: 10;
+    -fx-font-family: "Segoe UI", sans-serif;
+}

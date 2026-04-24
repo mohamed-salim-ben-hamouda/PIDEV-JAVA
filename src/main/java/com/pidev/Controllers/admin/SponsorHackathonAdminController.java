@@ -2,7 +2,8 @@ package com.pidev.Controllers.admin;
 
 import com.pidev.Services.ServiceSponsorHackathon;
 import com.pidev.models.SponsorHackathon;
-import com.pidev.utils.ReportGenerator;
+import com.pidev.utils.hackthon.ReportGenerator;
+import com.pidev.utils.hackthon.SignatureDialog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -130,6 +131,16 @@ public class SponsorHackathonAdminController implements Initializable {
      * Génère un contrat de sponsoring au format PDF pour l'affectation sélectionnée.
      */
     private void handleExportContract(SponsorHackathon sh) {
+        // Step 1: Open Signature Popup
+        SignatureDialog sigDialog = new SignatureDialog();
+        File signatureFile = sigDialog.showAndWait();
+        
+        if (signatureFile == null) {
+            // User cancelled signature
+            return;
+        }
+
+        // Step 2: Save File Dialog
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Enregistrer le contrat de sponsoring");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
@@ -138,7 +149,9 @@ public class SponsorHackathonAdminController implements Initializable {
         File file = fileChooser.showSaveDialog(relationListView.getScene().getWindow());
         if (file != null) {
             try {
-                ReportGenerator.generateSponsorshipContract(sh, file.getAbsolutePath());
+                // Step 3: Generate PDF with Signature
+                ReportGenerator.generateSponsorshipContract(sh, file.getAbsolutePath(), signatureFile.getAbsolutePath());
+                
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Contrat généré");
                 alert.setHeaderText(null);

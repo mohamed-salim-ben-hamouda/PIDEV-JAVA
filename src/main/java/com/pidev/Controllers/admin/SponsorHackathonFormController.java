@@ -3,6 +3,8 @@ package com.pidev.Controllers.admin;
 import com.pidev.Services.ServiceHackathon;
 import com.pidev.Services.ServiceSponsor;
 import com.pidev.Services.ServiceSponsorHackathon;
+import com.pidev.utils.hackthon.StripeService;
+import com.pidev.utils.hackthon.StripePaymentWindow;
 import com.pidev.models.Hackathon;
 import com.pidev.models.Sponsor;
 import com.pidev.models.SponsorHackathon;
@@ -11,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
@@ -96,19 +99,36 @@ public class SponsorHackathonFormController implements Initializable {
     @FXML
     private void save() {
         if (!validate()) return;
+        
+        if (currentSH == null) currentSH = new SponsorHackathon();
 
-        boolean isNew = (currentSH == null);
-        if (isNew) currentSH = new SponsorHackathon();
+        try {
+            double value = Double.parseDouble(valueField.getText().trim());
+            currentSH.setContributionValue(value);
+            
+            if (value > 0) {
+                // Open Stripe Session for the contribution
+                String paymentUrl = StripeService.getSponsorPaymentUrl(sponsorCombo.getValue(), hackathonCombo.getValue(), value);
+                StripePaymentWindow.show(paymentUrl, this::processSave, () -> {
+                    Alert cancel = new Alert(Alert.AlertType.WARNING);
+                    cancel.setContentText("Le paiement de la contribution a été annulé.");
+                    cancel.show();
+                });
+            } else {
+                processSave();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            processSave(); // Fallback
+        }
+    }
+
+    private void processSave() {
+        boolean isNew = (currentSH.getId() == null);
         
         currentSH.setHackathon(hackathonCombo.getValue());
         currentSH.setSponsor(sponsorCombo.getValue());
         currentSH.setContributionType(typeField.getText());
-        
-        try {
-            currentSH.setContributionValue(Double.parseDouble(valueField.getText().trim()));
-        } catch (NumberFormatException e) {
-            currentSH.setContributionValue(0.0);
-        }
 
         if (isNew) {
             serviceSH.add(currentSH);

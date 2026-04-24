@@ -3,6 +3,7 @@ package com.pidev.Controllers.admin;
 import com.pidev.Services.ServiceHackathon;
 import com.pidev.models.Hackathon;
 import com.pidev.utils.SessionManager;
+import com.pidev.utils.hackthon.CloudinaryUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -184,10 +185,17 @@ public class HackathonFormController implements Initializable {
         File selectedFile = fileChooser.showOpenDialog(titleField.getScene().getWindow());
 
         if (selectedFile != null) {
-            selectedImagePath = selectedFile.toURI().toString();
-            fileNameLabel.setText(selectedFile.getName());
-            imagePreview.setImage(new Image(selectedImagePath));
-            coverUrlError.setVisible(false);
+            try {
+                // Show loading or something? For now simple upload
+                String url = CloudinaryUtil.upload(selectedFile);
+                selectedImagePath = url;
+                fileNameLabel.setText(selectedFile.getName());
+                imagePreview.setImage(new Image(selectedImagePath));
+                coverUrlError.setVisible(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+                showError(imagePreview, coverUrlError, "Failed to upload image to Cloudinary");
+            }
         }
     }
 

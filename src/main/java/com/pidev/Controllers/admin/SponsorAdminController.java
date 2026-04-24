@@ -2,7 +2,7 @@ package com.pidev.Controllers.admin;
 
 import com.pidev.Services.ServiceSponsor;
 import com.pidev.models.Sponsor;
-import com.pidev.utils.ReportGenerator;
+import com.pidev.utils.hackthon.ReportGenerator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
