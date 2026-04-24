@@ -21,6 +21,7 @@ public class User {
     private String webauthn_credentialId;
     private String webauthn_public_key;
     private String face_descriptor;
+    private String 	git_username;
 
     public User() {
         this.ban = false;
@@ -95,4 +96,6 @@ public class User {
 
     public String getFaceDescriptor() { return face_descriptor; }
     public void setFaceDescriptor(String faceDescriptor) { this.face_descriptor = faceDescriptor; }
+    public String getGit_username(){ return git_username;}
+    public void setGit_username(String gitUsername){ this.git_username=gitUsername; }
 }

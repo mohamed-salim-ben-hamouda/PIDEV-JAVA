@@ -13,7 +13,7 @@ module com.pidev.challenge_module {
     requires org.apache.pdfbox;
     requires org.json;
     requires com.fasterxml.jackson.databind;
-
+    requires java.net.http;
     opens challenge_module.evaluation_pdf to javafx.graphics, javafx.web;
     opens com.pidev.Controllers.admin.Challenge to javafx.fxml;
     opens com.pidev.Controllers.admin.Challenge.Activity to javafx.fxml;

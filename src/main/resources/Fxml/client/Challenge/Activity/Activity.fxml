@@ -12,6 +12,20 @@
                 <Insets bottom="20.0" left="10.0" right="18.0" top="6.0"/>
             </padding>
         </VBox>
+        <VBox fx:id="gitHub" spacing="18" styleClass="main-card" style="-fx-padding: 24;">
+            <children>
+                <Label text="Git Hub" styleClass="page-title" style="-fx-font-size: 24px;" />
+                <Label text="Add each member's GitHub username before creating the shared repository."
+                       styleClass="meta-text"
+                       wrapText="true" />
+                <VBox fx:id="membersGitUserName" spacing="14" fillWidth="true" />
+                <HBox alignment="CENTER" style="-fx-padding: 6 0 0 0;">
+                    <children>
+                        <Button onAction="#onCreateRepo" styleClass="primary-btn" text="Create git repository" prefWidth="220" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
 
         <Label styleClass="page-title" text="🚀 Votre Avancement" style="-fx-font-size: 24px;" />
 

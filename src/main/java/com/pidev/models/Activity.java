@@ -11,6 +11,7 @@ public class Activity {
     private LocalDateTime submissionDate;
     private String status;
     private LocalDateTime activity_start_time;
+    private int repo_created;
 
 
     public Activity() {
@@ -74,4 +75,6 @@ public class Activity {
     public void setStatus(String status) {
         this.status = status;
     }
+    public int getRepo_created(){ return repo_created; }
+    public void setRepo_created(int repo_created){ this.repo_created = repo_created; }
 }

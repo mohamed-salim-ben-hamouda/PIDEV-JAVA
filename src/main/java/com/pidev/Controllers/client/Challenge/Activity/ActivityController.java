@@ -6,8 +6,10 @@ import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.Services.Challenge.Classes.ServiceProblemSolution;
+import com.pidev.Services.Membership.ServiceMembership;
 import com.pidev.models.*;
 import com.pidev.utils.FlowiseGraderUtil;
+import com.pidev.utils.GithubUtil;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -25,36 +28,62 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityController {
-    @FXML private VBox challengeListContainer;
-    @FXML private TextArea activity_desc;
-    @FXML private TextArea Problem_grp;
-    @FXML private ComboBox<ProblemSolution> problemCombo;
-    @FXML private VBox solutionContainer;
-    @FXML private TextArea solution_desc;
-    @FXML private VBox submissionContainer;
-    @FXML private Label fileNameLabel;
-    @FXML private VBox editOverlayHost;
-    @FXML private VBox editMemberOverlayHost;
-    @FXML private VBox memberActivityCards;
-    @FXML private Label memberEmptyLabel;
-    @FXML private VBox problemSolutionCards;
-    @FXML private Label psEmptyLabel;
-    @FXML private VBox DescriptionContainer;
+    @FXML
+    private VBox challengeListContainer;
+    @FXML
+    private TextArea activity_desc;
+    @FXML
+    private TextArea Problem_grp;
+    @FXML
+    private ComboBox<ProblemSolution> problemCombo;
+    @FXML
+    private VBox solutionContainer;
+    @FXML
+    private TextArea solution_desc;
+    @FXML
+    private VBox submissionContainer;
+    @FXML
+    private Label fileNameLabel;
+    @FXML
+    private VBox editOverlayHost;
+    @FXML
+    private VBox editMemberOverlayHost;
+    @FXML
+    private VBox memberActivityCards;
+    @FXML
+    private Label memberEmptyLabel;
+    @FXML
+    private VBox problemSolutionCards;
+    @FXML
+    private Label psEmptyLabel;
+    @FXML
+    private VBox DescriptionContainer;
 
-    @FXML private Label activityDescError;
-    @FXML private Label problemGrpError;
-    @FXML private Label solutionComboError;
-    @FXML private Label solutionDescError;
-    @FXML private Label fileError;
-
+    @FXML
+    private Label activityDescError;
+    @FXML
+    private Label problemGrpError;
+    @FXML
+    private Label solutionComboError;
+    @FXML
+    private Label solutionDescError;
+    @FXML
+    private Label fileError;
+    @FXML
+    private VBox membersGitUserName;
+    @FXML
+    private VBox gitHub;
     private Challenge c;
+    private Activity currentActivity;
     private ServiceActivity serviceActivity = new ServiceActivity();
     private ServiceMemberActivity serviceMember = new ServiceMemberActivity();
     private ServiceProblemSolution serviceProblem = new ServiceProblemSolution();
     private ServiceEvaluation serviceEva = new ServiceEvaluation();
+    private ServiceMembership serviceMS = new ServiceMembership();
     private int grp_id;
     private int act_id;
     private File selectedPdf;
@@ -80,6 +109,7 @@ public class ActivityController {
         problemCombo.valueProperty().addListener((obs, old, val) -> {
             if (solutionSubmitted) toggleError(solutionComboError, val == null);
         });
+
     }
 
     private void toggleError(Label label, boolean show) {
@@ -94,14 +124,23 @@ public class ActivityController {
         this.c = c;
         this.grp_id = grpId;
         this.act_id = actId;
+        this.currentActivity = serviceActivity.findActivityByChallengeAndGroup(c.getId(), grpId);
         solutionContainer.setVisible(false);
         solutionContainer.setManaged(false);
         initProblemSolutionCards(this.act_id);
         initMemberActivityCards(this.act_id);
-        UserPermissions();
+        boolean leader = UserPermissions();
         renderChallengeHeader();
         loadProblems();
         descriptionVisibility();
+        if (c.getGithub() == 1 && leader && (currentActivity == null || currentActivity.getRepo_created() == 0)) {
+            gitHub.setManaged(true);
+            gitHub.setVisible(true);
+            loadGitMembers();
+        } else {
+            gitHub.setManaged(false);
+            gitHub.setVisible(false);
+        }
     }
 
     private void renderChallengeHeader() {
@@ -237,8 +276,8 @@ public class ActivityController {
             Files.copy(selectedPdf.toPath(), destFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             submission.setSubmissionFile("challenge_module/activity_pdf/" + selectedPdf.getName());
             serviceActivity.submissionfile(submission);
-            e.setPreFeedback(FlowiseGraderUtil.gradeFromPdfPaths(c.getContent(),"challenge_module/activity_pdf/" + selectedPdf.getName()).toString());
-            serviceEva.CreatePreFeedback(e,act_id);
+            e.setPreFeedback(FlowiseGraderUtil.gradeFromPdfPaths(c.getContent(), "challenge_module/activity_pdf/" + selectedPdf.getName()).toString());
+            serviceEva.CreatePreFeedback(e, act_id);
 
             BaseController.getInstance().loadActivity();
         } catch (Exception e) {
@@ -318,7 +357,8 @@ public class ActivityController {
         if (selected == null) return;
         try {
             serviceMember.delete(selected.getId());
-            if (editingMemberActivity != null && editingMemberActivity.getId().equals(selected.getId())) hideEditMemberOverlay();
+            if (editingMemberActivity != null && editingMemberActivity.getId().equals(selected.getId()))
+                hideEditMemberOverlay();
             refreshMemberCards(act_id);
             descriptionVisibility();
         } catch (Exception e) {
@@ -335,11 +375,14 @@ public class ActivityController {
         solutionContainer.managedProperty().bind(solutionContainer.visibleProperty());
     }
 
-    public void UserPermissions() {
+    public boolean UserPermissions() {
         int user_id = 2;
         boolean leader = serviceActivity.isUserLeader(this.grp_id, user_id);
         submissionContainer.setVisible(leader);
         submissionContainer.setManaged(leader);
+        gitHub.setVisible(leader);
+        gitHub.setManaged(leader);
+        return leader;
     }
 
     public void initProblemSolutionCards(int activityId) {
@@ -426,5 +469,94 @@ public class ActivityController {
         boolean rs = serviceMember.findDescription(act_id, user_id);
         DescriptionContainer.setVisible(!rs);
         DescriptionContainer.setManaged(!rs);
+    }
+
+    public void loadGitMembers() {
+        membersGitUserName.getChildren().clear();
+        List<User> users = serviceMS.getAllGroupMembersForGit(grp_id);
+        for (User u : users) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/MemberGitCard.fxml"));
+                VBox card = loader.load();
+                MemberGitCardController controller = loader.getController();
+                controller.initData(u, () -> {});
+                membersGitUserName.getChildren().add(card);
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public void onCreateRepo(){
+        String supervisor_git = serviceActivity.getSupervisorGitUsername(act_id);
+        List<User> users = serviceMS.getAllGroupMembersForGit(grp_id);
+        if (supervisor_git == null || supervisor_git.isBlank()) {
+            showGithubAlert(Alert.AlertType.ERROR, "Missing supervisor GitHub",
+                    "The supervisor does not have a GitHub username yet.");
+            return;
+        }
+
+        List<String> git_usernames = new ArrayList<>();
+        List<String> missingMembers = new ArrayList<>();
+        for (User u : users) {
+            String gitUsername = u.getGit_username();
+            if (gitUsername == null || gitUsername.isBlank()) {
+                missingMembers.add(u.getDisplayName());
+                continue;
+            }
+            if (!gitUsername.equalsIgnoreCase(supervisor_git) && !git_usernames.contains(gitUsername)) {
+                git_usernames.add(gitUsername);
+            }
+        }
+
+        if (!missingMembers.isEmpty()) {
+            showGithubAlert(Alert.AlertType.ERROR, "Missing member GitHub usernames",
+                    "Please add GitHub usernames for: " + String.join(", ", missingMembers));
+            return;
+        }
+
+        String repoName = buildRepositoryName();
+        try {
+            GithubUtil githubUtil = new GithubUtil();
+            String repoUrl = githubUtil.setupRepository(repoName, supervisor_git, git_usernames);
+            serviceActivity.markRepoCreated(act_id);
+            if (currentActivity != null) {
+                currentActivity.setRepo_created(1);
+            }
+            gitHub.setManaged(false);
+            gitHub.setVisible(false);
+            showGithubAlert(Alert.AlertType.INFORMATION, "Repository created",
+                    "Repository created successfully:\n" + repoUrl);
+        } catch (Exception e) {
+            showGithubAlert(Alert.AlertType.ERROR, "GitHub creation failed",
+                    e.getMessage() != null ? e.getMessage() : "Unable to create the repository.");
+        }
+
+    }
+
+    private String buildRepositoryName() {
+        String groupName = (currentActivity != null && currentActivity.getGroup() != null
+                && currentActivity.getGroup().getName() != null && !currentActivity.getGroup().getName().isBlank())
+                ? currentActivity.getGroup().getName()
+                : "group-" + grp_id;
+        String challengeTitle = (c != null && c.getTitle() != null && !c.getTitle().isBlank())
+                ? c.getTitle()
+                : "challenge";
+        String base = groupName + "-" + challengeTitle;
+        String sanitized = base.toLowerCase()
+                .replaceAll("[^a-z0-9._-]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (sanitized.isBlank()) {
+            sanitized = "challenge";
+        }
+        return sanitized;
+    }
+
+    private void showGithubAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

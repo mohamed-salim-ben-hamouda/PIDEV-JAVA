@@ -110,6 +110,7 @@ public class ChallengeController implements Initializable {
     private Label FileError;
     @FXML
     private Button GenerateBtn;
+    @FXML ComboBox<String> GithubRequiredCombo;
 
     private File selectedPdf;
     private final ServiceChallenge service = new ServiceChallenge();
@@ -123,6 +124,9 @@ public class ChallengeController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         ObservableList<String> options = FXCollections.observableArrayList("Easy", "Medium", "Hard");
         DifficultyCombo.setItems(options);
+        ObservableList<String> options_git = FXCollections.observableArrayList("Yes","No");
+        GithubRequiredCombo.setValue("No");
+        GithubRequiredCombo.setItems(options_git);
         TitleInput.textProperty().addListener((obs, old, val) -> toggleError(TitleError, val.isBlank()));
         TargetSkillInput.textProperty().addListener((obs, old, val) -> toggleError(TargetSkillError, val.isBlank()));
         DescriptionInput.textProperty().addListener((obs, old, val) -> toggleError(DescriptionError, val.isBlank()));
@@ -342,6 +346,8 @@ public class ChallengeController implements Initializable {
 
         try {
             Challenge c = new Challenge();
+            int isGithubRequired = GithubRequiredCombo.getValue().equals("Yes") ? 1 : 0;
+            c.setGithub(isGithubRequired);
             c.setTitle(TitleInput.getText().trim());
             c.setTargetSkill(TargetSkillInput.getText().trim());
             c.setDifficulty(DifficultyCombo.getValue());

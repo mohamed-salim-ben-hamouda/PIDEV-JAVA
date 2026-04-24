@@ -29,8 +29,8 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     @Override
     public void add(Challenge c) {
         String query = "INSERT INTO challenge (title, description, target_skill, difficulty," +
-                "min_group_nbr, max_group_nbr, dead_line, created_at,content, creator_id, course_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+                "min_group_nbr, max_group_nbr, dead_line, created_at,content, creator_id, course_id, github) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?) ";
         try (PreparedStatement st = connection.prepareStatement(query)) {
             st.setString(1, c.getTitle());
             st.setString(2, c.getDescription());
@@ -44,6 +44,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
 
             st.setInt(10, 1);
             st.setInt(11, 1);
+            st.setInt(12,c.getGithub());
             st.executeUpdate();
 
 
@@ -91,7 +92,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     @Override
     public List<Challenge> display() {
         List<Challenge> challenges = new ArrayList<>();
-        String query = "SELECT id, title, description, target_skill, difficulty, min_group_nbr, max_group_nbr, dead_line, created_at, content FROM challenge ORDER BY created_at DESC";
+        String query = "SELECT id, title, description, target_skill, difficulty, min_group_nbr, max_group_nbr, dead_line, created_at, content, github FROM challenge ORDER BY created_at DESC";
 
         try (PreparedStatement st = connection.prepareStatement(query);
              ResultSet rs = st.executeQuery()) {
@@ -104,6 +105,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
                 c.setDifficulty(rs.getString("difficulty"));
                 c.setMinGroupNbr(rs.getInt("min_group_nbr"));
                 c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+                c.setGithub(rs.getInt("github"));
 
                 java.sql.Timestamp deadLine = rs.getTimestamp("dead_line");
                 if (deadLine != null) {
@@ -128,7 +130,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
     @Override
     public List<Challenge> findChallengeWithActivities(int user_id) {
         List<Challenge> c = new ArrayList<>();
-        String query = "SELECT DISTINCT c.id , c.title , c.description FROM challenge c " +
+        String query = "SELECT DISTINCT c.id , c.title , c.description, c.github FROM challenge c " +
                 "JOIN activity a ON a.id_challenge_id=c.id " +
                 "WHERE c.creator_id = ? ";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -139,6 +141,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
                 ch.setId(rs.getInt("id"));
                 ch.setTitle(rs.getString("title"));
                 ch.setDescription(rs.getString("description"));
+                ch.setGithub(rs.getInt("github"));
                 c.add(ch);
             }
         } catch (Exception e) {
@@ -161,6 +164,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
                 c.setDifficulty(rs.getString("difficulty"));
                 c.setMinGroupNbr(rs.getInt("min_group_nbr"));
                 c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+                c.setGithub(rs.getInt("github"));
                 c.setDeadLine(rs.getTimestamp("dead_line").toLocalDateTime());
                 list.add(c);
             }
@@ -190,6 +194,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
                 c.setDifficulty(rs.getString("difficulty"));
                 c.setMinGroupNbr(rs.getInt("min_group_nbr"));
                 c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+                c.setGithub(rs.getInt("github"));
                 if (rs.getDate("dead_line") != null) {
                     c.setDeadLine(rs.getTimestamp("dead_line").toLocalDateTime());
                 }
@@ -203,7 +208,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
 
     public List<Challenge> displayForSupervisor(int user_id) {
         String query = "SELECT id, title, description, target_skill, " +
-                "difficulty, min_group_nbr, max_group_nbr, dead_line, created_at, content " +
+                "difficulty, min_group_nbr, max_group_nbr, dead_line, created_at, content, github " +
                 "FROM challenge WHERE creator_id=? ORDER BY created_at DESC";
         List<Challenge> challenges = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -218,6 +223,7 @@ public class ServiceChallenge implements ICrud<Challenge>, IChallenge {
                 c.setDifficulty(rs.getString("difficulty"));
                 c.setMinGroupNbr(rs.getInt("min_group_nbr"));
                 c.setMaxGroupNbr(rs.getInt("max_group_nbr"));
+                c.setGithub(rs.getInt("github"));
 
                 java.sql.Timestamp deadLine = rs.getTimestamp("dead_line");
                 if (deadLine != null) {

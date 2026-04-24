@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="14"
+      xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="card-surface"
+      style="-fx-padding: 18;"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.MemberGitCardController">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="14">
+            <children>
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="memberName"
+                               text="Member Name"
+                               style="-fx-font-weight: 800; -fx-text-fill: #0f172a; -fx-font-size: 16px;" />
+                        <Label text="GitHub username" styleClass="meta-text" />
+                    </children>
+                </VBox>
+                <Button fx:id="submitGitBtn"
+                        onAction="#onSubmitGitBtn"
+                        text="Add"
+                        styleClass="primary-btn"
+                        prefWidth="130" />
+            </children>
+        </HBox>
+        <TextField fx:id="gitUserName"
+                   styleClass="modern-input"
+                   promptText="Enter GitHub username"
+                   maxWidth="Infinity" />
+    </children>
+</VBox>

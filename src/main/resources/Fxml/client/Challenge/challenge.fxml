@@ -113,7 +113,13 @@
                 <VBox minHeight="0.0" maxWidth="Infinity" spacing="15.0" styleClass="main-card">
                     <children>
                         <Label text="Create New Challenge" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                        <VBox spacing="5.0">
+                            <Label text="Github required" styleClass="input-label"/>
+                            <ComboBox fx:id="GithubRequiredCombo" maxWidth="Infinity" promptText="Select Option"
+                                      styleClass="modern-input">
 
+                            </ComboBox>
+                        </VBox>
                         <VBox spacing="5.0">
                             <Label text="PDF File (required)" styleClass="input-label"/>
                             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="modern-input">

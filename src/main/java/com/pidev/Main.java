@@ -1,6 +1,7 @@
 package com.pidev;
 
 import com.pidev.Controllers.client.BaseController;
+import com.pidev.utils.GithubUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,6 +22,7 @@ public class Main extends Application {
             primaryStage.setTitle("Skill Bridge");
             primaryStage.setScene(scene);
             primaryStage.show();
+
 
         } catch (IOException e) {
             System.err.println("Could not load base.fxml. Check the path in src/main/resources/Fxml/");

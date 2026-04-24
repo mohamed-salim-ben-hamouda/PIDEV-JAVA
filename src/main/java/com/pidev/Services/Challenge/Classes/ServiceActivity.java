@@ -1,10 +1,7 @@
 package com.pidev.Services.Challenge.Classes;
 
 import com.pidev.Services.Challenge.Interfaces.IActivity;
-import com.pidev.models.Activity;
-import com.pidev.models.Challenge;
-import com.pidev.models.Group;
-import com.pidev.models.PredictionInput;
+import com.pidev.models.*;
 import com.pidev.utils.DataSource;
 
 import java.sql.*;
@@ -22,13 +19,14 @@ public class ServiceActivity implements IActivity {
 
     @Override
     public void StartActivity(Activity a, Challenge c, Group g) {
-        String query = "INSERT INTO ACTIVITY (id_challenge_id,group_id_id,status,start_time) " +
-                "VALUES (?,?,?,?)";
+        String query = "INSERT INTO ACTIVITY (id_challenge_id,group_id_id,status,start_time,repo_created) " +
+                "VALUES (?,?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, c.getId());
             ps.setInt(2, g.getId());
             ps.setString(3, "in_progress");
-            ps.setTimestamp(4,java.sql.Timestamp.valueOf(a.getActivity_start_time()));
+            ps.setTimestamp(4, java.sql.Timestamp.valueOf(a.getActivity_start_time()));
+            ps.setInt(5, 0);
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -46,7 +44,7 @@ public class ServiceActivity implements IActivity {
 
     @Override
     public Activity findActivityInprogress(int id) {
-        String query = "SELECT a.id,a.status, a.id_challenge_id, a.group_id_id, c.* FROM activity a " +
+        String query = "SELECT a.id,a.status, a.id_challenge_id, a.group_id_id,a.repo_created, c.* FROM activity a " +
                 "JOIN challenge c ON c.id = a.id_challenge_id " +
                 "JOIN membership m ON m.group_id_id = a.group_id_id " +
                 "WHERE m.user_id_id = ? " +
@@ -68,6 +66,7 @@ public class ServiceActivity implements IActivity {
                 challenge.setDescription(rs.getString("description"));
                 challenge.setDifficulty(rs.getString("difficulty"));
                 challenge.setContent(rs.getString("content"));
+                challenge.setGithub(rs.getInt("github"));
 
                 activity.setChallenge(challenge);
 
@@ -167,8 +166,10 @@ public class ServiceActivity implements IActivity {
     }
 
     public Activity findActivityByChallengeAndGroup(int challengeId, int groupId) {
-        String query = "SELECT id, status, submission_file, submission_date " +
-                "FROM activity WHERE id_challenge_id = ? AND group_id_id = ?";
+        String query = "SELECT a.id, a.status, a.submission_file, a.submission_date, a.repo_created, g.name AS group_name " +
+                "FROM activity a " +
+                "JOIN `group` g ON g.id = a.group_id_id " +
+                "WHERE a.id_challenge_id = ? AND a.group_id_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, challengeId);
             ps.setInt(2, groupId);
@@ -178,6 +179,7 @@ public class ServiceActivity implements IActivity {
                 activity.setId(rs.getInt("id"));
                 activity.setStatus(rs.getString("status"));
                 activity.setSubmissionFile(rs.getString("submission_file"));
+                activity.setRepo_created(rs.getInt("repo_created"));
 
                 Timestamp ts = rs.getTimestamp("submission_date");
                 if (ts != null) {
@@ -187,6 +189,7 @@ public class ServiceActivity implements IActivity {
 
                 Group group = new Group();
                 group.setId(groupId);
+                group.setName(rs.getString("group_name"));
                 activity.setGroup(group);
 
                 Challenge challenge = new Challenge();
@@ -247,7 +250,8 @@ public class ServiceActivity implements IActivity {
                 "c.title, " +
                 "c.description, " +
                 "c.difficulty, " +
-                "c.dead_line " +
+                "c.dead_line, " +
+                "c.github " +
                 "FROM activity a " +
                 "JOIN challenge c ON a.id_challenge_id = c.id " +
                 "JOIN `group` g ON a.group_id_id = g.id " +
@@ -263,6 +267,7 @@ public class ServiceActivity implements IActivity {
                 challenge.setTitle(rs.getString("title"));
                 challenge.setDescription(rs.getString("description"));
                 challenge.setDifficulty(rs.getString("difficulty"));
+                challenge.setGithub(rs.getInt("github"));
                 Timestamp deadlineTs = rs.getTimestamp("dead_line");
                 if (deadlineTs != null) {
                     challenge.setDeadLine(deadlineTs.toLocalDateTime());
@@ -301,6 +306,7 @@ public class ServiceActivity implements IActivity {
                 "c.description, " +
                 "c.difficulty, " +
                 "c.dead_line, " +
+                "c.github, " +
                 "EXISTS(SELECT 1 FROM membership ml WHERE ml.group_id_id = a.group_id_id AND ml.user_id_id = ? AND LOWER(ml.role) = 'leader') AS is_leader, " +
                 "EXISTS(SELECT 1 FROM evaluation e WHERE e.activity_id_id = a.id AND e.status IS NOT NULL) AS has_evaluation " +
                 "FROM activity a " +
@@ -321,6 +327,7 @@ public class ServiceActivity implements IActivity {
                 challenge.setTitle(rs.getString("title"));
                 challenge.setDescription(rs.getString("description"));
                 challenge.setDifficulty(rs.getString("difficulty"));
+                challenge.setGithub(rs.getInt("github"));
 
                 Timestamp deadlineTs = rs.getTimestamp("dead_line");
                 if (deadlineTs != null) {
@@ -543,6 +550,7 @@ public class ServiceActivity implements IActivity {
             this.evaluationFinished = evaluationFinished;
         }
     }
+
     /*public boolean isActivitySubmitted(int activity_id){
         String query ="SELECT COUNT(*) from activity WHERE id=? AND status IN (?, ?)";
         try (PreparedStatement ps= connection.prepareStatement(query)){
@@ -561,57 +569,57 @@ public class ServiceActivity implements IActivity {
     }*/
     public PredictionInput getPredictionInput(int groupId, int challengeId) {
         String query = """
-        SELECT
-            hist.avg_group_score,
-            hist.avg_completion_time,
-            target.difficulty,
-            target.deadline_days,
-            hist.group_skill_variance,
-            grp.group_size
-        FROM
-        (
-            SELECT
-                a.group_id_id AS group_id,
-                AVG(e.group_score) AS avg_group_score,
-                AVG(TIMESTAMPDIFF(SECOND, a.start_time, a.submission_date) / 86400.0) AS avg_completion_time,
-                AVG(COALESCE(ma_stats.skill_variance, 0)) AS group_skill_variance
-            FROM activity a
-            JOIN evaluation e ON e.activity_id_id = a.id
-            LEFT JOIN (
                 SELECT
-                    ma.id_activity_id,
-                    COALESCE(VAR_SAMP(ma.indiv_score), 0) AS skill_variance
-                FROM member_activity ma
-                GROUP BY ma.id_activity_id
-            ) ma_stats ON ma_stats.id_activity_id = a.id
-            WHERE a.group_id_id = ?
-              AND (a.status = 'submitted' OR a.status = 'evaluated')
-              AND a.id_challenge_id <> ?
-            GROUP BY a.group_id_id
-        ) hist
-        JOIN
-        (
-            SELECT
-                c.id,
-                CASE
-                    WHEN c.difficulty = 'Hard' THEN 2
-                    WHEN c.difficulty = 'Medium' THEN 1
-                    ELSE 0
-                END AS difficulty,
-                DATEDIFF(c.dead_line, c.created_at) AS deadline_days
-            FROM challenge c
-            WHERE c.id = ?
-        ) target
-        JOIN
-        (
-            SELECT
-                m.group_id_id AS group_id,
-                COUNT(m.id) AS group_size
-            FROM membership m
-            WHERE m.group_id_id = ?
-            GROUP BY m.group_id_id
-        ) grp ON grp.group_id = hist.group_id
-        """;
+                    hist.avg_group_score,
+                    hist.avg_completion_time,
+                    target.difficulty,
+                    target.deadline_days,
+                    hist.group_skill_variance,
+                    grp.group_size
+                FROM
+                (
+                    SELECT
+                        a.group_id_id AS group_id,
+                        AVG(e.group_score) AS avg_group_score,
+                        AVG(TIMESTAMPDIFF(SECOND, a.start_time, a.submission_date) / 86400.0) AS avg_completion_time,
+                        AVG(COALESCE(ma_stats.skill_variance, 0)) AS group_skill_variance
+                    FROM activity a
+                    JOIN evaluation e ON e.activity_id_id = a.id
+                    LEFT JOIN (
+                        SELECT
+                            ma.id_activity_id,
+                            COALESCE(VAR_SAMP(ma.indiv_score), 0) AS skill_variance
+                        FROM member_activity ma
+                        GROUP BY ma.id_activity_id
+                    ) ma_stats ON ma_stats.id_activity_id = a.id
+                    WHERE a.group_id_id = ?
+                      AND (a.status = 'submitted' OR a.status = 'evaluated')
+                      AND a.id_challenge_id <> ?
+                    GROUP BY a.group_id_id
+                ) hist
+                JOIN
+                (
+                    SELECT
+                        c.id,
+                        CASE
+                            WHEN c.difficulty = 'Hard' THEN 2
+                            WHEN c.difficulty = 'Medium' THEN 1
+                            ELSE 0
+                        END AS difficulty,
+                        DATEDIFF(c.dead_line, c.created_at) AS deadline_days
+                    FROM challenge c
+                    WHERE c.id = ?
+                ) target
+                JOIN
+                (
+                    SELECT
+                        m.group_id_id AS group_id,
+                        COUNT(m.id) AS group_size
+                    FROM membership m
+                    WHERE m.group_id_id = ?
+                    GROUP BY m.group_id_id
+                ) grp ON grp.group_id = hist.group_id
+                """;
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, groupId);
@@ -632,6 +640,14 @@ public class ServiceActivity implements IActivity {
                             "Invalid deadline_days for challenge " + challengeId
                     );
                 }
+                System.out.println(
+                        rs.getDouble("avg_group_score") + ", " +
+                                rs.getDouble("avg_completion_time") + ", " +
+                                rs.getInt("difficulty") + ", " +
+                                deadlineDays + ", " +
+                                rs.getDouble("group_skill_variance") + ", " +
+                                rs.getInt("group_size")
+                );
 
                 return new PredictionInput(
                         rs.getDouble("avg_group_score"),
@@ -644,6 +660,46 @@ public class ServiceActivity implements IActivity {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load prediction input", e);
+        }
+    }
+
+    public void updateGitUserName(User u, String git) {
+        String query = "UPDATE user SET git_username=? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, git);
+            ps.setInt(2, u.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getSupervisorGitUsername(int activityId) {
+        String query = "SELECT u.git_username " +
+                "FROM activity a " +
+                "JOIN challenge c ON c.id = a.id_challenge_id " +
+                "JOIN `user` u ON u.id = c.creator_id " +
+                "WHERE a.id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, activityId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("git_username");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public void markRepoCreated(int activityId) {
+        String query = "UPDATE activity SET repo_created = 1 WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, activityId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

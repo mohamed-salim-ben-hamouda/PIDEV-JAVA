@@ -1,9 +1,6 @@
 package com.pidev.Services.Challenge.Interfaces;
 
-import com.pidev.models.Activity;
-import com.pidev.models.Challenge;
-import com.pidev.models.Group;
-import com.pidev.models.PredictionInput;
+import com.pidev.models.*;
 
 import java.util.List;
 
@@ -22,4 +19,8 @@ public interface IActivity {
     List<Activity> displayAll();
     //boolean isActivitySubmitted(int a_id);
     PredictionInput getPredictionInput(int groupId, int challengeId);
+    void updateGitUserName(User u,String git);
+    String getSupervisorGitUsername(int activityId);
+    void markRepoCreated(int activityId);
+
 }
