@@ -14,6 +14,7 @@ module com.pidev.challenge_module {
     opens com.pidev.Controllers.client.User to javafx.fxml;
     opens com.pidev.Controllers.client to javafx.fxml;
     opens com.pidev.Controllers.admin to javafx.fxml;
+    opens com.pidev.models to com.google.gson, javafx.base;
 
     exports com.pidev;
     exports com.pidev.Controllers.admin;

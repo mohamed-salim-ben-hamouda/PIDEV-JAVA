@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -132,11 +133,11 @@ public class MyCVController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        langueComboBox.getItems().setAll("Francais", "Anglais", "Arabe");
-        aiLangueComboBox.getItems().setAll("Francais", "Anglais", "Arabe");
-        aiLangueComboBox.setValue("Francais");
+        langueComboBox.getItems().setAll("Français", "Anglais", "Arabe", "Allemand");
+        aiLangueComboBox.getItems().setAll("Français", "Anglais", "Arabe", "Allemand");
+        aiLangueComboBox.setValue("Français");
         templateComboBox.getItems().setAll(1, 2, 3); // Example templates
-        filterLangueComboBox.getItems().setAll("Toutes les langues", "Francais", "Anglais", "Arabe");
+        filterLangueComboBox.getItems().setAll("Toutes les langues", "Français", "Anglais", "Arabe", "Allemand");
         filterLangueComboBox.setValue("Toutes les langues");
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> refreshCards());
@@ -538,6 +539,54 @@ public class MyCVController implements Initializable {
         }
 
         showPreviewPage();
+    }
+
+    @FXML
+    private void handleTranslateCv() {
+        if (selectedCv == null) return;
+
+        List<String> choices = List.of("Français", "Anglais", "Allemand");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Français", choices);
+        dialog.setTitle("Traduire le CV");
+        dialog.setHeaderText("Traduire le CV actuel");
+        dialog.setContentText("Choisissez la langue cible :");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(language -> {
+            // Show a simple loading state or just start the thread
+            new Thread(() -> {
+                try {
+                    Cv translatedData = aiService.translateCvWithAI(selectedCv, language);
+
+                    // Update existing selectedCv with translated data
+                    selectedCv.setSummary(translatedData.getSummary());
+                    selectedCv.setExperiences(translatedData.getExperiences());
+                    selectedCv.setEducations(translatedData.getEducations());
+                    selectedCv.setSkills(translatedData.getSkills());
+                    selectedCv.setLanguages(translatedData.getLanguages());
+
+                    // Also update basic info
+                    selectedCv.setLangue(language);
+                    selectedCv.setUpdatedAt(LocalDateTime.now());
+
+                    Platform.runLater(() -> {
+                        try {
+                            // Save changes to database
+                            cvService.updateFullCv(selectedCv);
+
+                            // Refresh the preview page display with the new data
+                            handleViewCv(selectedCv);
+
+                            showInfo("Succès", "Le CV a été traduit avec succès.");
+                        } catch (SQLException e) {
+                            showError("Erreur", "Impossible de sauvegarder la traduction : " + e.getMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> showError("Erreur de traduction", e.getMessage()));
+                }
+            }).start();
+        });
     }
 
     private VBox createPreviewItem(String title, String subtitle, String description) {

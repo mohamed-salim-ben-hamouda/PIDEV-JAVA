@@ -19,11 +19,20 @@ public class AIService {
      * Votre clé commence par 'gsk_', ce qui signifie qu'elle appartient à GROQ, pas Gemini.
      * Groq est l'API la plus rapide au monde et elle est GRATUITE.
      */
-    private static final String API_KEY = System.getenv("GROQ_API_KEY");
+    private static final String API_KEY = "";
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
     private static final String MODEL_ID = "llama-3.1-8b-instant"; // Version stable et supportée en 2026
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) ->
+                    new JsonPrimitive(src.toString()))
+            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, typeOfT, context) ->
+                    LocalDate.parse(json.getAsString()))
+            .registerTypeAdapter(java.time.LocalDateTime.class, (JsonSerializer<java.time.LocalDateTime>) (src, typeOfSrc, context) ->
+                    new JsonPrimitive(src.toString()))
+            .registerTypeAdapter(java.time.LocalDateTime.class, (JsonDeserializer<java.time.LocalDateTime>) (json, typeOfT, context) ->
+                    java.time.LocalDateTime.parse(json.getAsString()))
+            .create();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public Cv generateCvWithAI(String jobTitle, String notes, String language, List<String> sections) throws IOException, InterruptedException {
@@ -49,6 +58,102 @@ public class AIService {
         requestBody.add("messages", messages);
 
         // Optionnel : Forcer le format JSON pour plus de stabilité
+        JsonObject responseFormat = new JsonObject();
+        responseFormat.addProperty("type", "json_object");
+        requestBody.add("response_format", responseFormat);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + API_KEY.trim())
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new IOException("Erreur API Groq (Status " + response.statusCode() + "): " + response.body());
+        }
+
+        return parseAiResponse(response.body());
+    }
+
+    public Cv translateCvWithAI(Cv cv, String targetLanguage) throws IOException, InterruptedException {
+        String cvJson = gson.toJson(cv);
+
+        // Map common language names to English for better AI understanding
+        String languageInEnglish = targetLanguage;
+        if (targetLanguage.equalsIgnoreCase("Français") || targetLanguage.equalsIgnoreCase("Francais")) languageInEnglish = "French";
+        else if (targetLanguage.equalsIgnoreCase("Anglais")) languageInEnglish = "English";
+        else if (targetLanguage.equalsIgnoreCase("Allemand")) languageInEnglish = "German";
+        else if (targetLanguage.equalsIgnoreCase("Arabe")) languageInEnglish = "Arabic";
+
+        String prompt = "Translate the following CV content into the target language: " + targetLanguage + " (" + languageInEnglish + ").\n" +
+                " \n" +
+                " STRICT RULES: \n" +
+                " - You must return ONLY valid JSON. \n" +
+                " - Do NOT include any explanation, text, or comments. \n" +
+                " - Do NOT include markdown (no ```json). \n" +
+                " - Do NOT add or remove fields. \n" +
+                " - Do NOT change the structure. \n" +
+                " - Do NOT translate the JSON keys (keep them exactly as they are). \n" +
+                " - Do NOT invent any information. \n" +
+                " - Translate ONLY textual content. \n" +
+                " - Keep all dates EXACTLY as they are (format YYYY-MM-DD). \n" +
+                " - Keep boolean values unchanged (true/false). \n" +
+                " - Keep empty arrays if they exist. \n" +
+                " - If a field is already in the target language, keep it as is. \n" +
+                " - Preserve formatting consistency. \n" +
+                " \n" +
+                " FIELDS TO TRANSLATE (Values only): \n" +
+                " - summary \n" +
+                " - experiences.jobTitle \n" +
+                " - experiences.company \n" +
+                " - experiences.location \n" +
+                " - experiences.description \n" +
+                " - educations (all text fields) \n" +
+                " - skills (all text fields) \n" +
+                " - languages (all text fields) \n" +
+                " \n" +
+                " INPUT CV (JSON): \n" +
+                cvJson + " \n" +
+                " \n" +
+                " EXPECTED OUTPUT FORMAT (JSON keys must be identical): \n" +
+                " { \n" +
+                " \"summary\": \"...\", \n" +
+                " \"experiences\": [ \n" +
+                " { \n" +
+                " \"jobTitle\": \"...\", \n" +
+                " \"company\": \"...\", \n" +
+                " \"location\": \"...\", \n" +
+                " \"startDate\": \"YYYY-MM-DD\", \n" +
+                " \"endDate\": \"YYYY-MM-DD\", \n" +
+                " \"currentlyWorking\": false, \n" +
+                " \"description\": \"...\" \n" +
+                " } \n" +
+                " ], \n" +
+                " \"educations\": [{\"degree\": \"...\", \"fieldOfStudy\": \"...\", \"school\": \"...\", \"city\": \"...\", \"startDate\": \"YYYY-MM-DD\", \"endDate\": \"YYYY-MM-DD\", \"description\": \"...\"}], \n" +
+                " \"skills\": [{\"nom\": \"...\", \"type\": \"...\", \"level\": \"...\"}], \n" +
+                " \"languages\": [{\"nom\": \"...\", \"niveau\": \"...\"}] \n" +
+                " }";
+
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("model", MODEL_ID);
+
+        JsonArray messages = new JsonArray();
+
+        JsonObject systemMsg = new JsonObject();
+        systemMsg.addProperty("role", "system");
+        systemMsg.addProperty("content", "You are a professional CV translator. Return ONLY valid JSON.");
+        messages.add(systemMsg);
+
+        JsonObject userMsg = new JsonObject();
+        userMsg.addProperty("role", "user");
+        userMsg.addProperty("content", prompt);
+        messages.add(userMsg);
+
+        requestBody.add("messages", messages);
+
         JsonObject responseFormat = new JsonObject();
         responseFormat.addProperty("type", "json_object");
         requestBody.add("response_format", responseFormat);

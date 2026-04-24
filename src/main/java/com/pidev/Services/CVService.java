@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CVService {
-    private static final Set<String> LANGUES_AUTORISEES = Set.of("Francais", "Anglais", "Arabe");
+    private static final Set<String> LANGUES_AUTORISEES = Set.of("Francais", "Français", "Anglais", "Arabe", "Allemand");
     private final Connection connection;
 
     public CVService() {
@@ -489,7 +489,7 @@ public class CVService {
         validateRequiredString(cv.getLangue(), "La langue est obligatoire", 2, 30, "La langue doit contenir entre 2 et 30 caractères");
 
         if (!LANGUES_AUTORISEES.contains(normalize(cv.getLangue()))) {
-            throw new IllegalArgumentException("La langue doit être Francais, Anglais ou Arabe");
+            throw new IllegalArgumentException("La langue doit être Français, Anglais, Arabe ou Allemand");
         }
 
         if (cv.getIdTemplate() != null && cv.getIdTemplate() <= 0) {
