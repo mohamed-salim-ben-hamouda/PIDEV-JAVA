@@ -72,6 +72,7 @@ public class HackathonCardController {
         loadSponsors(h.getId());
     }
 
+
     @FXML
     private void handleAIConsult() {
         try {
@@ -191,6 +192,30 @@ public class HackathonCardController {
     }
 
     private void loadSponsors(int hackathonId) {
+        List<SponsorHackathon> sponsors = serviceSH.getByHackathon(hackathonId);
+        sponsorsBox.getChildren().clear();
+        for (SponsorHackathon sh : sponsors) {
+            ImageView logo = new ImageView();
+            try {
+                if (sh.getSponsor().getLogoUrl() != null) {
+                    logo.setImage(new Image(sh.getSponsor().getLogoUrl(), true));
+                    logo.setFitHeight(30);
+                    logo.setPreserveRatio(true);
+                    sponsorsBox.getChildren().add(logo);
+                }
+            } catch (Exception e) {
+                // Skip invalid logo
+            }
+        }
+        if (sponsors.isEmpty()) {
+            Label noSponsors = new Label("No sponsors yet");
+            noSponsors.setStyle("-fx-font-size: 11px; -fx-text-fill: #aaa;");
+            sponsorsBox.getChildren().add(noSponsors);
+        }
+    }
+
+
+    private void loadSponsorsaaaaaaaa(int hackathonId) {
         List<SponsorHackathon> sponsors = serviceSH.getByHackathon(hackathonId);
         sponsorsBox.getChildren().clear();
         for (SponsorHackathon sh : sponsors) {
