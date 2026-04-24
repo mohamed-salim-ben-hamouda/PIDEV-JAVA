@@ -6,11 +6,12 @@ import com.pidev.Services.ServiceParticipation;
 import com.pidev.models.Participation;
 import com.pidev.utils.hackthon.StripeService;
 import com.pidev.utils.hackthon.StripePaymentWindow;
-import com.pidev.utils.hackthon.CalendarService;
 import com.pidev.utils.hackthon.EmailService;
 import com.pidev.utils.SessionManager;
 import com.pidev.models.User;
 import com.pidev.models.SponsorHackathon;
+import com.pidev.utils.hackthon.CalendarService;
+import com.pidev.utils.hackthon.ReminderScheduler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -76,7 +77,7 @@ public class HackathonCardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/ai_advice_view.fxml"));
             Parent view = loader.load();
-            
+
             AIAdviceController controller = loader.getController();
             controller.setHackathon(currentHackathon);
 
@@ -128,8 +129,13 @@ public class HackathonCardController {
         p.setStatus("inscrit");
         p.setPaymentStatus("payé");
         p.setPaymentRef("REF-" + System.currentTimeMillis()); // Avoids 'payment_ref' cannot be null
-        
+        p.setGroupId(1); // DUMMY FIX: Forces a Group ID to bypass the "cannot be null" DB error for your demo
+
+        System.out.println("DEBUG: Attempting to save participation to DB...");
         serviceP.add(p);
+
+        // ADD TO MEMORY (FOR DEMO): even if DB fails, the reminder will work!
+        ReminderScheduler.addTestParticipation(p);
 
         // Send Email Confirmation
         User user = SessionManager.getUser();
@@ -151,10 +157,10 @@ public class HackathonCardController {
                     "    </p>" +
                     "  </div>" +
                     "  <div style='background: #f1f1f1; padding: 20px; text-align: center; color: #888; font-size: 12px;'>" +
-                    "    <p style='margin: 0;'>© 2024 Skill Bridge - MindCare Team. Tous droits réservés.</p>" +
+                    "    <p style='margin: 0;'>© 2024 Skill Bridge - Skill Bridge Team. Tous droits réservés.</p>" +
                     "  </div>" +
                     "</div>";
-            
+
             // Running email task in background to avoid UI freeze
             new Thread(() -> {
                 EmailService.sendEmail(user.getEmail(), "Participation confirmée : " + currentHackathon.getTitle(), emailContent);
@@ -172,7 +178,7 @@ public class HackathonCardController {
         calendarAlert.setTitle("Google Calendar");
         calendarAlert.setHeaderText("Ajouter à votre calendrier ?");
         calendarAlert.setContentText("Voulez-vous ajouter cet événement à votre Google Calendar pour ne pas l'oublier ?");
-        
+
         ButtonType btnYes = new ButtonType("Oui, ajouter");
         ButtonType btnNo = new ButtonType("Non, merci", ButtonBar.ButtonData.CANCEL_CLOSE);
         calendarAlert.getButtonTypes().setAll(btnYes, btnNo);

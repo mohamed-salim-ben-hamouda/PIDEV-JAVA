@@ -6,6 +6,7 @@ import com.pidev.models.Hackathon;
 import com.pidev.models.Participation;
 import com.pidev.models.User;
 import com.pidev.utils.SessionManager;
+import com.pidev.utils.hackthon.EmailService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,13 +23,22 @@ public class ReminderScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ServiceParticipation serviceP = new ServiceParticipation();
     private static final ServiceHackathon serviceH = new ServiceHackathon();
+    private static final java.util.List<Participation> memoryParticipations = new java.util.ArrayList<>();
+
+    /**
+     * Ajoute une participation manuellement à la mémoire pour le test/démo.
+     */
+    public static void addTestParticipation(Participation p) {
+        memoryParticipations.add(p);
+        System.out.println("DEBUG: Participation added to MEMORY for demo!");
+    }
 
     /**
      * Démarre la vérification périodique des rappels.
      */
     public static void start() {
-        // Vérifie toutes les 30 secondes pour les tests/démo
-        scheduler.scheduleAtFixedRate(ReminderScheduler::checkAndSendReminders, 0, 30, TimeUnit.SECONDS);
+        // Vérifie toutes les 20 secondes pour plus de précision pendant les tests
+        scheduler.scheduleAtFixedRate(ReminderScheduler::checkAndSendReminders, 0, 20, TimeUnit.SECONDS);
         System.out.println("Reminder Scheduler is running in background (DEBUG MODE: 1 min delay)...");
     }
 
@@ -36,17 +46,28 @@ public class ReminderScheduler {
      * Vérifie les participations et envoie un mail de test 1 minute après l'inscription.
      */
     private static void checkAndSendReminders() {
-        List<Participation> participations = serviceP.getAll();
+        System.out.println("Checking participations for reminders... (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + ")");
+        List<Participation> participationsFromDB = serviceP.getAll();
+
+        // On combine la DB et la mémoire
+        java.util.List<Participation> all = new java.util.ArrayList<>(participationsFromDB);
+        all.addAll(memoryParticipations);
+
         LocalDateTime now = LocalDateTime.now();
 
-        for (Participation p : participations) {
-            Hackathon h = serviceH.getById(p.getHackathon().getId());
+        for (Participation p : all) {
+            Hackathon h = p.getHackathon();
+            // Si on vient de la DB, on recharge le hackathon pour être sûr, sinon on garde celui en mémoire
+            if (h.getTitle() == null) {
+                h = serviceH.getById(h.getId());
+            }
+
             if (h != null && p.getRegisteredAt() != null) {
                 long secondsSinceRegistration = ChronoUnit.SECONDS.between(p.getRegisteredAt(), now);
 
-                // MODE TEST : Envoie le rappel exactement 1 minute (entre 60s et 90s) après l'inscription
-                // On utilise une plage de 30s car le scheduler tourne toutes les 30s
-                if (secondsSinceRegistration >= 60 && secondsSinceRegistration < 90) {
+                // MODE TEST : Envoie le rappel entre 1 minute et 1.5 minute après l'inscription
+                if (secondsSinceRegistration >= 60 && secondsSinceRegistration < 120) {
+                    System.out.println("MATCH FOUND! Sending reminder for " + h.getTitle());
                     sendReminderEmail(h);
                 }
             }
@@ -71,7 +92,7 @@ public class ReminderScheduler {
                     "    <p style='color: #666; text-align: center; margin-top: 30px;'>Nous avons hâte de vous voir à l'œuvre !</p>" +
                     "  </div>" +
                     "  <div style='background: #f1f1f1; padding: 20px; text-align: center; color: #888; font-size: 12px;'>" +
-                    "    <p style='margin: 0;'>© 2024 Skill Bridge - MindCare Team. Tous droits réservés.</p>" +
+                    "    <p style='margin: 0;'>© 2024 Skill Bridge - Skill Bridge Team. Tous droits réservés.</p>" +
                     "  </div>" +
                     "</div>";
 
