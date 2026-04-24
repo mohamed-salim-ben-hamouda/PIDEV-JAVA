@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="800.0" prefWidth="1200.0" spacing="30.0" styleClass="client-content" stylesheets="@../../styles/client_hackathon.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.HackathonClientController">
+    <children>
+        <VBox alignment="CENTER" spacing="10.0" styleClass="hackathon-hero">
+            <children>
+                <Label styleClass="hero-title" text="Discover Hackathons" />
+                <Label styleClass="hero-subtitle" text="Join the best coding competitions and showcase your skills." />
+            </children>
+            <padding>
+                <Insets bottom="60.0" top="60.0" />
+            </padding>
+        </VBox>
+
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="cards-scroll" VBox.vgrow="ALWAYS">
+            <content>
+                <FlowPane fx:id="hackathonsFlowPane" hgap="30.0" prefWrapLength="1100.0" vgap="30.0" styleClass="cards-grid">
+                    <padding>
+                        <Insets bottom="40.0" left="40.0" right="40.0" top="10.0" />
+                    </padding>
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </children>
+</VBox>

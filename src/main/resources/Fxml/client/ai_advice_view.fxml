@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="30.0" styleClass="advice-page" stylesheets="@../../styles/client_hackathon.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.AIAdviceController">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="advice-header">
+            <children>
+                <Button mnemonicParsing="false" onAction="#goBack" styleClass="btn-back">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-arrow-left" />
+                    </graphic>
+                </Button>
+                <VBox>
+                    <children>
+                        <Label styleClass="advice-title" text="Assistant IA : Vos Conseils de Réussite" />
+                        <Label fx:id="hackathonNameLabel" styleClass="advice-subtitle" text="Hackathon : Nom du Hackathon" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <StackPane VBox.vgrow="ALWAYS">
+            <children>
+                <VBox fx:id="loadingBox" alignment="CENTER" spacing="15.0" styleClass="loading-container">
+                    <children>
+                        <FontIcon iconLiteral="fas-robot" iconSize="64" styleClass="loading-icon" />
+                        <Label styleClass="loading-text" text="L'IA réfléchit à vos meilleurs conseils..." />
+                    </children>
+                </VBox>
+
+                <ScrollPane fx:id="adviceScrollPane" fitToWidth="true" styleClass="advice-scroll" visible="false">
+                    <content>
+                        <VBox spacing="20.0" styleClass="advice-content">
+                            <children>
+                                <HBox spacing="15.0" styleClass="advice-card">
+                                    <children>
+                                        <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="adviceLabel" styleClass="advice-text" text="Chargement..." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </StackPane>
+    </children>
+    <padding>
+        <Insets bottom="40.0" left="40.0" right="40.0" top="20.0" />
+    </padding>
+</VBox>

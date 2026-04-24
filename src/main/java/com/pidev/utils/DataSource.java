@@ -12,7 +12,7 @@ public class DataSource {
 
     private final String USER = "root";
     private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/pidev";
+    private final String URL = "jdbc:mysql://localhost:3306/skill_bridge";
 
     private DataSource() {
         try {
