@@ -9,6 +9,7 @@ public class Chapter {
     private String content;
     private String title;
     private Quiz quiz;
+    private int duration; // stocké en minutes
 
     public Chapter() {
     }
@@ -40,6 +41,9 @@ public class Chapter {
 
     public Quiz getQuiz() { return quiz; }
     public void setQuiz(Quiz quiz) { this.quiz = quiz; }
+
+    public int getDuration() { return duration; }
+    public void setDuration(int duration) { this.duration = duration; }
 
     @Override
     public String toString() {

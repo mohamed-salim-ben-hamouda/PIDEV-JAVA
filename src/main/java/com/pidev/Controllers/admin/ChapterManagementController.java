@@ -5,6 +5,7 @@ import com.pidev.Controllers.admin.AdminDialogStyler;
 import com.pidev.Services.ChapterService;
 import com.pidev.models.Chapter;
 import com.pidev.models.Course;
+import com.pidev.utils.DurationUtils;
 import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -15,6 +16,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.Node;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -136,8 +139,11 @@ public class ChapterManagementController {
         Label quiz = new Label(quizText);
         quiz.setStyle("-fx-min-width: 120;");
         quiz.getStyleClass().add("management-card-label");
+        Label duration = new Label(DurationUtils.format(chapter.getDuration()));
+        duration.setStyle("-fx-min-width: 130;");
+        duration.getStyleClass().add("management-card-label");
 
-        HBox card = new HBox(15, title, order, status, minScore, quiz);
+        HBox card = new HBox(15, title, order, status, minScore, quiz, duration);
         card.getStyleClass().add("management-card");
         card.setOnMouseClicked(event -> selectCard(chapter, card));
         return card;
@@ -176,6 +182,19 @@ public class ChapterManagementController {
         statusCombo.setValue(edit ? existing.getStatus() : "draft");
         TextField minScoreField = new TextField(edit ? String.valueOf(existing.getMinScore()) : "0");
         AdminDialogStyler.styleField(minScoreField);
+        // --- Spinners durée jours / heures / minutes ---
+        int existingTotalMin = edit ? existing.getDuration() : 0;
+        Spinner<Integer> daysSpinner    = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 365, DurationUtils.toDays(existingTotalMin)));
+        Spinner<Integer> hoursSpinner   = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23,  DurationUtils.toHours(existingTotalMin)));
+        Spinner<Integer> minutesSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59,  DurationUtils.toMins(existingTotalMin)));
+        daysSpinner.setEditable(true);    daysSpinner.setPrefWidth(90);
+        hoursSpinner.setEditable(true);   hoursSpinner.setPrefWidth(90);
+        minutesSpinner.setEditable(true); minutesSpinner.setPrefWidth(90);
+        HBox durationBox = new HBox(8,
+            new Label("Jours"),  daysSpinner,
+            new Label("Heures"), hoursSpinner,
+            new Label("Min"),    minutesSpinner);
+        durationBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         TextArea contentArea = new TextArea(edit ? existing.getContent() : "");
         contentArea.setWrapText(true);
         contentArea.setPrefRowCount(3);
@@ -240,11 +259,15 @@ public class ChapterManagementController {
         grid.add(minScoreLabel, 0, 8);
         grid.add(minScoreField, 1, 8);
         grid.add(minScoreError, 1, 9);
+        Label durationLabel = new Label("Durée");
+        AdminDialogStyler.styleFormLabel(durationLabel);
+        grid.add(durationLabel, 0, 10);
+        grid.add(durationBox, 1, 10);
         Label contentLabel = new Label("Contenu");
         AdminDialogStyler.styleFormLabel(contentLabel);
-        grid.add(contentLabel, 0, 10);
-        grid.add(contentArea, 1, 10);
-        grid.add(contentError, 1, 11);
+        grid.add(contentLabel, 0, 12);
+        grid.add(contentArea, 1, 12);
+        grid.add(contentError, 1, 13);
         ColumnConstraints labelColumn = new ColumnConstraints();
         labelColumn.setMinWidth(150);
         labelColumn.setPrefWidth(150);
@@ -339,6 +362,10 @@ public class ChapterManagementController {
             chapter.setStatus(status);
             chapter.setMinScore(parsedMinScore);
             chapter.setContent(content);
+            chapter.setDuration(DurationUtils.toMinutes(
+                daysSpinner.getValue(),
+                hoursSpinner.getValue(),
+                minutesSpinner.getValue()));
             dialogResult[0] = chapter;
         });
 

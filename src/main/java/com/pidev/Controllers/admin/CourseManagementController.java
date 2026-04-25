@@ -6,6 +6,7 @@ import com.pidev.Services.CourseService;
 import com.pidev.models.Course;
 import com.pidev.models.Quiz;
 import com.pidev.models.User;
+import com.pidev.utils.DurationUtils;
 import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -16,6 +17,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.Node;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
@@ -125,8 +128,8 @@ public class CourseManagementController {
         Label description = new Label(nullSafe(course.getDescription()));
         description.setStyle("-fx-min-width: 150;");
         description.getStyleClass().add("management-card-muted");
-        Label duration = new Label(String.valueOf(course.getDuration()));
-        duration.setStyle("-fx-min-width: 100;");
+        Label duration = new Label(DurationUtils.format(course.getDuration()));
+        duration.setStyle("-fx-min-width: 140;");
         duration.getStyleClass().add("management-card-label");
         Label difficulty = new Label(nullSafe(course.getDifficulty()));
         difficulty.setStyle("-fx-min-width: 120;");
@@ -189,9 +192,19 @@ public class CourseManagementController {
         descriptionArea.setWrapText(true);
         AdminDialogStyler.styleTextArea(descriptionArea);
         descriptionArea.setPromptText("Description concise du cours");
-        TextField durationField = new TextField(editMode ? String.valueOf(existing.getDuration()) : "0");
-        AdminDialogStyler.styleField(durationField);
-        durationField.setPromptText("Ex: 45");
+        // --- Champ durée : 3 spinners jours / heures / minutes ---
+        int existingTotalMin = editMode ? existing.getDuration() : 0;
+        Spinner<Integer> daysSpinner    = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 365, DurationUtils.toDays(existingTotalMin)));
+        Spinner<Integer> hoursSpinner   = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23,  DurationUtils.toHours(existingTotalMin)));
+        Spinner<Integer> minutesSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59,  DurationUtils.toMins(existingTotalMin)));
+        daysSpinner.setEditable(true);    daysSpinner.setPrefWidth(90);
+        hoursSpinner.setEditable(true);   hoursSpinner.setPrefWidth(90);
+        minutesSpinner.setEditable(true); minutesSpinner.setPrefWidth(90);
+        HBox durationBox = new HBox(8,
+            new Label("Jours"),  daysSpinner,
+            new Label("Heures"), hoursSpinner,
+            new Label("Min"),    minutesSpinner);
+        durationBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         ComboBox<String> difficultyCombo = new ComboBox<>(FXCollections.observableArrayList(
                 Course.DIFFICULTY_BEGINNER,
                 Course.DIFFICULTY_INTERMEDIATE,
@@ -301,11 +314,10 @@ public class CourseManagementController {
         generalGrid.add(descriptionLabel, 0, 2);
         generalGrid.add(descriptionArea, 1, 2);
         generalGrid.add(descriptionError, 1, 3);
-        Label durationLabel = new Label("Duree (min)");
+        Label durationLabel = new Label("Durée");
         AdminDialogStyler.styleFormLabel(durationLabel);
         generalGrid.add(durationLabel, 0, 4);
-        generalGrid.add(durationField, 1, 4);
-        generalGrid.add(durationError, 1, 5);
+        generalGrid.add(durationBox, 1, 4);
         Label difficultyLabel = new Label("Difficulte");
         AdminDialogStyler.styleFormLabel(difficultyLabel);
         generalGrid.add(difficultyLabel, 0, 6);
@@ -389,15 +401,12 @@ public class CourseManagementController {
                 valid = false;
             }
 
-            int parsedDuration = 0;
-            try {
-                parsedDuration = Integer.parseInt(durationField.getText().trim());
-                if (parsedDuration <= 0) {
-                    durationError.setText("Duration doit etre > 0.");
-                    valid = false;
-                }
-            } catch (Exception e) {
-                durationError.setText("Duration invalide.");
+            int parsedDuration = DurationUtils.toMinutes(
+                daysSpinner.getValue(),
+                hoursSpinner.getValue(),
+                minutesSpinner.getValue());
+            if (parsedDuration <= 0) {
+                durationError.setText("La durée doit être supérieure à 0.");
                 valid = false;
             }
 
