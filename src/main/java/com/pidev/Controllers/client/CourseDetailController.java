@@ -2,12 +2,14 @@ package com.pidev.Controllers.client;
 
 import com.pidev.Services.AnswerService;
 import com.pidev.Services.ChapterService;
+import com.pidev.Services.QuizStatisticsService;
 import com.pidev.Services.QuestionService;
 import com.pidev.Services.QuizService;
 import com.pidev.models.Answer;
 import com.pidev.models.Chapter;
 import com.pidev.models.Course;
 import com.pidev.models.Question;
+import com.pidev.models.QuizAttemptDetail;
 import com.pidev.models.Quiz;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,8 +19,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert.AlertType;
+import javafx.stage.FileChooser;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -29,6 +33,10 @@ import javafx.stage.Window;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.net.URL;
 import java.net.URI;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -70,6 +78,7 @@ public class CourseDetailController {
     private final QuizService quizService = new QuizService();
     private final QuestionService questionService = new QuestionService();
     private final AnswerService answerService = new AnswerService();
+    private final QuizStatisticsService quizStatisticsService = new QuizStatisticsService();
 
     private final Map<Integer, Integer> selectedAnswerByQuestionId = new HashMap<>();
     private final Map<Integer, QuizAttemptState> attemptsByQuizId = new HashMap<>();
@@ -117,7 +126,7 @@ public class CourseDetailController {
 
         String pdfRef = course != null ? course.getContent() : null;
         if (pdfRef != null && !pdfRef.isBlank()) {
-            openCoursePdfButton.setText("Ouvrir le PDF du cours");
+            openCoursePdfButton.setText("Telecharger le PDF du cours");
             openCoursePdfButton.setDisable(false);
         } else {
             openCoursePdfButton.setText("PDF du cours indisponible");
@@ -133,27 +142,34 @@ public class CourseDetailController {
             return;
         }
 
-        String pdfRef = course.getContent().trim();
         try {
-            if (!Desktop.isDesktopSupported()) {
-                showError("PDF", "Ouverture du PDF non supportee sur cette machine.");
+            String pdfRef = course.getContent().trim();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Telecharger le PDF du cours");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
+            fileChooser.setInitialFileName(buildPdfFileName());
+
+            File targetFile = fileChooser.showSaveDialog(backButton.getScene() != null ? backButton.getScene().getWindow() : null);
+            if (targetFile == null) {
                 return;
             }
 
             if (pdfRef.startsWith("http://") || pdfRef.startsWith("https://")) {
-                Desktop.getDesktop().browse(URI.create(pdfRef));
-                return;
+                try (InputStream inputStream = new URL(pdfRef).openStream()) {
+                    Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } else {
+                File pdfFile = new File(pdfRef);
+                if (!pdfFile.exists()) {
+                    showError("PDF", "Fichier introuvable: " + pdfRef);
+                    return;
+                }
+                Files.copy(pdfFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            File pdfFile = new File(pdfRef);
-            if (!pdfFile.exists()) {
-                showError("PDF", "Fichier introuvable: " + pdfRef);
-                return;
-            }
-
-            Desktop.getDesktop().open(pdfFile);
+            showInfo("PDF", "PDF telecharge vers: " + targetFile.getAbsolutePath());
         } catch (Exception e) {
-            showError("PDF", "Impossible d'ouvrir le PDF du cours.");
+            showError("PDF", "Impossible de telecharger le PDF du cours.");
         }
     }
 
@@ -174,7 +190,7 @@ public class CourseDetailController {
             Parent root = loader.load();
             BaseController controller = loader.getController();
             controller.loadCourses();
-            
+
             if (scene != null) {
                 scene.setRoot(root);
             }
@@ -186,6 +202,19 @@ public class CourseDetailController {
     @FXML
     private void onStartQuiz() {
         openSelectedQuizWindow();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
+            Parent root = loader.load();
+            BaseController controller = loader.getController();
+            controller.loadCourses();
+            
+            Scene scene = backButton.getScene();
+            if (scene != null) {
+                scene.setRoot(root);
+            }
+        } catch (IOException e) {
+            showError("Navigation", "Impossible de revenir a la liste des cours.");
+        }
     }
 
     @FXML
@@ -211,6 +240,13 @@ public class CourseDetailController {
 
         QuizAttemptState previous = attemptsByQuizId.get(quiz.getId());
         int currentAttempt = previous == null ? 1 : previous.attemptNumber + 1;
+
+        try {
+            currentAttempt = quizStatisticsService.saveQuizAttempt(quiz.getId(), null, computation.percentage);
+        } catch (SQLException e) {
+            showWarning("Sauvegarde quiz", "Tentative non enregistree en base: " + e.getMessage());
+        }
+
         attemptsByQuizId.put(quiz.getId(), new QuizAttemptState(currentAttempt, computation.percentage, passed));
 
         applyResultState(computation, threshold, currentAttempt, passed);
@@ -269,6 +305,8 @@ public class CourseDetailController {
                 List<Quiz> quizzesForCourse = quizzes.stream()
                         .filter(item -> item.getCourse() != null && Objects.equals(item.getCourse().getId(), course.getId()))
                         .toList();
+
+                restoreAttemptHistory(quizzesForCourse);
 
                 for (Chapter chapter : chapters) {
                     Quiz linkedQuiz = quizzesForCourse.stream()
@@ -524,7 +562,7 @@ public class CourseDetailController {
         } else {
             QuizAttemptState state = attemptsByQuizId.get(chapterQuiz.getId());
             if (state != null && state.passed) {
-                badge.setText("Valide " + state.scorePercent + "%");
+                badge.setText(state.scorePercent + "% - Valide");
                 badge.getStyleClass().setAll("mini-pill", "mini-success");
             } else if (state != null) {
                 badge.setText("A refaire " + state.scorePercent + "%");
@@ -582,7 +620,7 @@ public class CourseDetailController {
             return;
         }
         if (state.passed) {
-            quizStateBadge.setText("VALIDE " + state.scorePercent + "%");
+            quizStateBadge.setText(state.scorePercent + "% - VALIDE");
             quizStateBadge.getStyleClass().setAll("status-badge", "status-success");
         } else {
             quizStateBadge.setText("A REFAIRE " + state.scorePercent + "%");
@@ -627,6 +665,72 @@ public class CourseDetailController {
             }
         }
         chapterCompletionLabel.setText(completed + " / " + quizChapters + " chapitres valides");
+    }
+
+    private void restoreAttemptHistory(List<Quiz> quizzesForCourse) {
+        if (quizzesForCourse == null || quizzesForCourse.isEmpty()) {
+            return;
+        }
+
+        for (Quiz courseQuiz : quizzesForCourse) {
+            if (courseQuiz.getId() == null) {
+                continue;
+            }
+
+            try {
+                List<QuizAttemptDetail> attempts = quizStatisticsService.findAttemptsForQuiz(
+                        courseQuiz.getId(),
+                        courseQuiz.getPassingScore()
+                );
+
+                // Chercher la tentative réussie
+                QuizAttemptDetail passedAttempt = attempts.stream()
+                        .filter(QuizAttemptDetail::isPassed)
+                        .findFirst()
+                        .orElse(null);
+
+                if (passedAttempt != null) {
+                    attemptsByQuizId.put(courseQuiz.getId(), new QuizAttemptState(
+                            passedAttempt.getAttemptNumber(),
+                            (int) Math.round(passedAttempt.getScore()),
+                            true
+                    ));
+                } else if (!attempts.isEmpty()) {
+                    // Si aucune réussite, prendre le meilleur score
+                    QuizAttemptDetail bestAttempt = attempts.stream()
+                            .max(Comparator.comparingDouble(QuizAttemptDetail::getScore))
+                            .orElse(null);
+                    
+                    if (bestAttempt != null) {
+                        attemptsByQuizId.put(courseQuiz.getId(), new QuizAttemptState(
+                                bestAttempt.getAttemptNumber(),
+                                (int) Math.round(bestAttempt.getScore()),
+                                false
+                        ));
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Unable to restore quiz history for quiz " + courseQuiz.getId() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private String buildPdfFileName() {
+        String baseName = course != null && course.getTitle() != null && !course.getTitle().isBlank()
+                ? course.getTitle().trim()
+                : "cours";
+        baseName = baseName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        if (!baseName.toLowerCase().endsWith(".pdf")) {
+            baseName += ".pdf";
+        }
+        return baseName;
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(AlertType.INFORMATION, message, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 
     private String truncate(String value, int maxLength) {

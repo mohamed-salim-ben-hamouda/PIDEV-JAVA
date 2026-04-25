@@ -163,7 +163,12 @@ public class CourseAdvancedBusinessService {
                 .sorted(Comparator
                         .comparingInt(CourseSuggestion::priorityScore)
                         .reversed()
-                        .thenComparing(cs -> cs.course().getTitle(), String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(
+                    cs -> cs.course() != null && cs.course().getTitle() != null
+                        ? cs.course().getTitle()
+                        : "",
+                    String.CASE_INSENSITIVE_ORDER
+                ))
                 .limit(safeMax)
                 .toList();
     }

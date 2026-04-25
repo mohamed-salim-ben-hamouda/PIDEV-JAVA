@@ -1,9 +1,13 @@
 package com.pidev.Controllers.admin;
 
 import com.pidev.Services.LearningIntelligenceService;
+import com.pidev.Services.SupervisorMailService;
 import com.pidev.models.StudentRiskInsight;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -29,6 +33,7 @@ public class LearningIntelligenceController {
     @FXML private Label globalAverageLabel;
 
     private final LearningIntelligenceService service = new LearningIntelligenceService();
+    private final SupervisorMailService mailService = new SupervisorMailService();
     private List<StudentRiskInsight> allInsights = new ArrayList<>();
 
     @FXML
@@ -111,7 +116,12 @@ public class LearningIntelligenceController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         VBox idBox = new VBox(2, name, email);
-        HBox head = new HBox(10, idBox, spacer, riskBadge);
+        
+        Button alertBtn = new Button("Alerter Superviseur");
+        alertBtn.getStyleClass().addAll("management-btn", "danger");
+        alertBtn.setOnAction(e -> onAlertSupervisor(insight));
+        
+        HBox head = new HBox(10, idBox, spacer, alertBtn, riskBadge);
         head.setAlignment(Pos.CENTER_LEFT);
 
         HBox metrics = new HBox(12,
@@ -127,7 +137,10 @@ public class LearningIntelligenceController {
         Label actionsTitle = new Label("Actions recommandees");
         actionsTitle.getStyleClass().add("intelligence-section-title");
         VBox actionsBox = new VBox(4);
-        for (String action : insight.getRecommendedActions()) {
+        List<String> actions = insight.getRecommendedActions() == null
+                ? List.of("Aucune action disponible")
+                : insight.getRecommendedActions();
+        for (String action : actions) {
             Label line = new Label("- " + action);
             line.getStyleClass().add("intelligence-list-item");
             line.setWrapText(true);
@@ -137,7 +150,10 @@ public class LearningIntelligenceController {
         Label coursesTitle = new Label("Cours suggeres");
         coursesTitle.getStyleClass().add("intelligence-section-title");
         VBox courseBox = new VBox(4);
-        for (String course : insight.getRecommendedCourses()) {
+        List<String> courses = insight.getRecommendedCourses() == null
+                ? List.of("Aucune recommandation disponible")
+                : insight.getRecommendedCourses();
+        for (String course : courses) {
             Label line = new Label("- " + course);
             line.getStyleClass().add("intelligence-list-item");
             line.setWrapText(true);
@@ -146,6 +162,29 @@ public class LearningIntelligenceController {
 
         card.getChildren().addAll(head, metrics, reason, actionsTitle, actionsBox, coursesTitle, courseBox);
         return card;
+    }
+
+    private void onAlertSupervisor(StudentRiskInsight insight) {
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog("superviseur@domaine.com");
+        dialog.setTitle("Adresse du superviseur");
+        dialog.setHeaderText("Alerte pour " + insight.getStudent().getDisplayName());
+        dialog.setContentText("Veuillez saisir l'adresse e-mail du superviseur :");
+
+        java.util.Optional<String> result = dialog.showAndWait();
+        result.ifPresent(email -> {
+            if (!email.trim().isEmpty()) {
+                mailService.sendRiskAlert(insight, email.trim());
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Un email de recommandation a ete envoye au superviseur concernant " + insight.getStudent().getDisplayName() + "\n\n(Simulation dans la console)");
+                alert.setTitle("Alerte envoyee");
+                alert.setHeaderText(null);
+                alert.showAndWait();
+            } else {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR, "L'adresse e-mail ne peut pas être vide.");
+                errorAlert.setTitle("Erreur");
+                errorAlert.setHeaderText(null);
+                errorAlert.showAndWait();
+            }
+        });
     }
 
     private VBox metricPill(String label, String value) {

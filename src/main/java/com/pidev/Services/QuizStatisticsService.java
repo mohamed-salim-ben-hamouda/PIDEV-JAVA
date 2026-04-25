@@ -130,6 +130,68 @@ public class QuizStatisticsService {
         return attempts;
     }
 
+    public int saveQuizAttempt(Integer quizId, Integer studentId, double score) throws SQLException {
+        if (quizId == null) {
+            throw new SQLException("Quiz id is required to save an attempt.");
+        }
+
+        int resolvedStudentId = resolveStudentId(studentId);
+        int attemptNumber = findNextAttemptNumber(quizId, resolvedStudentId);
+
+        String sql = "INSERT INTO quiz_attempts (attempt_nbr, score, student_id, quiz_id, submitted_at) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+            statement.setInt(1, attemptNumber);
+            statement.setDouble(2, score);
+            statement.setInt(3, resolvedStudentId);
+            statement.setInt(4, quizId);
+            statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            statement.executeUpdate();
+        }
+
+        return attemptNumber;
+    }
+
+    private int findNextAttemptNumber(int quizId, int studentId) throws SQLException {
+        String sql = "SELECT COALESCE(MAX(attempt_nbr), 0) AS max_attempt FROM quiz_attempts WHERE quiz_id = ? AND student_id = ?";
+        try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+            statement.setInt(1, quizId);
+            statement.setInt(2, studentId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("max_attempt") + 1;
+                }
+            }
+        }
+        return 1;
+    }
+
+    private int resolveStudentId(Integer explicitStudentId) throws SQLException {
+        if (explicitStudentId != null && explicitStudentId > 0) {
+            return explicitStudentId;
+        }
+
+        String property = System.getProperty("skillbridge.student.id");
+        if (property != null && !property.isBlank()) {
+            try {
+                int parsed = Integer.parseInt(property.trim());
+                if (parsed > 0) {
+                    return parsed;
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        String sql = "SELECT id FROM user ORDER BY id ASC LIMIT 1";
+        try (PreparedStatement statement = requireConnection().prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        }
+
+        throw new SQLException("Unable to resolve student_id for quiz attempt persistence.");
+    }
+
     private Connection requireConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Database connection is not available. Check DataSource URL/user/password and MySQL server.");

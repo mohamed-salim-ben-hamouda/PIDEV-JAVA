@@ -40,7 +40,7 @@
                                 <Label styleClass="course-detail-hero-title" text="Parcours du cours" />
                                 <Label styleClass="course-detail-hero-subtitle" text="Consultez les chapitres, suivez votre progression et passez le quiz final." />
                                 <Label fx:id="courseMetaLabel" styleClass="course-detail-hero-subtitle" text="Niveau: - | Duree: - | Score validation: -" />
-                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Telecharger le support" styleClass="courses-action-btn secondary" />
+                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Telecharger le PDF du cours" styleClass="courses-action-btn secondary" />
                             </children>
                         </VBox>
 

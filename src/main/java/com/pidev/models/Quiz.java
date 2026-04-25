@@ -15,6 +15,7 @@ public class Quiz {
     private User supervisor;
     private List<Question> questions;
     private List<Object> quizAttempts;
+    private String categoryDistribution;
 
     public Quiz() {
         this.questions = new ArrayList<>();
@@ -59,6 +60,9 @@ public class Quiz {
 
     public List<Object> getQuizAttempts() { return quizAttempts; }
     public void setQuizAttempts(List<Object> quizAttempts) { this.quizAttempts = quizAttempts; }
+
+    public String getCategoryDistribution() { return categoryDistribution; }
+    public void setCategoryDistribution(String categoryDistribution) { this.categoryDistribution = categoryDistribution; }
 
     @Override
     public String toString() {

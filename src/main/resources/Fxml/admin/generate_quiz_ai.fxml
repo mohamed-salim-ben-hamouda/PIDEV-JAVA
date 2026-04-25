@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: #f8fafc; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.admin.GenerateQuizAIController">
+
+    <Label text="✨ Générateur de Quiz par IA (Gemini)" textFill="#1e293b">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+    
+    <Label text="Importez un cours au format PDF, et l'IA se chargera de créer un QCM structuré automatiquement." textFill="#64748b">
+        <font>
+            <Font size="14.0" />
+        </font>
+    </Label>
+
+    <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
+        
+        <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <Label prefWidth="180.0" text="1. Fichier du cours (PDF) :">
+                <font>
+                    <Font name="System Bold" size="13.0" />
+                </font>
+            </Label>
+            <Button mnemonicParsing="false" onAction="#onSelectFile" style="-fx-background-color: #e2e8f0; -fx-text-fill: #1e293b; -fx-cursor: hand;" text="Parcourir..." />
+            <Label fx:id="selectedFileLabel" text="Aucun fichier sélectionné" textFill="#94a3b8" />
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <Label prefWidth="180.0" text="2. Nombre de questions :">
+                <font>
+                    <Font name="System Bold" size="13.0" />
+                </font>
+            </Label>
+            <Spinner fx:id="numQuestionsSpinner" prefWidth="100.0" />
+        </HBox>
+
+        <HBox alignment="CENTER" spacing="20.0" style="-fx-padding: 10 0 0 0;">
+            <Button fx:id="generateBtn" mnemonicParsing="false" onAction="#onGenerate" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 14px;" text="🚀 Générer le Quiz avec l'IA" />
+            <ProgressIndicator fx:id="progressIndicator" prefHeight="30.0" prefWidth="30.0" />
+        </HBox>
+        
+    </VBox>
+
+    <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+        <Label text="Résultat généré (JSON) :" textFill="#475569">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font>
+        </Label>
+        <TextArea fx:id="resultArea" editable="false" promptText="Les questions générées apparaîtront ici au format JSON..." style="-fx-font-family: monospace; -fx-font-size: 13px;" VBox.vgrow="ALWAYS" />
+    </VBox>
+
+</VBox>

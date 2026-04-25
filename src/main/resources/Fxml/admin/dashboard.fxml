@@ -185,6 +185,12 @@
                                         <FontIcon iconLiteral="fas-brain" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                    onAction="#loadGenerateQuizAI" styleClass="action-btn action-btn-outline" text="IA Quiz Gen">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-robot" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
                             </children>
                         </FlowPane>
                     </children>

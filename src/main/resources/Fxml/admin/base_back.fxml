@@ -105,6 +105,13 @@
                                         <FontIcon iconLiteral="fas-brain" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadGenerateQuizAI"
+                                        styleClass="menu-item" text="IA Quiz Gen">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-robot" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
 
                                 <Label styleClass="menu-section" text="Community" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"

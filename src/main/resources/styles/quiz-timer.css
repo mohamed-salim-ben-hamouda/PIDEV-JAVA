@@ -1,0 +1,168 @@
+/* ============================================
+   TIMER BADGE - QUIZ SESSION
+   Animations modernes et professionnelles
+   ============================================ */
+
+.timer-badge {
+    -fx-font-family: 'Montserrat', 'Arial', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 120px;
+    -fx-text-fill: #1f2937;
+    -fx-padding: 20px 40px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-transition: -fx-text-fill 0.3s ease-in-out;
+}
+
+/* ============================================
+   PULSE ANIMATION - 30 dernières secondes
+   ============================================ */
+@keyframes pulse {
+    0% {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+    }
+    50% {
+        -fx-scale-x: 1.05;
+        -fx-scale-y: 1.05;
+    }
+    100% {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+    }
+}
+
+.pulse-animation {
+    -fx-font-family: 'Montserrat', 'Arial', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 120px;
+    -fx-text-fill: #dc2626;
+    -fx-padding: 20px 40px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(220, 38, 38, 0.3), 15, 0, 0, 3);
+    -fx-animate: pulse 1s infinite;
+}
+
+/* ============================================
+   FLASH ANIMATION - 10 dernières secondes
+   Clignotement rapide rouge intense
+   ============================================ */
+@keyframes flash {
+    0%, 100% {
+        -fx-text-fill: #dc2626;
+        -fx-effect: dropshadow(three-pass-box, rgba(220, 38, 38, 0.5), 20, 0, 0, 5);
+        -fx-opacity: 1.0;
+    }
+    50% {
+        -fx-text-fill: #b91c1c;
+        -fx-effect: dropshadow(three-pass-box, rgba(139, 0, 0, 0.7), 25, 0, 0, 8);
+        -fx-opacity: 0.7;
+    }
+}
+
+.flash-animation {
+    -fx-font-family: 'Montserrat', 'Arial', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 120px;
+    -fx-padding: 20px 40px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-animate: flash 0.3s infinite;
+}
+
+/* ============================================
+   TIMER CONTAINER
+   ============================================ */
+.timer-container {
+    -fx-padding: 20px;
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+}
+
+/* ============================================
+   PROGRESS CIRCLE BACKGROUND
+   ============================================ */
+.timer-progress-bg {
+    -fx-fill: #f3f4f6;
+    -fx-stroke: none;
+}
+
+/* ============================================
+   KEYFRAME ANIMATIONS CSS
+   ============================================ */
+
+/* Pulse avec transform */
+.timer-badge:pulse-animation {
+    animation: pulse-scale 1s ease-in-out infinite;
+}
+
+@keyframes pulse-scale {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.08);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Flash avec opacité et shadwo */
+.timer-badge:flash-animation {
+    animation: flash-blink 0.3s ease-in-out infinite;
+}
+
+@keyframes flash-blink {
+    0%, 100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 10px rgba(220, 38, 38, 0.8));
+    }
+    50% {
+        opacity: 0.5;
+        filter: drop-shadow(0 0 20px rgba(139, 0, 0, 1));
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablets */
+@media (max-width: 768px) {
+    .timer-badge {
+        -fx-font-size: 80px;
+        -fx-padding: 15px 30px;
+    }
+
+    .pulse-animation {
+        -fx-font-size: 80px;
+        -fx-padding: 15px 30px;
+    }
+
+    .flash-animation {
+        -fx-font-size: 80px;
+        -fx-padding: 15px 30px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .timer-badge {
+        -fx-font-size: 60px;
+        -fx-padding: 10px 20px;
+    }
+
+    .pulse-animation {
+        -fx-font-size: 60px;
+        -fx-padding: 10px 20px;
+    }
+
+    .flash-animation {
+        -fx-font-size: 60px;
+        -fx-padding: 10px 20px;
+    }
+}
+

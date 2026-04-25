@@ -2,6 +2,7 @@ package com.pidev.Controllers.client;
 
 import com.pidev.Services.AnswerService;
 import com.pidev.Services.QuestionService;
+import com.pidev.Services.QuizStatisticsService;
 import com.pidev.models.Answer;
 import com.pidev.models.Question;
 import com.pidev.models.Quiz;
@@ -19,6 +20,15 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import javafx.stage.Window;
+import javafx.application.Platform;
+import javafx.scene.Node;
+import java.util.concurrent.CompletableFuture;
+import com.pidev.Services.AiFeedbackService;
+import com.pidev.Services.TranslationService;
+import com.pidev.Services.CertificateGeneratorService;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.awt.Desktop;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,9 +68,15 @@ public class QuizSessionController {
     @FXML private Label resultTitleLabel;
     @FXML private Label resultSummaryLabel;
     @FXML private Label resultScoreLabel;
+    @FXML private Label aiFeedbackLabel;
+    @FXML private Button downloadCertButton;
 
     private final QuestionService questionService = new QuestionService();
     private final AnswerService answerService = new AnswerService();
+    private final QuizStatisticsService quizStatisticsService = new QuizStatisticsService();
+    private final AiFeedbackService aiFeedbackService = new AiFeedbackService();
+    private final TranslationService translationService = new TranslationService();
+    private final CertificateGeneratorService certificateGeneratorService = new CertificateGeneratorService();
 
     private final Map<Integer, Integer> selectedAnswerByQuestionId = new HashMap<>();
     private List<Question> questions = new ArrayList<>();
@@ -70,6 +86,7 @@ public class QuizSessionController {
     private int currentQuestionIndex;
     private int remainingSeconds;
     private Timeline countdownTimeline;
+    private boolean isTranslatedFr = false;
 
     @FXML
     public void initialize() {
@@ -158,15 +175,46 @@ public class QuizSessionController {
         int percent = total == 0 ? 0 : Math.round(score * 100f / total);
         int passing = Math.round(quiz.getPassingScore() <= 0 ? 70f : quiz.getPassingScore());
         boolean passed = percent >= passing;
+        int attemptNumber = 1;
+
+        try {
+            attemptNumber = quizStatisticsService.saveQuizAttempt(quiz.getId(), null, percent);
+        } catch (SQLException e) {
+            showError("Sauvegarde quiz", "Tentative non enregistree en base: " + e.getMessage());
+        }
 
         resultTitleLabel.setText(passed ? "Quiz valide" : "Quiz non valide");
         resultSummaryLabel.setText(
                 passed
-                        ? "Bravo, vous avez atteint le score requis."
-                        : "Vous pouvez relancer le quiz pour améliorer votre resultat."
+                        ? "Bravo, vous avez atteint le score requis. Tentative " + attemptNumber + "."
+                        : "Vous pouvez relancer le quiz pour améliorer votre resultat. Tentative " + attemptNumber + "."
         );
         resultScoreLabel.setText(score + " / " + total + " (" + percent + "%)");
         resultScoreLabel.getStyleClass().setAll("result-score-badge", passed ? "success" : "fail");
+
+        if (!passed) {
+            List<Question> failedQuestions = questions.stream()
+                .filter(q -> {
+                    Integer sel = selectedAnswerByQuestionId.get(q.getId());
+                    return sel == null || answers.stream().noneMatch(a -> a.getQuestion() != null && Objects.equals(a.getQuestion().getId(), q.getId()) && a.isCorrect() && Objects.equals(a.getId(), sel));
+                })
+                .toList();
+            String feedback = aiFeedbackService.generateFeedback(failedQuestions);
+            aiFeedbackLabel.setText(feedback);
+            aiFeedbackLabel.setVisible(true);
+            aiFeedbackLabel.setManaged(true);
+            if (downloadCertButton != null) {
+                downloadCertButton.setVisible(false);
+                downloadCertButton.setManaged(false);
+            }
+        } else {
+            aiFeedbackLabel.setVisible(false);
+            aiFeedbackLabel.setManaged(false);
+            if (downloadCertButton != null) {
+                downloadCertButton.setVisible(true);
+                downloadCertButton.setManaged(true);
+            }
+        }
 
         showSection(false, false, true);
     }
@@ -184,6 +232,41 @@ public class QuizSessionController {
         onStartQuiz();
     }
 
+    @FXML
+    private void onDownloadCertificate() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer le certificat");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
+        fileChooser.setInitialFileName("Certificat_" + (quiz != null && quiz.getTitle() != null ? quiz.getTitle().replaceAll("\\s+", "_") : "Quiz") + ".pdf");
+        Window window = quizTitleLabel.getScene() != null ? quizTitleLabel.getScene().getWindow() : null;
+        if (window == null) return;
+        File file = fileChooser.showSaveDialog(window);
+        
+        if (file != null) {
+            try {
+                int total = questions.size();
+                int score = computeScore();
+                int percent = total == 0 ? 0 : Math.round(score * 100f / total);
+                String courseName = quizContextLabel.getText();
+                certificateGeneratorService.generateCertificate(file.getAbsolutePath(), "Étudiant", courseName, percent);
+                
+                Alert success = new Alert(Alert.AlertType.INFORMATION);
+                success.setTitle("Succès");
+                success.setHeaderText("Certificat généré avec succès !");
+                success.setContentText("Le certificat a été sauvegardé dans : " + file.getAbsolutePath());
+                success.showAndWait();
+                
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (Exception e) {
+                    // Ignorer
+                }
+            } catch (Exception e) {
+                showError("Erreur", "Impossible de générer le certificat : " + e.getMessage());
+            }
+        }
+    }
+
     private void startCountdown() {
         stopCountdown();
         int timeLimitMinutes = quiz == null ? 0 : quiz.getTimeLimit();
@@ -193,13 +276,13 @@ public class QuizSessionController {
         }
 
         remainingSeconds = timeLimitMinutes * 60;
-        timerBadgeLabel.setText(formatTime(remainingSeconds));
+        updateTimerDisplay();
         countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             remainingSeconds--;
-            timerBadgeLabel.setText(formatTime(Math.max(remainingSeconds, 0)));
+            updateTimerDisplay();
             if (remainingSeconds <= 0) {
                 stopCountdown();
-                onFinishQuiz();
+                Platform.runLater(this::onFinishQuiz);
             }
         }));
         countdownTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -218,6 +301,42 @@ public class QuizSessionController {
         int minutes = safeSeconds / 60;
         int rest = safeSeconds % 60;
         return String.format("%02d:%02d", minutes, rest);
+    }
+    
+    private void updateTimerDisplay() {
+        int safeSeconds = Math.max(0, remainingSeconds);
+        timerBadgeLabel.setText(formatTime(safeSeconds));
+        
+        // Changer la couleur dynamiquement
+        if (safeSeconds < 120) {
+            timerBadgeLabel.setStyle("-fx-text-fill: #dc2626;"); // Rouge
+        } else {
+            timerBadgeLabel.setStyle("-fx-text-fill: #1f2937;"); // Gris
+        }
+        
+        // Pulse animation les 30 dernières secondes
+        if (safeSeconds <= 30 && safeSeconds > 10) {
+            addPulseAnimation();
+        } else if (safeSeconds <= 10) {
+            // Clignotement rapide les 10 dernières secondes
+            addFlashAnimation();
+        } else {
+            timerBadgeLabel.getStyleClass().removeAll("pulse-animation", "flash-animation");
+        }
+    }
+    
+    private void addPulseAnimation() {
+        if (!timerBadgeLabel.getStyleClass().contains("pulse-animation")) {
+            timerBadgeLabel.getStyleClass().remove("flash-animation");
+            timerBadgeLabel.getStyleClass().add("pulse-animation");
+        }
+    }
+    
+    private void addFlashAnimation() {
+        if (!timerBadgeLabel.getStyleClass().contains("flash-animation")) {
+            timerBadgeLabel.getStyleClass().remove("pulse-animation");
+            timerBadgeLabel.getStyleClass().add("flash-animation");
+        }
     }
 
     private void loadQuizData() {
@@ -338,6 +457,118 @@ public class QuizSessionController {
 
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+    
+    private void showWarning(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void onTranslate() {
+        if (questions.isEmpty()) {
+            showWarning("Traduction", "Aucune question disponible pour la traduction.");
+            return;
+        }
+        
+        isTranslatedFr = !isTranslatedFr;
+        String targetLang = isTranslatedFr ? "fr" : "en";
+        
+        // Désactiver le bouton de traduction temporairement
+        Button translateBtn = findTranslateButton();
+        if (translateBtn != null) {
+            translateBtn.setDisable(true);
+            translateBtn.setText("⏳ Traduction en cours...");
+        }
+
+        // Lancer la traduction dans un thread séparé avec un timeout
+        CompletableFuture.runAsync(() -> {
+            try {
+                System.out.println("[QuizSessionController] Début de la traduction vers " + targetLang);
+                
+                // Traduire les questions
+                for (int i = 0; i < questions.size(); i++) {
+                    Question q = questions.get(i);
+                    if (q.getContent() != null && !q.getContent().isBlank()) {
+                        System.out.println("[QuizSessionController] Traduction question " + (i+1) + "/" + questions.size());
+                        String translated = translationService.translate(q.getContent(), targetLang);
+                        q.setContent(translated);
+                    }
+                }
+                
+                // Traduire les réponses
+                for (int i = 0; i < answers.size(); i++) {
+                    Answer a = answers.get(i);
+                    if (a.getContent() != null && !a.getContent().isBlank()) {
+                        if (i % 10 == 0) {
+                            System.out.println("[QuizSessionController] Traduction réponse " + (i+1) + "/" + answers.size());
+                        }
+                        String translated = translationService.translate(a.getContent(), targetLang);
+                        a.setContent(translated);
+                    }
+                }
+                
+                System.out.println("[QuizSessionController] Traduction terminée avec succès");
+                
+                // Mettre à jour l'UI sur le thread JavaFX
+                Platform.runLater(() -> {
+                    if (translateBtn != null) {
+                        translateBtn.setDisable(false);
+                        translateBtn.setText(isTranslatedFr ? "🌐 En Français" : "🌐 En Anglais");
+                    }
+                    
+                    if (questionSection.isVisible()) {
+                        renderCurrentQuestion();
+                    }
+                    
+                    showInfo("Traduction", "Traduction réussie en " + (isTranslatedFr ? "français" : "anglais"));
+                });
+                
+            } catch (Exception e) {
+                System.err.println("[QuizSessionController] Erreur lors de la traduction: " + e.getMessage());
+                e.printStackTrace();
+                
+                // Restaurer l'état en cas d'erreur
+                Platform.runLater(() -> {
+                    isTranslatedFr = !isTranslatedFr; // Inverser pour revenir à l'état initial
+                    if (translateBtn != null) {
+                        translateBtn.setDisable(false);
+                        translateBtn.setText("🌐 Traduire");
+                    }
+                    showError("Traduction", "Erreur lors de la traduction: " + e.getMessage());
+                });
+            }
+        });
+    }
+    
+    /**
+     * Trouve le bouton de traduction dans le FXML
+     */
+    private Button findTranslateButton() {
+        if (quizTitleLabel == null || quizTitleLabel.getScene() == null) {
+            return null;
+        }
+        
+        // Chercher le bouton avec le texte contenant le globe
+        for (Node node : quizTitleLabel.getScene().getRoot().lookupAll("Button")) {
+            if (node instanceof Button) {
+                Button btn = (Button) node;
+                if (btn.getText() != null && btn.getText().contains("🌐")) {
+                    return btn;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.showAndWait();

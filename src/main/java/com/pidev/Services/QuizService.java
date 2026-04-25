@@ -17,10 +17,20 @@ public class QuizService {
 
     public QuizService() {
         this.connection = DataSource.getInstance().getConnection();
+        ensureCategoryColumnExists();
+    }
+
+    private void ensureCategoryColumnExists() {
+        try (Statement st = connection.createStatement()) {
+            st.execute("ALTER TABLE quiz ADD COLUMN category_distribution VARCHAR(255) DEFAULT NULL");
+        } catch (SQLException e) {
+            // Ignorer l'erreur si la colonne existe deja
+        }
     }
 
     public List<Quiz> findAll() throws SQLException {
         String sql = "SELECT q.id, q.course_id, c.title AS course_title, q.chapter_id, ch.title AS chapter_title, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
+            + "q.category_distribution, "
             + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
             + "FROM quiz q "
             + "LEFT JOIN course c ON q.course_id = c.id "
@@ -34,6 +44,7 @@ public class QuizService {
 
     public List<Quiz> findPage(String search, Integer courseFilter, String sort, String direction, int page, int limit) throws SQLException {
         StringBuilder sql = new StringBuilder("SELECT q.id, q.course_id, c.title AS course_title, q.chapter_id, ch.title AS chapter_title, q.title, q.passing_score, q.max_attempts, q.questions_per_attempt, q.time_limit, "
+            + "q.category_distribution, "
             + "q.supervisor_id, u.nom AS supervisor_nom, u.prenom AS supervisor_prenom, u.email AS supervisor_email "
             + "FROM quiz q LEFT JOIN course c ON q.course_id = c.id LEFT JOIN chapter ch ON q.chapter_id = ch.id LEFT JOIN user u ON q.supervisor_id = u.id WHERE 1=1");
         List<Object> params = new ArrayList<>();
@@ -82,7 +93,7 @@ public class QuizService {
     }
 
     public void create(Quiz quiz) throws SQLException {
-        String sql = "INSERT INTO quiz (course_id, chapter_id, title, passing_score, max_attempts, questions_per_attempt, time_limit, supervisor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO quiz (course_id, chapter_id, title, passing_score, max_attempts, questions_per_attempt, time_limit, supervisor_id, category_distribution) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
             bindQuiz(statement, quiz, false);
             statement.executeUpdate();
@@ -90,7 +101,7 @@ public class QuizService {
     }
 
     public void update(Quiz quiz) throws SQLException {
-        String sql = "UPDATE quiz SET course_id=?, chapter_id=?, title=?, passing_score=?, max_attempts=?, questions_per_attempt=?, time_limit=?, supervisor_id=? WHERE id=?";
+        String sql = "UPDATE quiz SET course_id=?, chapter_id=?, title=?, passing_score=?, max_attempts=?, questions_per_attempt=?, time_limit=?, supervisor_id=?, category_distribution=? WHERE id=?";
         try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
             bindQuiz(statement, quiz, true);
             statement.executeUpdate();
@@ -139,8 +150,14 @@ public class QuizService {
         statement.setInt(7, Math.max(quiz.getTimeLimit(), 0));
         statement.setInt(8, quiz.getSupervisor().getId());
 
+        if (quiz.getCategoryDistribution() != null) {
+            statement.setString(9, quiz.getCategoryDistribution());
+        } else {
+            statement.setNull(9, Types.VARCHAR);
+        }
+
         if (withId) {
-            statement.setInt(9, quiz.getId());
+            statement.setInt(10, quiz.getId());
         }
     }
 
@@ -178,6 +195,14 @@ public class QuizService {
             }
 
             quiz.setTimeLimit(Math.max(rs.getInt("time_limit"), 0));
+            
+            try {
+                String catDist = rs.getString("category_distribution");
+                quiz.setCategoryDistribution(catDist);
+            } catch (SQLException e) {
+                // Column might not exist in old schema
+            }
+            
             int supervisorId = rs.getInt("supervisor_id");
             if (!rs.wasNull()) {
                 User supervisor = new User(supervisorId);

@@ -62,6 +62,11 @@ public class BaseController implements Initializable {
     }
 
     @FXML
+    public void loadGenerateQuizAI() {
+        loadView("generate_quiz_ai");
+    }
+
+    @FXML
     public void loadHome() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));

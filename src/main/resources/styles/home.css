@@ -991,3 +991,15 @@
     -fx-background-color: #f6f9ff;
     -fx-border-color: #9eb3d8;
 }
+
+.ai-feedback-box {
+    -fx-background-color: #f0fdf4;
+    -fx-border-color: #86efac;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 16px;
+    -fx-text-fill: #166534;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 10, 0, 0, 2);
+}

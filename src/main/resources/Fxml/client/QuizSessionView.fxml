@@ -27,6 +27,7 @@
                                             <children>
                                                 <Label fx:id="quizTitleLabel" styleClass="quiz-session-hero-title" text="Quiz" />
                                                 <Region HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#onTranslate" styleClass="courses-action-btn primary" text="🌐 Traduire" />
                                                 <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter la session" />
                                             </children>
                                         </HBox>
@@ -85,7 +86,7 @@
                                                 <ProgressBar fx:id="questionProgressBar" progress="0.2" prefWidth="190.0" styleClass="quiz-progress-track" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Label styleClass="quiz-language-badge" text="Navigation" />
-                                                <Label fx:id="timerBadgeLabel" styleClass="quiz-timer-badge" text="--:--" />
+                                                <Label fx:id="timerBadgeLabel" styleClass="quiz-timer-badge,timer-badge" text="--:--" />
                                             </children>
                                         </HBox>
 
@@ -122,8 +123,10 @@
                                         <Label fx:id="resultTitleLabel" styleClass="assessment-title" text="Resultat" />
                                         <Label fx:id="resultSummaryLabel" styleClass="course-card-description" text="" />
                                         <Label fx:id="resultScoreLabel" styleClass="result-score-badge" text="0 / 0" />
+                                        <Label fx:id="aiFeedbackLabel" styleClass="ai-feedback-box" text="" visible="false" managed="false" wrapText="true" />
                                         <HBox spacing="10.0">
                                             <children>
+                                                <Button fx:id="downloadCertButton" onAction="#onDownloadCertificate" styleClass="courses-action-btn primary" text="Télécharger le certificat" visible="false" managed="false" />
                                                 <Button onAction="#onRetry" styleClass="courses-action-btn primary" text="Recommencer la session" />
                                                 <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter" />
                                             </children>

@@ -16,6 +16,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -187,6 +188,26 @@ public class QuizManagementController {
         ComboBox<User> supervisorCombo = new ComboBox<>();
         AdminDialogStyler.styleComboBox(supervisorCombo);
 
+        Slider logicSlider = new Slider(0, 100, 33);
+        Slider syntaxSlider = new Slider(0, 100, 33);
+        Slider theorySlider = new Slider(0, 100, 34);
+        
+        // Parse existing distribution
+        if (edit && existing.getCategoryDistribution() != null) {
+            String[] parts = existing.getCategoryDistribution().split("\\|");
+            for (String p : parts) {
+                String[] kv = p.split(":");
+                if (kv.length == 2) {
+                    try {
+                        double val = Double.parseDouble(kv[1]);
+                        if (kv[0].equals("Logique")) logicSlider.setValue(val);
+                        if (kv[0].equals("Syntaxe")) syntaxSlider.setValue(val);
+                        if (kv[0].equals("Theorie")) theorySlider.setValue(val);
+                    } catch(Exception ignored) {}
+                }
+            }
+        }
+
         try {
             List<Course> courses = lookupService.findAllCourses();
             List<Chapter> chapters = lookupService.findAllChapters();
@@ -216,6 +237,7 @@ public class QuizManagementController {
         Label qpaError = new Label();
         Label timeLimitError = new Label();
         Label supervisorError = new Label();
+        Label slidersError = new Label();
         String errorStyle = "-fx-text-fill: #d32f2f; -fx-font-size: 11;";
         titleError.setStyle(errorStyle);
         courseError.setStyle(errorStyle);
@@ -225,6 +247,7 @@ public class QuizManagementController {
         qpaError.setStyle(errorStyle);
         timeLimitError.setStyle(errorStyle);
         supervisorError.setStyle(errorStyle);
+        slidersError.setStyle(errorStyle);
 
         Label titleLabel = new Label("Titre");
         AdminDialogStyler.styleFormLabel(titleLabel);
@@ -266,6 +289,26 @@ public class QuizManagementController {
         grid.add(supervisorLabel, 0, 14);
         grid.add(supervisorCombo, 1, 14);
         grid.add(supervisorError, 1, 15);
+        
+        Label logicLabel = new Label("Logique (%)");
+        AdminDialogStyler.styleFormLabel(logicLabel);
+        logicSlider.setShowTickLabels(true); logicSlider.setShowTickMarks(true); logicSlider.setMajorTickUnit(25);
+        grid.add(logicLabel, 0, 16);
+        grid.add(logicSlider, 1, 16);
+        
+        Label syntaxLabel = new Label("Syntaxe (%)");
+        AdminDialogStyler.styleFormLabel(syntaxLabel);
+        syntaxSlider.setShowTickLabels(true); syntaxSlider.setShowTickMarks(true); syntaxSlider.setMajorTickUnit(25);
+        grid.add(syntaxLabel, 0, 17);
+        grid.add(syntaxSlider, 1, 17);
+        
+        Label theoryLabel = new Label("Theorie (%)");
+        AdminDialogStyler.styleFormLabel(theoryLabel);
+        theorySlider.setShowTickLabels(true); theorySlider.setShowTickMarks(true); theorySlider.setMajorTickUnit(25);
+        grid.add(theoryLabel, 0, 18);
+        grid.add(theorySlider, 1, 18);
+        grid.add(slidersError, 1, 19);
+        
         ColumnConstraints labelColumn = new ColumnConstraints();
         labelColumn.setMinWidth(170);
         labelColumn.setPrefWidth(170);
@@ -299,6 +342,7 @@ public class QuizManagementController {
             qpaError.setText("");
             timeLimitError.setText("");
             supervisorError.setText("");
+            slidersError.setText("");
 
             boolean valid = true;
             String title = titleField.getText() == null ? "" : titleField.getText().trim();
@@ -366,6 +410,15 @@ public class QuizManagementController {
                 supervisorError.setText("Superviseur obligatoire.");
                 valid = false;
             }
+            
+            double logic = Math.round(logicSlider.getValue());
+            double syntax = Math.round(syntaxSlider.getValue());
+            double theory = Math.round(theorySlider.getValue());
+            double sum = logic + syntax + theory;
+            if (Math.abs(sum - 100) > 2) {
+                slidersError.setText("La somme doit etre de 100% (Actuel: " + sum + "%)");
+                valid = false;
+            }
 
             if (!valid) {
                 event.consume();
@@ -381,6 +434,7 @@ public class QuizManagementController {
             quiz.setQuestionsPerAttempt(qpa);
             quiz.setTimeLimit(timeLimit);
             quiz.setSupervisor(supervisorCombo.getValue());
+            quiz.setCategoryDistribution("Logique:" + logic + "|Syntaxe:" + syntax + "|Theorie:" + theory);
             dialogResult[0] = quiz;
         });
 

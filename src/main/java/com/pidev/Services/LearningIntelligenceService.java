@@ -129,12 +129,26 @@ public class LearningIntelligenceService {
 
             List<String> labels = new ArrayList<>();
             for (CourseAdvancedBusinessService.CourseSuggestion suggestion : suggestions) {
-                if (suggestion.course() != null && suggestion.course().getTitle() != null && !suggestion.course().getTitle().isBlank()) {
-                    labels.add(suggestion.course().getTitle() + " (" + suggestion.badge() + ")");
+                if (suggestion == null || suggestion.course() == null) {
+                    continue;
+                }
+
+                String title = suggestion.course().getTitle();
+                if (title == null || title.isBlank()) {
+                    continue;
+                }
+
+                String badge = suggestion.badge() == null || suggestion.badge().isBlank()
+                        ? "Recommande"
+                        : suggestion.badge();
+                String label = title + " (" + badge + ")";
+
+                if (!labels.contains(label)) {
+                    labels.add(label);
                 }
             }
             return labels.isEmpty() ? List.of("Aucune recommandation disponible") : labels;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return List.of("Recommandation indisponible");
         }
     }
