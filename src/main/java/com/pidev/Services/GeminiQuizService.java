@@ -12,116 +12,266 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Service gérant la génération de Quiz via l'Intelligence Artificielle (Gemini API)
- * à partir d'un fichier de cours au format PDF.
+ * Service de génération de quiz via Gemini API.
+ * Gère automatiquement les erreurs 429 (quota dépassé) en attendant
+ * le délai suggéré par l'API avant de réessayer.
  */
 public class GeminiQuizService {
 
-    // On utilise le modèle gemini-1.5-flash qui est très rapide et adapté à ce besoin.
-    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
+    private static final String[][] MODEL_ENDPOINTS = {
+            { "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=",        "gemini-2.0-flash" },
+            { "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",        "gemini-1.5-flash" },
+            { "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=", "gemini-1.5-flash-latest" },
+            { "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=",   "gemini-2.0-flash-lite" },
+            { "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=",            "v1/gemini-1.5-flash" },
+    };
 
-    /**
-     * 1. Extrait le texte brut d'un fichier PDF donné.
-     * 
-     * @param pdfFile Le fichier PDF importé par le professeur.
-     * @return Le texte contenu dans le PDF.
-     */
+    // Nombre max de retries sur 429 avant d'abandonner
+    private static final int MAX_429_RETRIES = 3;
+    private static final int PDF_MAX_CHARS   = 80_000;
+
+    // Callback optionnel pour notifier l'UI de l'attente en cours
+    // Peut être null si non utilisé
+    public interface ProgressCallback {
+        void onWaiting(String modelName, int waitSeconds, int attempt, int maxAttempts);
+    }
+
+    private ProgressCallback progressCallback;
+
+    public void setProgressCallback(ProgressCallback cb) {
+        this.progressCallback = cb;
+    }
+
     public String extractTextFromPdf(File pdfFile) throws IOException {
-        try (PDDocument document = PDDocument.load(pdfFile)) {
-            PDFTextStripper pdfStripper = new PDFTextStripper();
-            return pdfStripper.getText(document);
+        try (PDDocument doc = PDDocument.load(pdfFile)) {
+            return new PDFTextStripper().getText(doc);
         }
     }
 
-    /**
-     * 2. Envoie le texte du PDF à Gemini pour générer un Quiz structuré (JSON).
-     * 
-     * @param pdfFile Le fichier PDF du cours.
-     * @param apiKey  La clé d'API Google Gemini.
-     * @param nbQuestions Le nombre de questions à générer.
-     * @return Une chaîne de caractères JSON contenant les questions générées.
-     */
     public String generateQuiz(File pdfFile, String apiKey, int nbQuestions) throws Exception {
-        // --- Étape 1 : Extraction du texte ---
+
+        // 1. Extraction PDF
         String pdfText = extractTextFromPdf(pdfFile);
-        
-        // Sécurité : limiter la taille du texte pour ne pas dépasser les tokens max de l'API
-        // 100 000 caractères représentent un très gros document.
-        if (pdfText.length() > 100000) {
-            pdfText = pdfText.substring(0, 100000);
+        if (pdfText == null || pdfText.isBlank()) {
+            throw new Exception(
+                    "Le PDF ne contient pas de texte extractible.\n"
+                            + "Utilisez un PDF avec du texte sélectionnable (pas un scan d'image)."
+            );
+        }
+        if (pdfText.length() > PDF_MAX_CHARS) {
+            pdfText = pdfText.substring(0, PDF_MAX_CHARS);
         }
 
-        // --- Étape 2 : Construction du Prompt pour l'IA ---
-        String prompt = "Tu es un professeur expert. Génère un quiz pertinent de " + nbQuestions + " questions à choix multiples basé STRICTEMENT sur le cours suivant.\n\n" +
-                "--- DEBUT DU COURS ---\n" +
-                pdfText + "\n" +
-                "--- FIN DU COURS ---\n\n" +
-                "Règles :\n" +
-                "- Chaque question doit avoir 4 options.\n" +
-                "- L'index de la bonne réponse doit être 0, 1, 2 ou 3.\n" +
-                "- Renvoie UNIQUEMENT un tableau JSON valide. Pas de markdown (```json ... ```), juste le JSON brut.\n" +
-                "\nFormat attendu :\n" +
-                "[\n" +
-                "  {\n" +
-                "    \"question\": \"Le texte de la question ?\",\n" +
-                "    \"options\": [\"Choix A\", \"Choix B\", \"Choix C\", \"Choix D\"],\n" +
-                "    \"correctAnswerIndex\": 2,\n" +
-                "    \"explanation\": \"Explication de la réponse\"\n" +
-                "  }\n" +
-                "]";
+        String requestBody = buildRequestBody(buildPrompt(nbQuestions, pdfText));
 
-        // --- Étape 3 : Création du payload (Body HTTP) ---
-        JSONObject requestBody = new JSONObject();
-        JSONArray contents = new JSONArray();
-        JSONObject content = new JSONObject();
-        JSONArray parts = new JSONArray();
-        JSONObject part = new JSONObject();
-        
-        part.put("text", prompt);
-        parts.put(part);
-        content.put("parts", parts);
-        contents.put(content);
-        requestBody.put("contents", contents);
-
-        // Forcer Gemini à renvoyer un JSON strict
-        JSONObject generationConfig = new JSONObject();
-        generationConfig.put("response_mime_type", "application/json");
-        requestBody.put("generationConfig", generationConfig);
-
-        // --- Étape 4 : Appel HTTP à l'API Gemini ---
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(30))
                 .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(GEMINI_API_URL + apiKey))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
-                .build();
+        // 2. Essai de chaque modèle
+        String lastError = "";
+        for (String[] endpoint : MODEL_ENDPOINTS) {
+            String url  = endpoint[0] + apiKey;
+            String name = endpoint[1];
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("[Gemini] Tentative modèle : " + name);
 
-        // --- Étape 5 : Traitement de la réponse ---
-        if (response.statusCode() == 200) {
-            JSONObject jsonResponse = new JSONObject(response.body());
-            JSONArray candidates = jsonResponse.getJSONArray("candidates");
-            if (candidates.length() > 0) {
-                JSONObject firstCandidate = candidates.getJSONObject(0);
-                JSONObject candidateContent = firstCandidate.getJSONObject("content");
-                JSONArray candidateParts = candidateContent.getJSONArray("parts");
-                if (candidateParts.length() > 0) {
-                    // C'est ici qu'on récupère le JSON brut généré par l'IA
-                    String generatedJson = candidateParts.getJSONObject(0).getString("text");
-                    return generatedJson; 
+            String result = tryModelWithRetry(client, url, name, requestBody);
+
+            if (result != null) {
+                return result; // Succès
+            }
+
+            // null = 404, on passe au modèle suivant
+            lastError = "Modèle " + name + " non disponible.";
+        }
+
+        throw new Exception(
+                "Aucun modèle Gemini disponible.\n\n"
+                        + "Vérifiez vos modèles disponibles dans un navigateur :\n"
+                        + "https://generativelanguage.googleapis.com/v1beta/models?key=VOTRE_CLE"
+        );
+    }
+
+    /**
+     * Tente d'appeler un modèle avec retry automatique sur 429.
+     * @return JSON string si succès, null si 404 (modèle absent)
+     * @throws Exception sur erreur métier (400, 403, JSON invalide)
+     */
+    private String tryModelWithRetry(HttpClient client, String url, String modelName,
+                                     String body) throws Exception {
+        for (int attempt = 1; attempt <= MAX_429_RETRIES; attempt++) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(60))
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            HttpResponse<String> response;
+            try {
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (Exception e) {
+                System.err.println("[Gemini] Erreur réseau : " + e.getMessage());
+                return null;
+            }
+
+            int status = response.statusCode();
+            System.out.printf("[Gemini] %s → HTTP %d (tentative %d/%d)%n",
+                    modelName, status, attempt, MAX_429_RETRIES);
+
+            switch (status) {
+                case 200 -> { return extractJsonFromResponse(response.body()); }
+                case 404 -> { return null; } // Modèle absent → essayer le suivant
+
+                case 429 -> {
+                    int waitSec = extractRetryDelay(response.body());
+                    System.out.printf("[Gemini] Quota dépassé — attente de %ds avant retry%n", waitSec);
+
+                    if (progressCallback != null) {
+                        progressCallback.onWaiting(modelName, waitSec, attempt, MAX_429_RETRIES);
+                    }
+
+                    if (attempt >= MAX_429_RETRIES) {
+                        throw new Exception(
+                                "Quota Gemini dépassé après " + MAX_429_RETRIES + " tentatives.\n\n"
+                                        + "Solutions :\n"
+                                        + "  1. Attendez quelques minutes et réessayez.\n"
+                                        + "  2. Réduisez le nombre de questions (3-5 au lieu de 10+).\n"
+                                        + "  3. Obtenez une clé avec quota étendu sur https://aistudio.google.com/app/apikey"
+                        );
+                    }
+
+                    // Attente avec countdown dans la console
+                    for (int s = waitSec; s > 0; s--) {
+                        System.out.print("\r[Gemini] Reprise dans " + s + "s...   ");
+                        Thread.sleep(1000);
+                    }
+                    System.out.println("\r[Gemini] Reprise maintenant.         ");
+                }
+
+                case 400 -> throw new Exception(
+                        "Clé API invalide (400).\n"
+                                + "Vérifiez votre clé dans GenerateQuizAIController.java\n"
+                                + "Obtenez une clé sur : https://aistudio.google.com/app/apikey\n\n"
+                                + "Détail API : " + extractApiErrorMessage(response.body())
+                );
+
+                case 403 -> throw new Exception(
+                        "Accès refusé (403).\n"
+                                + "Activez l'API 'Generative Language API' dans Google Cloud Console :\n"
+                                + "https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com"
+                );
+
+                default -> {
+                    System.err.println("[Gemini] Erreur inattendue " + status
+                            + " : " + truncate(response.body(), 150));
+                    return null;
                 }
             }
-            throw new Exception("Format de réponse inattendu de l'API Gemini.");
-        } else {
-            throw new Exception("Erreur API Gemini (Code " + response.statusCode() + ") : " + response.body());
         }
+        return null;
+    }
+
+    // ----------------------------------------------------------------
+    // Helpers
+    // ----------------------------------------------------------------
+
+    private String buildPrompt(int n, String text) {
+        return String.format(
+                "Tu es un professeur expert. Génère exactement %d questions QCM basées "
+                        + "UNIQUEMENT sur ce cours.\n\n"
+                        + "=== COURS ===\n%s\n=== FIN ===\n\n"
+                        + "Règles : 4 options par question, 1 bonne réponse (index 0-3), "
+                        + "répondre UNIQUEMENT en JSON brut sans markdown.\n\n"
+                        + "Format :\n"
+                        + "[{\"question\":\"?\",\"options\":[\"A\",\"B\",\"C\",\"D\"],"
+                        + "\"correctAnswerIndex\":0,\"explanation\":\"...\"}]",
+                n, text
+        );
+    }
+
+    private String buildRequestBody(String prompt) {
+        return new JSONObject()
+                .put("contents", new JSONArray().put(
+                        new JSONObject().put("parts", new JSONArray().put(
+                                new JSONObject().put("text", prompt)))))
+                .put("generationConfig", new JSONObject()
+                        .put("temperature", 0.4)
+                        .put("maxOutputTokens", 4096))
+                .toString();
+    }
+
+    private String extractJsonFromResponse(String body) throws Exception {
+        JSONObject root = new JSONObject(body);
+        if (!root.has("candidates") || root.getJSONArray("candidates").isEmpty()) {
+            throw new Exception("Gemini n'a retourné aucun résultat. Essayez avec un PDF différent.");
+        }
+        JSONObject candidate = root.getJSONArray("candidates").getJSONObject(0);
+        if ("SAFETY".equals(candidate.optString("finishReason", ""))) {
+            throw new Exception("Contenu bloqué par les filtres de sécurité Gemini.");
+        }
+        String raw = candidate
+                .getJSONObject("content")
+                .getJSONArray("parts")
+                .getJSONObject(0)
+                .getString("text").trim();
+        return cleanJson(raw);
+    }
+
+    private String cleanJson(String raw) throws Exception {
+        String s = raw.trim();
+        if (s.startsWith("```json")) s = s.substring(7);
+        else if (s.startsWith("```")) s = s.substring(3);
+        if (s.endsWith("```")) s = s.substring(0, s.length() - 3);
+        s = s.trim();
+        if (!s.startsWith("[")) {
+            int start = s.indexOf('['), end = s.lastIndexOf(']');
+            if (start != -1 && end > start) s = s.substring(start, end + 1);
+            else throw new Exception("Réponse non JSON : " + truncate(s, 200));
+        }
+        try { new JSONArray(s); }
+        catch (Exception e) { throw new Exception("JSON invalide : " + e.getMessage()); }
+        return s;
+    }
+
+    private String extractApiErrorMessage(String body) {
+        try { return new JSONObject(body).getJSONObject("error").optString("message", body); }
+        catch (Exception e) { return truncate(body, 120); }
+    }
+
+    private int extractRetryDelay(String body) {
+        try {
+            // Essayer d'abord le champ JSON retryDelay
+            JSONObject json = new JSONObject(body);
+            if (json.has("error")) {
+                JSONObject error = json.getJSONObject("error");
+                if (error.has("details")) {
+                    JSONArray details = error.getJSONArray("details");
+                    for (int i = 0; i < details.length(); i++) {
+                        JSONObject detail = details.getJSONObject(i);
+                        if (detail.has("retryDelay")) {
+                            String delay = detail.getString("retryDelay"); // ex: "23s"
+                            String digits = delay.replaceAll("[^0-9]", "");
+                            if (!digits.isEmpty()) return Integer.parseInt(digits) + 3;
+                        }
+                    }
+                }
+            }
+            // Fallback : cherche "retryDelay" dans le texte brut
+            int idx = body.indexOf("retryDelay");
+            if (idx != -1) {
+                String digits = body.substring(idx + 13, Math.min(idx + 25, body.length()))
+                        .replaceAll("[^0-9]", "");
+                if (!digits.isEmpty()) return Integer.parseInt(digits) + 3;
+            }
+        } catch (Exception ignored) {}
+        return 30;
+    }
+
+    private String truncate(String s, int max) {
+        return s == null ? "" : (s.length() <= max ? s : s.substring(0, max) + "…");
     }
 }

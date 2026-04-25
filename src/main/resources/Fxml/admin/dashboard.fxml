@@ -191,6 +191,12 @@
                                         <FontIcon iconLiteral="fas-robot" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #f0fdf4; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #166534; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                    onAction="#loadMultiplayerQuiz" styleClass="action-btn action-btn-outline" text="⚡ Quiz Multijoueur">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-users" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
                             </children>
                         </FlowPane>
                     </children>

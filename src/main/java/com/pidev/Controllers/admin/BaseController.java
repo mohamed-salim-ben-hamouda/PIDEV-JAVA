@@ -67,6 +67,11 @@ public class BaseController implements Initializable {
     }
 
     @FXML
+    public void loadMultiplayerQuiz() {
+        loadView("multiplayer_quiz");
+    }
+
+    @FXML
     public void loadHome() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));

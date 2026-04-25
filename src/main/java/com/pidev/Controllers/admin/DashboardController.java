@@ -46,6 +46,11 @@ public class DashboardController {
 		loadAdminSection(event, BaseController::loadGenerateQuizAI);
 	}
 
+	@FXML
+	private void loadMultiplayerQuiz(ActionEvent event) {
+		loadAdminSection(event, BaseController::loadMultiplayerQuiz);
+	}
+
 	private void loadAdminSection(ActionEvent event, AdminAction action) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/admin/base_back.fxml"));

@@ -12,7 +12,183 @@
     -fx-text-alignment: center;
     -fx-alignment: center;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
-    -fx-transition: -fx-text-fill 0.3s ease-in-out;
+    -fx-transition: -fx-text-fill /*
+                                   * quiz-timer.css — Animations du timer pour JavaFX
+                                   *
+                                   * IMPORTANT : JavaFX CSS utilise la syntaxe standard CSS3 pour les @keyframes.
+                                   * La propriété -fx-scale-x / -fx-scale-y est utilisée pour le scale en JavaFX.
+                                   * Les transitions opacity et scale fonctionnent avec les propriétés -fx-* correspondantes.
+                                   *
+                                   * Classes appliquées dynamiquement par QuizSessionController :
+                                   *   .pulse-animation  → 30 dernières secondes
+                                   *   .flash-animation  → 10 dernières secondes
+                                   */
+
+                                  /* ===========================
+                                     Badge timer de base
+                                     =========================== */
+                                  #timerBadgeLabel {
+                                      -fx-font-size: 16px;
+                                      -fx-font-weight: bold;
+                                      -fx-padding: 6px 14px;
+                                      -fx-background-color: #f3f4f6;
+                                      -fx-background-radius: 20px;
+                                      -fx-border-color: #d1d5db;
+                                      -fx-border-width: 1.5px;
+                                      -fx-border-radius: 20px;
+                                      -fx-text-fill: #1f2937;
+                                      -fx-alignment: CENTER;
+                                      -fx-min-width: 80px;
+                                  }
+
+                                  /* ===========================
+                                     Animation PULSE (30s → 10s)
+                                     Effet de grossissement/rapetissement doux
+                                     =========================== */
+                                  .pulse-animation {
+                                      -fx-effect: dropshadow(gaussian, rgba(251, 146, 60, 0.6), 12, 0.3, 0, 0);
+                                      -fx-background-color: #fff7ed;
+                                      -fx-border-color: #f97316;
+                                      -fx-text-fill: #c2410c;
+                                      -fx-border-width: 2px;
+                                  }
+
+                                  /* JavaFX ne supporte pas les @keyframes dans les fichiers CSS chargés via stylesheets.
+                                     Les animations sont gérées par Timeline dans le contrôleur Java.
+                                     Ces classes définissent UNIQUEMENT le style visuel de chaque état. */
+
+                                  /* ===========================
+                                     Animation FLASH (10s → 0s)
+                                     Rouge vif + clignotement géré par Timeline Java
+                                     =========================== */
+                                  .flash-animation {
+                                      -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.8), 16, 0.4, 0, 0);
+                                      -fx-background-color: #fef2f2;
+                                      -fx-border-color: #dc2626;
+                                      -fx-text-fill: #dc2626;
+                                      -fx-border-width: 2.5px;
+                                      -fx-font-size: 17px;
+                                  }
+
+                                  /* ===========================
+                                     État neutre (réinitialisation)
+                                     =========================== */
+                                  .timer-normal {
+                                      -fx-effect: null;
+                                      -fx-background-color: #f3f4f6;
+                                      -fx-border-color: #d1d5db;
+                                      -fx-text-fill: #1f2937;
+                                      -fx-border-width: 1.5px;
+                                      -fx-font-size: 16px;
+                                  }
+
+                                  /* ===========================
+                                     Barre de progression du quiz
+                                     =========================== */
+                                  .quiz-progress-bar {
+                                      -fx-pref-height: 8px;
+                                      -fx-background-color: #e5e7eb;
+                                      -fx-background-radius: 4px;
+                                  }
+
+                                  .quiz-progress-bar .bar {
+                                      -fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6);
+                                      -fx-background-radius: 4px;
+                                      -fx-background-insets: 0;
+                                  }
+
+                                  .quiz-progress-bar .track {
+                                      -fx-background-color: #e5e7eb;
+                                      -fx-background-radius: 4px;
+                                  }
+
+                                  /* ===========================
+                                     Boutons réponse
+                                     =========================== */
+                                  .quiz-answer-option {
+                                      -fx-alignment: CENTER-LEFT;
+                                      -fx-padding: 12px 16px;
+                                      -fx-background-color: #ffffff;
+                                      -fx-border-color: #d1d5db;
+                                      -fx-border-width: 1.5px;
+                                      -fx-border-radius: 10px;
+                                      -fx-background-radius: 10px;
+                                      -fx-text-fill: #374151;
+                                      -fx-font-size: 14px;
+                                      -fx-cursor: hand;
+                                  }
+
+                                  .quiz-answer-option:hover {
+                                      -fx-background-color: #f5f3ff;
+                                      -fx-border-color: #8b5cf6;
+                                      -fx-text-fill: #5b21b6;
+                                  }
+
+                                  .quiz-answer-option.selected {
+                                      -fx-background-color: #ede9fe;
+                                      -fx-border-color: #7c3aed;
+                                      -fx-text-fill: #5b21b6;
+                                      -fx-border-width: 2px;
+                                      -fx-effect: dropshadow(gaussian, rgba(124, 58, 237, 0.25), 8, 0.2, 0, 2);
+                                  }
+
+                                  /* ===========================
+                                     Navigation rapide (pills)
+                                     =========================== */
+                                  .page-btn {
+                                      -fx-min-width: 32px;
+                                      -fx-min-height: 32px;
+                                      -fx-max-width: 32px;
+                                      -fx-max-height: 32px;
+                                      -fx-background-radius: 16px;
+                                      -fx-border-radius: 16px;
+                                      -fx-background-color: #f3f4f6;
+                                      -fx-border-color: #d1d5db;
+                                      -fx-border-width: 1px;
+                                      -fx-text-fill: #6b7280;
+                                      -fx-font-size: 12px;
+                                      -fx-cursor: hand;
+                                  }
+
+                                  .page-btn.active-pill {
+                                      -fx-background-color: #7c3aed;
+                                      -fx-border-color: #7c3aed;
+                                      -fx-text-fill: white;
+                                      -fx-effect: dropshadow(gaussian, rgba(124, 58, 237, 0.4), 8, 0.3, 0, 2);
+                                  }
+
+                                  .page-btn.duration-pill {
+                                      -fx-background-color: #d1fae5;
+                                      -fx-border-color: #10b981;
+                                      -fx-text-fill: #065f46;
+                                  }
+
+                                  /* ===========================
+                                     Badge score en direct
+                                     =========================== */
+                                  .result-score-badge {
+                                      -fx-font-size: 22px;
+                                      -fx-font-weight: bold;
+                                      -fx-padding: 8px 20px;
+                                      -fx-background-radius: 12px;
+                                      -fx-alignment: CENTER;
+                                  }
+
+                                  .result-score-badge.success {
+                                      -fx-background-color: #d1fae5;
+                                      -fx-text-fill: #065f46;
+                                      -fx-border-color: #10b981;
+                                      -fx-border-width: 1.5px;
+                                      -fx-border-radius: 12px;
+                                  }
+
+                                  .result-score-badge.fail {
+                                      -fx-background-color: #fef2f2;
+                                      -fx-text-fill: #991b1b;
+                                      -fx-border-color: #ef4444;
+                                      -fx-border-width: 1.5px;
+                                      -fx-border-radius: 12px;
+                                  }0.3s ease-in-out;
 }
 
 /* ============================================

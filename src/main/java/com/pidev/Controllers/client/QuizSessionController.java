@@ -86,6 +86,8 @@ public class QuizSessionController {
     private int currentQuestionIndex;
     private int remainingSeconds;
     private Timeline countdownTimeline;
+    private Timeline flashTimeline;       // NOUVEAU : Timeline dédiée au clignotement
+    private boolean flashVisible = true;  // NOUVEAU : état du clignotement
     private boolean isTranslatedFr = false;
 
     @FXML
@@ -272,11 +274,13 @@ public class QuizSessionController {
         int timeLimitMinutes = quiz == null ? 0 : quiz.getTimeLimit();
         if (timeLimitMinutes <= 0) {
             timerBadgeLabel.setText("Libre");
+            timerBadgeLabel.getStyleClass().setAll("timer-normal");
             return;
         }
 
         remainingSeconds = timeLimitMinutes * 60;
         updateTimerDisplay();
+
         countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             remainingSeconds--;
             updateTimerDisplay();
@@ -294,6 +298,10 @@ public class QuizSessionController {
             countdownTimeline.stop();
             countdownTimeline = null;
         }
+        stopFlashAnimation();
+        // Réinitialiser le style du timer
+        timerBadgeLabel.getStyleClass().setAll("timer-normal");
+        timerBadgeLabel.setOpacity(1.0);
     }
 
     private String formatTime(int seconds) {
@@ -306,37 +314,66 @@ public class QuizSessionController {
     private void updateTimerDisplay() {
         int safeSeconds = Math.max(0, remainingSeconds);
         timerBadgeLabel.setText(formatTime(safeSeconds));
-        
-        // Changer la couleur dynamiquement
-        if (safeSeconds < 120) {
-            timerBadgeLabel.setStyle("-fx-text-fill: #dc2626;"); // Rouge
-        } else {
-            timerBadgeLabel.setStyle("-fx-text-fill: #1f2937;"); // Gris
+
+        if (safeSeconds <= 0) {
+            // Temps écoulé
+            timerBadgeLabel.getStyleClass().setAll("flash-animation");
+            timerBadgeLabel.setStyle("-fx-text-fill: #dc2626;");
+            return;
         }
-        
-        // Pulse animation les 30 dernières secondes
-        if (safeSeconds <= 30 && safeSeconds > 10) {
-            addPulseAnimation();
-        } else if (safeSeconds <= 10) {
-            // Clignotement rapide les 10 dernières secondes
-            addFlashAnimation();
+
+        if (safeSeconds <= 10) {
+            // 10 dernières secondes : clignotement rouge rapide (via Timeline)
+            timerBadgeLabel.getStyleClass().setAll("flash-animation");
+            timerBadgeLabel.setOpacity(1.0); // opacity gérée par flashTimeline
+            startFlashAnimation();
+
+        } else if (safeSeconds <= 30) {
+            // 30 → 11 secondes : pulse orange (style uniquement, pas de clignotement)
+            stopFlashAnimation();
+            timerBadgeLabel.setOpacity(1.0);
+            timerBadgeLabel.getStyleClass().setAll("pulse-animation");
+            timerBadgeLabel.setStyle(""); // Laisser le CSS prendre le relais
+
+        } else if (safeSeconds <= 120) {
+            // 2 minutes → 31 secondes : rouge texte, pas d'animation
+            stopFlashAnimation();
+            timerBadgeLabel.setOpacity(1.0);
+            timerBadgeLabel.getStyleClass().setAll("timer-normal");
+            timerBadgeLabel.setStyle("-fx-text-fill: #dc2626;");
+
         } else {
-            timerBadgeLabel.getStyleClass().removeAll("pulse-animation", "flash-animation");
+            // Temps normal
+            stopFlashAnimation();
+            timerBadgeLabel.setOpacity(1.0);
+            timerBadgeLabel.getStyleClass().setAll("timer-normal");
+            timerBadgeLabel.setStyle("-fx-text-fill: #1f2937;");
         }
     }
     
-    private void addPulseAnimation() {
-        if (!timerBadgeLabel.getStyleClass().contains("pulse-animation")) {
-            timerBadgeLabel.getStyleClass().remove("flash-animation");
-            timerBadgeLabel.getStyleClass().add("pulse-animation");
+    private void startFlashAnimation() {
+        if (flashTimeline != null && flashTimeline.getStatus() == javafx.animation.Animation.Status.RUNNING) {
+            return; // Déjà en cours
         }
+
+        flashVisible = true;
+        // Clignote toutes les 400ms (rouge vif ↔ quasi invisible)
+        flashTimeline = new Timeline(
+            new KeyFrame(Duration.millis(400), event -> {
+                flashVisible = !flashVisible;
+                timerBadgeLabel.setOpacity(flashVisible ? 1.0 : 0.15);
+            })
+        );
+        flashTimeline.setCycleCount(Timeline.INDEFINITE);
+        flashTimeline.play();
     }
     
-    private void addFlashAnimation() {
-        if (!timerBadgeLabel.getStyleClass().contains("flash-animation")) {
-            timerBadgeLabel.getStyleClass().remove("pulse-animation");
-            timerBadgeLabel.getStyleClass().add("flash-animation");
+    private void stopFlashAnimation() {
+        if (flashTimeline != null) {
+            flashTimeline.stop();
+            flashTimeline = null;
         }
+        timerBadgeLabel.setOpacity(1.0);
     }
 
     private void loadQuizData() {

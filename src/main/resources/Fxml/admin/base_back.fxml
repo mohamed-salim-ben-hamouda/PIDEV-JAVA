@@ -112,6 +112,13 @@
                                         <FontIcon iconLiteral="fas-robot" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadMultiplayerQuiz"
+                                        styleClass="menu-item" text="⚡ Quiz Multijoueur">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-users" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
 
                                 <Label styleClass="menu-section" text="Community" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
