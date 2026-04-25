@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" styleClass="dashboard-scroll"
+            stylesheets="@../../styles/dashboard.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.admin.UserManagementController">
+    <content>
+        <VBox spacing="20.0" styleClass="dashboard-page">
+            <children>
+                <!-- Header Row -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: #1e293b;" text="Users Management" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleExportPDF" styleClass="btn-export-pdf" text="Export PDF">
+                            <graphic><FontIcon iconLiteral="fas-file-pdf" iconSize="14" /></graphic>
+                        </Button>
+                        <Button onAction="#handleOpenArchive" styleClass="btn-archive" text="Archive">
+                            <graphic><FontIcon iconLiteral="fas-archive" iconSize="14" /></graphic>
+                        </Button>
+                        <Button onAction="#handleShowAddForm" styleClass="btn-add-user" text="+ Add User" />
+                    </children>
+                </HBox>
+
+                <!-- Search Bar -->
+                <TextField fx:id="searchField" promptText="Search users by name, email..." styleClass="search-field" />
+
+                <!-- Add/Edit Form (hidden by default) -->
+                <VBox fx:id="formPanel" managed="false" visible="false" spacing="16.0" styleClass="management-panel">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <Label styleClass="form-section-title" text="User Details" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="addButton" onAction="#handleAddUser" styleClass="action-btn-primary-sm" text="Save" />
+                            <Button onAction="#handleClearFields" styleClass="action-btn-outline-sm" text="Cancel" />
+                        </HBox>
+                        <GridPane hgap="24.0" vgap="12.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label styleClass="field-label" text="Nom" />
+                                    <TextField fx:id="nomField" promptText="Nom" styleClass="modern-textfield-sm" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label styleClass="field-label" text="Prénom" />
+                                    <TextField fx:id="prenomField" promptText="Prénom" styleClass="modern-textfield-sm" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label styleClass="field-label" text="Email" />
+                                    <TextField fx:id="emailField" promptText="mail@exemple.com" styleClass="modern-textfield-sm" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label styleClass="field-label" text="Mot de passe" />
+                                    <PasswordField fx:id="passwdField" promptText="••••••••" styleClass="modern-textfield-sm" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <Label styleClass="field-label" text="Rôle" />
+                                    <ComboBox fx:id="roleComboBox" maxWidth="1.7976931348623157E308" styleClass="modern-combobox-sm" />
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label styleClass="field-label" text="Date de naissance" />
+                                    <DatePicker fx:id="dateNaissancePicker" maxWidth="1.7976931348623157E308" styleClass="modern-datepicker-sm" />
+                                </VBox>
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+
+                <!-- Users Table -->
+                <TableView fx:id="userTableView" VBox.vgrow="ALWAYS" minHeight="400.0" styleClass="users-table" />
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

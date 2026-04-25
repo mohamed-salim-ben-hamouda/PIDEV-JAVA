@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dashboard-scroll"
+            stylesheets="@../../styles/dashboard.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.admin.DashboardController">
+    <content>
+        <VBox spacing="32.0" styleClass="dashboard-page">
+            <children>
+                <HBox spacing="22.0">
+                    <children>
+                        <VBox spacing="12.0" styleClass="hero-panel" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="hero-eyebrow" text="Admin Workspace" />
+                                <Label styleClass="dashboard-title" text="Everything important, in one place." />
+                                <Label styleClass="dashboard-subtitle" text="Track platform activity, jump into management actions, and keep the whole Skill Bridge experience organized." wrapText="true" />
+                                <HBox spacing="12.0">
+                                    <children>
+                                        <Label styleClass="hero-badge" text="6 active modules" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <VBox spacing="14.0" styleClass="hero-side-card">
+                            <children>
+                                <FontIcon iconLiteral="fas-star" styleClass="hero-side-icon" />
+                                <Label styleClass="hero-side-title" text="Quick Start" />
+                                <Label styleClass="hero-side-text" text="Use the cards below to navigate faster through your most important admin areas." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <FlowPane hgap="24.0" prefWrapLength="1240.0" vgap="24.0">
+                    <children>
+                        <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <StackPane styleClass="metric-icon-wrap">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-user" styleClass="metric-icon" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </HBox>
+                                <Label styleClass="metric-label" text="Users" />
+                                <Label fx:id="userCountLabel" styleClass="metric-number" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <StackPane styleClass="metric-icon-wrap">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-book" styleClass="metric-icon" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </HBox>
+                                <Label styleClass="metric-label" text="Connected Users" />
+                                <Label fx:id="connectedUserCountLabel" styleClass="metric-number" text="0" />
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <StackPane styleClass="metric-icon-wrap">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-question-circle" styleClass="metric-icon" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </HBox>
+                                <Label styleClass="metric-label" text="Quizzes" />
+                                <Label styleClass="metric-number" text="48" />
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <StackPane styleClass="metric-icon-wrap">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-users" styleClass="metric-icon" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </HBox>
+                                <Label styleClass="metric-label" text="Groups" />
+                                <Label styleClass="metric-number" text="5" />
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <StackPane styleClass="metric-icon-wrap">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-trophy" styleClass="metric-icon" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </HBox>
+                                <Label styleClass="metric-label" text="Challenges" />
+                                <Label styleClass="metric-number" text="18" />
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <StackPane styleClass="metric-icon-wrap">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-flag-checkered" styleClass="metric-icon" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </HBox>
+                                <Label styleClass="metric-label" text="Hackathons" />
+                                <Label styleClass="metric-number" text="7" />
+                            </children>
+                        </VBox>
+                    </children>
+                </FlowPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <FontIcon iconLiteral="fas-graduation-cap" styleClass="section-title-icon" />
+                        <Label styleClass="management-title" text="Pedagogical Management" />
+                    </children>
+                </HBox>
+                <VBox spacing="18.0" styleClass="management-panel">
+                    <children>
+                        <Label styleClass="management-text" text="Manage courses, chapters, quizzes, questions and answers" />
+                        <FlowPane hgap="14.0" prefWrapLength="1100.0" vgap="14.0">
+                            <children>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-primary" text="Courses">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-book" styleClass="action-icon primary-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-outline" text="Chapters">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-bookmark" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-outline" text="Quizzes">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-question-circle" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-outline" text="Questions">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-question-circle" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-outline" text="Answers">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-check-double" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
+                            </children>
+                        </FlowPane>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <FontIcon iconLiteral="fas-comments" styleClass="section-title-icon" />
+                        <Label styleClass="management-title" text="Community Management" />
+                    </children>
+                </HBox>
+                <VBox spacing="18.0" styleClass="management-panel">
+                    <children>
+                        <Label styleClass="management-text" text="Manage student groups and posts" />
+                        <HBox spacing="14.0">
+                            <children>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-primary" text="Manage Groups">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-users" styleClass="action-icon primary-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-outline" text="Manage Posts">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-comments" styleClass="action-icon outline-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Region HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <FontIcon iconLiteral="fas-trophy" styleClass="section-title-icon" />
+                        <Label styleClass="management-title" text="Challenges Management" />
+                    </children>
+                </HBox>
+                <VBox spacing="18.0" styleClass="management-panel">
+                    <children>
+                        <Label styleClass="management-text" text="Manage challenges and submissions" />
+                        <HBox spacing="14.0">
+                            <children>
+                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
+                                        styleClass="action-btn action-btn-primary" text="Add Challenge">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-trophy" styleClass="action-icon primary-action-icon" />
+                                    </graphic>
+                                </Button>
+                                <Region HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>
