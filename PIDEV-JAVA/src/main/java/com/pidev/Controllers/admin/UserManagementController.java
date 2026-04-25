@@ -104,18 +104,27 @@ public class UserManagementController implements Initializable {
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
         emailCol.setPrefWidth(180);
 
-        // Ban status (isActive)
-        TableColumn<User, String> banCol = new TableColumn<>("Ban");
-        banCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().isActive() ? "OK" : "Banned"));
-        banCol.setPrefWidth(60);
-        banCol.setCellFactory(col -> new TableCell<>() {
+        // Ban status (isActive & ban_until)
+        TableColumn<User, String> statutCol = new TableColumn<>("Statut");
+        statutCol.setCellValueFactory(data -> {
+            User u = data.getValue();
+            if (!u.isActive()) return new SimpleStringProperty("Archivé");
+            if (u.isBanned()) return new SimpleStringProperty("Banni");
+            return new SimpleStringProperty("Actif");
+        });
+        statutCol.setPrefWidth(70);
+        statutCol.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setGraphic(null); return; }
                 Label badge = new Label(item);
-                badge.setStyle(item.equals("OK") ?
-                    "-fx-background-color: #22c55e; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;" :
-                    "-fx-background-color: #ef4444; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;");
+                String style = switch(item) {
+                    case "Actif" -> "-fx-background-color: #22c55e;";
+                    case "Banni" -> "-fx-background-color: #f59e0b;";
+                    case "Archivé" -> "-fx-background-color: #ef4444;";
+                    default -> "-fx-background-color: #64748b;";
+                };
+                badge.setStyle(style + " -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 4; -fx-font-size: 11px; -fx-font-weight: bold;");
                 setGraphic(badge);
                 setText(null);
                 setAlignment(Pos.CENTER);
@@ -241,7 +250,67 @@ public class UserManagementController implements Initializable {
             }
         });
 
-        userTableView.getColumns().addAll(nomCol, prenomCol, dobCol, emailCol, banCol, photoCol, passCol, inscritCol, typeCol, editCol, archiveCol);
+        // Ban button column
+        TableColumn<User, Void> banActionCol = new TableColumn<>("Bannir");
+        banActionCol.setPrefWidth(60);
+        banActionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button btn = new Button();
+            {
+                FontIcon icon = new FontIcon("fas-gavel");
+                icon.setIconSize(12);
+                icon.setIconColor(Color.web("#f59e0b"));
+                btn.setGraphic(icon);
+                btn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+                btn.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    if (user.isBanned()) {
+                        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "L'utilisateur " + user.getDisplayName() + " est banni. Voulez-vous le débannir ?", ButtonType.YES, ButtonType.NO);
+                        confirm.showAndWait().ifPresent(r -> {
+                            if (r == ButtonType.YES) {
+                                user.setBanUntil(null);
+                                userService.update(user);
+                                loadUsers();
+                            }
+                        });
+                    } else {
+                        TextInputDialog dialog = new TextInputDialog("1");
+                        dialog.setTitle("Bannir l'utilisateur");
+                        dialog.setHeaderText("Bannir " + user.getDisplayName());
+                        dialog.setContentText("Durée du bannissement (en heures) :");
+                        dialog.showAndWait().ifPresent(hoursStr -> {
+                            try {
+                                int hours = Integer.parseInt(hoursStr);
+                                user.setBanUntil(java.time.LocalDateTime.now().plusHours(hours));
+                                userService.update(user);
+                                loadUsers();
+                            } catch (NumberFormatException ex) {
+                                showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez entrer un nombre valide d'heures.");
+                            }
+                        });
+                    }
+                });
+            }
+            @Override protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    User user = getTableView().getItems().get(getIndex());
+                    FontIcon icon = (FontIcon) btn.getGraphic();
+                    if (user != null && user.isBanned()) {
+                        icon.setIconLiteral("fas-unlock");
+                        icon.setIconColor(Color.web("#22c55e"));
+                    } else {
+                        icon.setIconLiteral("fas-gavel");
+                        icon.setIconColor(Color.web("#f59e0b"));
+                    }
+                    setGraphic(btn);
+                }
+                setAlignment(Pos.CENTER);
+            }
+        });
+
+        userTableView.getColumns().addAll(nomCol, prenomCol, dobCol, emailCol, statutCol, photoCol, passCol, inscritCol, typeCol, editCol, banActionCol, archiveCol);
     }
 
     private void setupSearch() {

@@ -11,6 +11,10 @@ module com.pidev.challenge_module {
     requires java.prefs;
     requires jbcrypt;
     requires itextpdf;
+    requires com.google.gson;
+    requires jdk.httpserver;
+    requires java.mail;
+    requires activation;
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
     opens com.pidev.Controllers.client to javafx.fxml;

@@ -28,13 +28,13 @@ public class UserService implements ICrud<User> {
     }
 
     @Override
-    //ajouter user
+    // ajouter user
     public boolean add(User user) {
         // Hash password before saving
         String hashedPasswd = BCrypt.hashpw(user.getPasswd(), BCrypt.gensalt());
         user.setPasswd(hashedPasswd);
 
-        String query = "INSERT INTO user (nom, prenom, email, passwd, date_naissance, type, date_inscrit, is_active, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO user (nom, prenom, email, passwd, date_naissance, type, date_inscrit, is_active, photo, ban_until) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, user.getNom());
             pst.setString(2, user.getPrenom());
@@ -46,9 +46,15 @@ public class UserService implements ICrud<User> {
                 pst.setNull(5, Types.DATE);
             }
             pst.setString(6, user.getRole() != null ? user.getRole().name() : null);
-            pst.setTimestamp(7, user.getDateInscrit() != null ? Timestamp.valueOf(user.getDateInscrit()) : Timestamp.valueOf(LocalDateTime.now()));
+            pst.setTimestamp(7, user.getDateInscrit() != null ? Timestamp.valueOf(user.getDateInscrit())
+                    : Timestamp.valueOf(LocalDateTime.now()));
             pst.setBoolean(8, user.isActive());
             pst.setString(9, user.getPhoto());
+            if (user.getBanUntil() != null) {
+                pst.setTimestamp(10, Timestamp.valueOf(user.getBanUntil()));
+            } else {
+                pst.setNull(10, Types.TIMESTAMP);
+            }
             pst.executeUpdate();
             System.out.println("User added successfully!");
             return true;
@@ -61,11 +67,12 @@ public class UserService implements ICrud<User> {
     @Override
     public boolean update(User user) {
         // Only hash if password changed (not already hashed)
-        if (!user.getPasswd().startsWith("$2a$") && !user.getPasswd().startsWith("$2b$") && !user.getPasswd().startsWith("$2y$")) {
+        if (!user.getPasswd().startsWith("$2a$") && !user.getPasswd().startsWith("$2b$")
+                && !user.getPasswd().startsWith("$2y$")) {
             user.setPasswd(BCrypt.hashpw(user.getPasswd(), BCrypt.gensalt()));
         }
 
-        String query = "UPDATE user SET nom = ?, prenom = ?, email = ?, passwd = ?, date_naissance = ?, type = ?, date_inscrit = ?, is_active = ?, photo = ? WHERE id = ?";
+        String query = "UPDATE user SET nom = ?, prenom = ?, email = ?, passwd = ?, date_naissance = ?, type = ?, date_inscrit = ?, is_active = ?, photo = ?, ban_until = ? WHERE id = ?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, user.getNom());
             pst.setString(2, user.getPrenom());
@@ -77,10 +84,16 @@ public class UserService implements ICrud<User> {
                 pst.setNull(5, Types.DATE);
             }
             pst.setString(6, user.getRole() != null ? user.getRole().name() : null);
-            pst.setTimestamp(7, user.getDateInscrit() != null ? Timestamp.valueOf(user.getDateInscrit()) : Timestamp.valueOf(LocalDateTime.now()));
+            pst.setTimestamp(7, user.getDateInscrit() != null ? Timestamp.valueOf(user.getDateInscrit())
+                    : Timestamp.valueOf(LocalDateTime.now()));
             pst.setInt(8, user.isActive() ? 1 : 0);
             pst.setString(9, user.getPhoto());
-            pst.setInt(10, user.getId());
+            if (user.getBanUntil() != null) {
+                pst.setTimestamp(10, Timestamp.valueOf(user.getBanUntil()));
+            } else {
+                pst.setNull(10, Types.TIMESTAMP);
+            }
+            pst.setInt(11, user.getId());
             pst.executeUpdate();
             System.out.println("User updated successfully!");
             return true;
@@ -107,7 +120,7 @@ public class UserService implements ICrud<User> {
         List<User> users = new ArrayList<>();
         String query = "SELECT * FROM user"; // All users
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
+                ResultSet rs = st.executeQuery(query)) {
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));
             }
@@ -129,14 +142,16 @@ public class UserService implements ICrud<User> {
         List<User> users = new ArrayList<>();
         String query = "SELECT * FROM user WHERE is_active = ?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            // Using setInt for better compatibility with different SQL drivers treating BOOLEAN as TINYINT
+            // Using setInt for better compatibility with different SQL drivers treating
+            // BOOLEAN as TINYINT
             pst.setInt(1, isActive ? 1 : 0);
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     users.add(mapResultSetToUser(rs));
                 }
             }
-            System.out.println("Debug: Fetched " + users.size() + " users with status " + (isActive ? "active" : "archived"));
+            System.out.println(
+                    "Debug: Fetched " + users.size() + " users with status " + (isActive ? "active" : "archived"));
         } catch (SQLException e) {
             System.err.println("Error fetching users with status " + isActive + ": " + e.getMessage());
         }
@@ -167,9 +182,9 @@ public class UserService implements ICrud<User> {
                 if (rs.next()) {
                     // Try to find password column dynamicallly
                     String storedPass = null;
-                    try { 
-                        storedPass = rs.getString("passwd"); 
-                    } catch (Exception e) { 
+                    try {
+                        storedPass = rs.getString("passwd");
+                    } catch (Exception e) {
                         try {
                             storedPass = rs.getString("password");
                         } catch (Exception e2) {
@@ -178,12 +193,14 @@ public class UserService implements ICrud<User> {
                         }
                     }
 
-                    if (storedPass == null) return null;
+                    if (storedPass == null)
+                        return null;
                     storedPass = storedPass.trim();
-                    
+
                     // Check if it's BCrypt
-                    boolean isHashed = storedPass.startsWith("$2a$") || storedPass.startsWith("$2b$") || storedPass.startsWith("$2y$");
-                    
+                    boolean isHashed = storedPass.startsWith("$2a$") || storedPass.startsWith("$2b$")
+                            || storedPass.startsWith("$2y$");
+
                     if (isHashed) {
                         try {
                             if (BCrypt.checkpw(password, storedPass)) {
@@ -207,7 +224,8 @@ public class UserService implements ICrud<User> {
                         }
                     }
                 } else {
-                    System.out.println("Debug: No user found in database with email: [" + email.trim().toLowerCase() + "]");
+                    System.out.println(
+                            "Debug: No user found in database with email: [" + email.trim().toLowerCase() + "]");
                 }
             }
         } catch (SQLException e) {
@@ -229,6 +247,93 @@ public class UserService implements ICrud<User> {
             System.err.println("Error checking email: " + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Finds an existing user by their Google email, or automatically creates
+     * a new STUDENT account if one doesn't exist yet.
+     *
+     * @param info The profile data returned by Google's userinfo endpoint.
+     * @return The existing or newly created User, or null on failure.
+     */
+    public User findOrCreateGoogleUser(com.pidev.models.GoogleUserInfo info) {
+        if (info == null || info.email == null) return null;
+
+        // 1. Try to find an existing account with this email
+        String query = "SELECT * FROM user WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, info.email);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println("Google OAuth: existing user found for " + info.email);
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding Google user: " + e.getMessage());
+            return null;
+        }
+
+        // 2. No account found — create one automatically
+        System.out.println("Google OAuth: creating new account for " + info.email);
+
+        User newUser = new User();
+        // Use family_name as "nom", given_name as "prenom"; fall back to full name
+        newUser.setNom(info.family_name != null && !info.family_name.isBlank()
+                ? info.family_name : (info.name != null ? info.name : ""));
+        newUser.setPrenom(info.given_name != null ? info.given_name : "");
+        newUser.setEmail(info.email);
+        // Google users never log in with a password — store a random unguessable hash placeholder
+        newUser.setPasswd(java.util.UUID.randomUUID().toString());
+        newUser.setRole(User.Role.STUDENT);
+        newUser.setPhoto(info.picture);
+        newUser.setActive(true);
+        newUser.setDateInscrit(java.time.LocalDateTime.now());
+
+        boolean created = addGoogleUser(newUser);
+        if (!created) return null;
+
+        // Fetch the newly inserted row so we get the auto-generated ID
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, info.email);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) return mapResultSetToUser(rs);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error re-fetching new Google user: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Inserts a Google-authenticated user WITHOUT BCrypt hashing their passwd field.
+     * (The passwd field contains a random UUID that will never actually be used for login.)
+     */
+    public boolean addGoogleUser(User user) {
+        String query = "INSERT INTO user (nom, prenom, email, passwd, date_naissance, type, date_inscrit, is_active, photo, ban_until) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, user.getNom());
+            pst.setString(2, user.getPrenom());
+            pst.setString(3, user.getEmail());
+            pst.setString(4, user.getPasswd()); // already a random UUID, no hashing needed
+            if (user.getDateNaissance() != null) {
+                pst.setDate(5, Date.valueOf(user.getDateNaissance()));
+            } else {
+                pst.setNull(5, Types.DATE);
+            }
+            pst.setString(6, user.getRole() != null ? user.getRole().name() : User.Role.STUDENT.name());
+            pst.setTimestamp(7, Timestamp.valueOf(user.getDateInscrit() != null
+                    ? user.getDateInscrit() : java.time.LocalDateTime.now()));
+            pst.setBoolean(8, true);
+            pst.setString(9, user.getPhoto());
+            pst.setNull(10, Types.TIMESTAMP);
+            pst.executeUpdate();
+            System.out.println("Google user created: " + user.getEmail());
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Error creating Google user: " + e.getMessage());
+            return false;
+        }
     }
 
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
@@ -253,8 +358,7 @@ public class UserService implements ICrud<User> {
         try {
             String roleStr = rs.getString("type");
             if (roleStr != null) user.setRole(User.Role.valueOf(roleStr.trim().toUpperCase()));
-        } catch (Exception e) {}
-        
+        }catch (Exception e){}
         try {
             Timestamp ts = rs.getTimestamp("date_inscrit");
             if (ts != null) user.setDateInscrit(ts.toLocalDateTime());
@@ -276,8 +380,26 @@ public class UserService implements ICrud<User> {
         }
         try { user.setConnected(rs.getBoolean("is_connected")); } catch (Exception e) {}
         try { user.setPhoto(rs.getString("photo")); } catch (Exception e) {}
+        try {
+            Timestamp banTs = rs.getTimestamp("ban_until");
+            if (banTs != null) user.setBanUntil(banTs.toLocalDateTime());
+        } catch (Exception e) {}
         
         return user;
+    }
+
+    public boolean updatePassword(String email, String newPassword) {
+        String hashedPasswd = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+        String query = "UPDATE user SET passwd = ? WHERE email = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, hashedPasswd);
+            pst.setString(2, email);
+            int rowsAffected = pst.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating password: " + e.getMessage());
+            return false;
+        }
     }
 
     public void setConnectedStatus(int userId, boolean status) {
@@ -294,7 +416,7 @@ public class UserService implements ICrud<User> {
     public int getTotalUsersCount() {
         String query = "SELECT count(*) FROM user WHERE is_active = 1";
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
+                ResultSet rs = st.executeQuery(query)) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -307,7 +429,7 @@ public class UserService implements ICrud<User> {
     public int getConnectedUsersCount() {
         String query = "SELECT count(*) FROM user WHERE is_connected = 1 AND is_active = 1";
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
+                ResultSet rs = st.executeQuery(query)) {
             if (rs.next()) {
                 return rs.getInt(1);
             }

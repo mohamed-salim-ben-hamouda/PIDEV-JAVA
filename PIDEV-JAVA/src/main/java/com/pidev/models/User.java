@@ -15,6 +15,7 @@ public class User {
     private String photo;
     private Role role;
     private boolean isConnected;
+    private LocalDateTime banUntil;
 
     public enum Role {
         STUDENT, SUPERVISEUR, ENTREPRISE, ADMIN
@@ -83,4 +84,11 @@ public class User {
 
     public boolean isConnected() { return isConnected; }
     public void setConnected(boolean connected) { isConnected = connected; }
+
+    public LocalDateTime getBanUntil() { return banUntil; }
+    public void setBanUntil(LocalDateTime banUntil) { this.banUntil = banUntil; }
+
+    public boolean isBanned() {
+        return banUntil != null && banUntil.isAfter(LocalDateTime.now());
+    }
 }

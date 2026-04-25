@@ -1,8 +1,12 @@
 package com.pidev.Controllers.client.User;
 
+import com.pidev.Services.GoogleOAuthService;
 import com.pidev.Services.UserService;
+import com.pidev.models.GoogleUserInfo;
 import com.pidev.models.User;
 import com.pidev.utils.SessionManager;
+import com.pidev.utils.CaptchaGenerator;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,6 +16,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -44,8 +49,15 @@ public class login_Controller implements Initializable {
     @FXML private Label regNameError;
     @FXML private Label regEmailError;
     @FXML private Label regPasswordError;
+    @FXML private Label regCaptchaError;
+    
+    @FXML private ImageView captchaImageView;
+    @FXML private TextField regCaptcha;
 
     private UserService userService = new UserService();
+    private GoogleOAuthService googleOAuthService = new GoogleOAuthService();
+    private CaptchaGenerator captchaGenerator = new CaptchaGenerator(180, 50);
+    private javafx.animation.Timeline banTimeline;
 
     private void showError(Label label, String message) {
         if (label != null) {
@@ -71,6 +83,16 @@ public class login_Controller implements Initializable {
         hideError(regNameError);
         hideError(regEmailError);
         hideError(regPasswordError);
+        hideError(regCaptchaError);
+    }
+
+    @FXML
+    private void refreshCaptcha() {
+        if (captchaImageView != null) {
+            captchaImageView.setImage(captchaGenerator.generateCaptchaImage());
+            if (regCaptcha != null) regCaptcha.clear();
+            hideError(regCaptchaError);
+        }
     }
 
     @Override
@@ -106,6 +128,9 @@ public class login_Controller implements Initializable {
 
             btnNew.getStyleClass().setAll("toggle-btn", "active");
             btnExisting.getStyleClass().setAll("toggle-btn", "inactive");
+            
+            // Generate initial CAPTCHA when switching to register form
+            refreshCaptcha();
         } else {
             registerForm.setVisible(false);
             registerForm.setManaged(false);
@@ -142,6 +167,11 @@ public class login_Controller implements Initializable {
 
         User user = userService.login(email, password);
         if (user != null) {
+            if (user.isBanned()) {
+                showBanCountdown(user);
+                return;
+            }
+
             Preferences prefs = Preferences.userNodeForPackage(login_Controller.class);
             if (keepSignedInCheckBox.isSelected()) {
                 prefs.put("savedEmail", email);
@@ -173,6 +203,7 @@ public class login_Controller implements Initializable {
         String name = regName.getText().trim();
         String email = regEmail.getText().trim();
         String password = regPassword.getText();
+        String captchaInput = regCaptcha != null ? regCaptcha.getText().trim() : "";
 
         if (type == null) {
             showError(regAccountTypeError, "Veuillez sélectionner un type de compte.");
@@ -201,6 +232,19 @@ public class login_Controller implements Initializable {
         } else if (password.length() < 6) {
             showError(regPasswordError, "Le mot de passe doit faire au moins 6 caractères.");
             isValid = false;
+        }
+        
+        if (captchaInput.isEmpty()) {
+            showError(regCaptchaError, "Veuillez résoudre le CAPTCHA.");
+            isValid = false;
+        } else if (!captchaInput.equals(captchaGenerator.getCurrentAnswer())) {
+            showError(regCaptchaError, "CAPTCHA incorrect.");
+            isValid = false;
+            // Generate a new one if failed, but DON'T hide the error message!
+            if (captchaImageView != null) {
+                captchaImageView.setImage(captchaGenerator.generateCaptchaImage());
+                if (regCaptcha != null) regCaptcha.clear();
+            }
         }
 
         if (!isValid) return;
@@ -247,6 +291,61 @@ public class login_Controller implements Initializable {
         }
     }
 
+    /**
+     * Triggered when the user clicks "Sign in with Google".
+     * The OAuth flow runs on a background thread so the JavaFX UI stays responsive.
+     */
+    @FXML
+    private void handleGoogleLogin(ActionEvent event) {
+        // Show a non-blocking informational alert while the browser opens
+        Alert waitAlert = new Alert(Alert.AlertType.INFORMATION);
+        waitAlert.setTitle("Google Sign-In");
+        waitAlert.setHeaderText("Opening Google Login…");
+        waitAlert.setContentText("Your browser will open shortly.\nComplete sign-in there, then return to the app.");
+        waitAlert.getButtonTypes().setAll(ButtonType.CANCEL);
+        waitAlert.show();
+
+        Thread oauthThread = new Thread(() -> {
+            GoogleUserInfo googleUser = googleOAuthService.signIn();
+
+            Platform.runLater(() -> {
+                waitAlert.close();
+
+                if (googleUser == null) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur Google",
+                            "La connexion Google a échoué ou a été annulée. Réessayez.");
+                    return;
+                }
+
+                User user = userService.findOrCreateGoogleUser(googleUser);
+                if (user == null) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur",
+                            "Impossible de créer ou récupérer le compte. Vérifiez la base de données.");
+                    return;
+                }
+
+                if (user.isBanned()) {
+                    showBanCountdown(user);
+                    return;
+                }
+
+                // Mark as connected in DB and set session
+                SessionManager.getInstance().setUser(user);
+                userService.setConnectedStatus(user.getId(), true);
+
+                // Navigate to the correct dashboard
+                if (user.getRole() == User.Role.ADMIN) {
+                    switchScene("/Fxml/admin/base_back.fxml", "Admin Dashboard");
+                } else {
+                    switchScene("/Fxml/client/base.fxml", "Skill Bridge");
+                }
+            });
+        }, "google-oauth-thread");
+
+        oauthThread.setDaemon(true);
+        oauthThread.start();
+    }
+
     private boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return Pattern.compile(emailRegex).matcher(email).matches();
@@ -282,5 +381,34 @@ public class login_Controller implements Initializable {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la vue : " + fxmlPath);
         }
+    }
+
+    private void showBanCountdown(User user) {
+        if (banTimeline != null) {
+            banTimeline.stop();
+        }
+
+        Runnable updateLabel = () -> {
+            java.time.Duration duration = java.time.Duration.between(LocalDateTime.now(), user.getBanUntil());
+            if (duration.isNegative() || duration.isZero()) {
+                if (banTimeline != null) banTimeline.stop();
+                hideAllErrors();
+                showAlert(Alert.AlertType.INFORMATION, "Bannissement terminé", "Votre bannissement est terminé, vous pouvez maintenant vous connecter.");
+            } else {
+                long hours = duration.toHours();
+                long minutes = duration.toMinutesPart();
+                long seconds = duration.toSecondsPart();
+                String msg = String.format("COMPTE BANNI. Temps restant : %02dh %02dm %02ds", hours, minutes, seconds);
+                showError(loginPasswordError, msg);
+            }
+        };
+
+        updateLabel.run(); // Update immediately
+        
+        banTimeline = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
+            updateLabel.run();
+        }));
+        banTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        banTimeline.play();
     }
 }

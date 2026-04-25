@@ -107,10 +107,9 @@
 }
 
 /* Common properties for main buttons */
-.primary-btn, .biometrics-btn, .faceid-btn {
+.primary-btn, .google-btn {
     -fx-background-radius: 50;
     -fx-cursor: hand;
-    -fx-text-fill: white;
     -fx-font-family: "Segoe UI Bold";
     -fx-font-size: 14;
     -fx-alignment: center;
@@ -119,25 +118,28 @@
 /* Main Login Button */
 .primary-btn {
     -fx-background-color: #5C89FF;
+    -fx-text-fill: white;
 }
 .primary-btn:hover {
     -fx-background-color: #4A7AFF;
 }
 
-/* Biometrics Button */
-.biometrics-btn {
-    -fx-background-color: #F9A825;
+/* Google Sign-In Button */
+.google-btn {
+    -fx-background-color: white;
+    -fx-border-color: #DADCE0;
+    -fx-border-radius: 50;
+    -fx-border-width: 1.5;
+    -fx-text-fill: #3C4043;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 4, 0, 0, 2);
 }
-.biometrics-btn:hover {
-    -fx-background-color: #F57F17;
+.google-btn:hover {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #C5C6C7;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.14), 6, 0, 0, 3);
 }
-
-/* FaceID Button */
-.faceid-btn {
-    -fx-background-color: #9333EA;
-}
-.faceid-btn:hover {
-    -fx-background-color: #7E22CE;
+.google-btn:pressed {
+    -fx-background-color: #EFEFEF;
 }
 
 /* Icons inside buttons */
