@@ -1,8 +1,12 @@
 package com.pidev.Controllers.client;
 
 import com.pidev.Services.PostService;
+import com.pidev.Services.FightModerationService;
+import com.pidev.Services.PostReactionService;
+import com.pidev.Services.PerspectiveModerationService;
 import com.pidev.models.Membership;
 import com.pidev.models.Post;
+import com.pidev.models.ReactionType;
 import com.pidev.utils.CurrentUserContext;
 import com.pidev.utils.GroupViewContext;
 import javafx.fxml.FXML;
@@ -12,6 +16,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -28,8 +34,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.StringJoiner;
 
 public class GroupShowController implements Initializable {
+    private static final int MAX_TITLE_LENGTH = 80;
+    private static final int MAX_CONTENT_LENGTH = 500;
 
     @FXML
     private Label groupNameLabel;
@@ -69,6 +78,9 @@ public class GroupShowController implements Initializable {
     private final GroupController groupController = new GroupController();
     private final MembershipController membershipController = new MembershipController();
     private final PostService postService = new PostService();
+    private final FightModerationService fightModerationService = new FightModerationService();
+    private final PostReactionService postReactionService = new PostReactionService();
+    private final PerspectiveModerationService perspectiveModerationService = new PerspectiveModerationService();
 
     private Integer groupId;
     private GroupController.GroupDetailsData currentData;
@@ -106,6 +118,10 @@ public class GroupShowController implements Initializable {
 
     @FXML
     private void handleJoinOrLeave() {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to join or leave groups.", true);
+            return;
+        }
         if (currentData == null || groupId == null) {
             return;
         }
@@ -150,20 +166,33 @@ public class GroupShowController implements Initializable {
 
     @FXML
     private void handleBrowseGroupPostAttachment() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Choose Group Post Image");
-        chooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
-        );
+        try {
+            if (postsContainer == null || postsContainer.getScene() == null) {
+                setFeedback("Attachment picker is not ready yet. Try again.", true);
+                return;
+            }
 
-        File selected = chooser.showOpenDialog(postsContainer.getScene().getWindow());
-        if (selected != null) {
-            postAttachmentField.setText(selected.getAbsolutePath());
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Choose Group Post Image");
+            chooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
+            );
+
+            File selected = chooser.showOpenDialog(postsContainer.getScene().getWindow());
+            if (selected != null) {
+                postAttachmentField.setText(selected.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            setFeedback("Could not open attachment picker: " + e.getMessage(), true);
         }
     }
 
     @FXML
     private void handleSubmitGroupPost() {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to create group posts.", true);
+            return;
+        }
         if (groupId == null || currentData == null || currentData.getCurrentUserMembership() == null) {
             setFeedback("Join the group to create posts.", true);
             return;
@@ -179,7 +208,31 @@ public class GroupShowController implements Initializable {
             return;
         }
 
+        if (title.length() > MAX_TITLE_LENGTH) {
+            setFeedback("Title must be " + MAX_TITLE_LENGTH + " characters max.", true);
+            return;
+        }
+
+        if (description.length() > MAX_CONTENT_LENGTH) {
+            setFeedback("Content must be " + MAX_CONTENT_LENGTH + " characters max.", true);
+            return;
+        }
+
         try {
+            PerspectiveModerationService.ModerationDecision textDecision =
+                    perspectiveModerationService.moderateText(title, description);
+            if (!textDecision.allowed()) {
+                setFeedback("Post blocked by text moderation: " + textDecision.reason(), true);
+                return;
+            }
+
+            FightModerationService.ModerationDecision decision =
+                    fightModerationService.moderatePost(title, description, attachment.isEmpty() ? null : attachment);
+            if (!decision.allowed()) {
+                setFeedback("Post blocked by moderation: " + decision.reason(), true);
+                return;
+            }
+
             Post post = new Post();
             post.setTitre(title);
             post.setDescription(description);
@@ -198,8 +251,14 @@ public class GroupShowController implements Initializable {
 
             setFeedback("Post published in group.", false);
             reload(null);
+        } catch (PerspectiveModerationService.ModerationException e) {
+            setFeedback("Text moderation failed: " + e.getMessage(), true);
+        } catch (FightModerationService.ModerationException e) {
+            setFeedback("Moderation failed: " + e.getMessage(), true);
         } catch (SQLException e) {
             setFeedback("Could not publish post: " + e.getMessage(), true);
+        } catch (Exception e) {
+            setFeedback("Unexpected error while publishing: " + e.getMessage(), true);
         }
     }
 
@@ -335,10 +394,13 @@ public class GroupShowController implements Initializable {
             desc.setWrapText(true);
 
             String dateText = post.getCreatedAt() == null ? "-" : post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            Label meta = new Label(dateText + " | " + post.getVisibility() + " | Likes: " + post.getLikesCounter());
+            Label meta = new Label(dateText + " | " + post.getVisibility());
             meta.getStyleClass().add("post-meta");
 
-            card.getChildren().addAll(author, title, desc, meta);
+            Label reactionsSummary = new Label(reactionSummaryText(post));
+            reactionsSummary.getStyleClass().add("post-meta");
+
+            card.getChildren().addAll(author, title, desc, meta, reactionsSummary);
 
             if (post.getAttachedFile() != null && !post.getAttachedFile().isBlank()) {
                 Image image = loadImage(post.getAttachedFile());
@@ -354,6 +416,21 @@ public class GroupShowController implements Initializable {
                     card.getChildren().add(path);
                 }
             }
+
+            HBox reactionActions = new HBox(8);
+            MenuButton reactButton = new MenuButton("React");
+            reactButton.getStyleClass().add("primary-action");
+            for (ReactionType type : ReactionType.values()) {
+                MenuItem item = new MenuItem(type.emoji() + " " + type.label());
+                item.setOnAction(e -> handleReact(post, type));
+                reactButton.getItems().add(item);
+            }
+
+            Button clearReactionBtn = new Button("Clear Reaction");
+            clearReactionBtn.getStyleClass().add("secondary-action");
+            clearReactionBtn.setOnAction(e -> handleClearReaction(post));
+            reactionActions.getChildren().addAll(reactButton, clearReactionBtn);
+            card.getChildren().add(reactionActions);
 
             postsContainer.getChildren().add(card);
         }
@@ -402,6 +479,60 @@ public class GroupShowController implements Initializable {
 
     private String clean(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private void handleReact(Post post, ReactionType type) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to react.", true);
+            return;
+        }
+        try {
+            postReactionService.setReaction(post.getId(), CurrentUserContext.getCurrentUserId(), type);
+            setFeedback("Reaction updated to " + type.emoji() + " " + type.label() + ".", false);
+            reload(memberSearchField.getText());
+        } catch (SQLException e) {
+            setFeedback("Could not react to post: " + e.getMessage(), true);
+        }
+    }
+
+    private void handleClearReaction(Post post) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to react.", true);
+            return;
+        }
+        try {
+            postReactionService.removeReaction(post.getId(), CurrentUserContext.getCurrentUserId());
+            setFeedback("Reaction removed.", false);
+            reload(memberSearchField.getText());
+        } catch (SQLException e) {
+            setFeedback("Could not clear reaction: " + e.getMessage(), true);
+        }
+    }
+
+    private String reactionSummaryText(Post post) {
+        try {
+            int currentUserId = CurrentUserContext.getCurrentUserId();
+            var counts = postReactionService.countByPost(post.getId());
+            ReactionType mine = currentUserId > 0 ? postReactionService.findUserReaction(post.getId(), currentUserId) : null;
+
+            StringJoiner joiner = new StringJoiner("   ");
+            int total = 0;
+            for (ReactionType type : ReactionType.values()) {
+                int count = counts.getOrDefault(type, 0);
+                total += count;
+                if (count > 0) {
+                    joiner.add(type.emoji() + " " + count);
+                }
+            }
+
+            String summary = total == 0 ? "No reactions yet." : ("Reactions: " + joiner);
+            if (mine != null) {
+                summary += "  |  You reacted: " + mine.emoji() + " " + mine.label();
+            }
+            return summary;
+        } catch (SQLException e) {
+            return "Reactions unavailable: " + e.getMessage();
+        }
     }
 
     private void setFeedback(String message, boolean error) {

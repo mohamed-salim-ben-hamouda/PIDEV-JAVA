@@ -34,7 +34,7 @@
                         <VBox styleClass="input-container">
                             <children>
                                 <Label text="Email" textFill="#5d5b5b" />
-                                <TextField prefHeight="40.0" promptText="karim@gmail.com" />
+                                <TextField fx:id="loginEmailField" prefHeight="40.0" promptText="karim@gmail.com" />
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
@@ -45,6 +45,9 @@
                             </children>
                             <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                         </VBox>
+                        <Label fx:id="authFeedbackLabel" textFill="#2e7d32" wrapText="true">
+                            <VBox.margin><Insets bottom="8.0" /></VBox.margin>
+                        </Label>
                         <HBox alignment="CENTER_LEFT" prefHeight="26.0">
                             <children>
                                 <CheckBox text="Keep me signed in" textFill="#5d5b5b" />
@@ -56,7 +59,7 @@
                             </children>
                             <VBox.margin><Insets bottom="20.0" /></VBox.margin>
                         </HBox>
-                        <Button prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Login" />
+                        <Button onAction="#handleLoginWithEmail" prefHeight="45.0" prefWidth="354.0" styleClass="primary-btn" text="Login" />
                         <HBox alignment="CENTER" prefHeight="38.0">
                             <children><Label text="or" textFill="#8d8a8a" /></children>
                             <VBox.margin><Insets bottom="10.0" top="10.0" /></VBox.margin>

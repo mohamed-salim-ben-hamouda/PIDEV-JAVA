@@ -97,6 +97,8 @@ public class GroupFormController implements Initializable {
                 GroupViewContext.clearEditingGroupId();
                 openView("/Fxml/client/GroupShowView.fxml");
             }
+        } catch (IllegalStateException e) {
+            setFeedback(e.getMessage(), true);
         } catch (SQLException e) {
             setFeedback("Database error: " + e.getMessage(), true);
         }

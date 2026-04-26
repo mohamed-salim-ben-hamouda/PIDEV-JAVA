@@ -3,9 +3,13 @@ package com.pidev.Controllers.client;
 import com.pidev.Services.GroupService;
 import com.pidev.Services.MembershipService;
 import com.pidev.Services.PostService;
+import com.pidev.Services.FightModerationService;
+import com.pidev.Services.PostReactionService;
+import com.pidev.Services.PerspectiveModerationService;
 import com.pidev.models.Group;
 import com.pidev.models.Membership;
 import com.pidev.models.Post;
+import com.pidev.models.ReactionType;
 import com.pidev.utils.CurrentUserContext;
 import com.pidev.utils.GroupViewContext;
 import javafx.fxml.FXML;
@@ -17,6 +21,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -38,8 +44,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.StringJoiner;
 
 public class FeedController implements Initializable {
+    private static final int MAX_TITLE_LENGTH = 80;
+    private static final int MAX_CONTENT_LENGTH = 500;
 
     @FXML
     private TextField titleField;
@@ -69,8 +78,9 @@ public class FeedController implements Initializable {
     private final PostService postService = new PostService();
     private final GroupService groupService = new GroupService();
     private final MembershipService membershipService = new MembershipService();
-
-    private final int currentUserId = CurrentUserContext.getCurrentUserId();
+    private final FightModerationService fightModerationService = new FightModerationService();
+    private final PostReactionService postReactionService = new PostReactionService();
+    private final PerspectiveModerationService perspectiveModerationService = new PerspectiveModerationService();
 
     private Post editingPost;
     private final Map<Integer, Group> groupsById = new HashMap<>();
@@ -95,6 +105,11 @@ public class FeedController implements Initializable {
 
     @FXML
     private void handleSubmitPost() {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to create or edit posts.", true);
+            return;
+        }
+
         String title = clean(titleField.getText());
         String description = clean(descriptionArea.getText());
         String status = statusCombo.getValue();
@@ -105,12 +120,36 @@ public class FeedController implements Initializable {
             return;
         }
 
-        if (title.length() > 30 || status.length() > 30) {
-            setFeedback("Title and status must be 30 characters max.", true);
+        if (title.length() > MAX_TITLE_LENGTH) {
+            setFeedback("Title must be " + MAX_TITLE_LENGTH + " characters max.", true);
+            return;
+        }
+
+        if (description.length() > MAX_CONTENT_LENGTH) {
+            setFeedback("Content must be " + MAX_CONTENT_LENGTH + " characters max.", true);
+            return;
+        }
+
+        if (status.length() > 30) {
+            setFeedback("Status must be 30 characters max.", true);
             return;
         }
 
         try {
+            PerspectiveModerationService.ModerationDecision textDecision =
+                    perspectiveModerationService.moderateText(title, description);
+            if (!textDecision.allowed()) {
+                setFeedback("Post blocked by text moderation: " + textDecision.reason(), true);
+                return;
+            }
+
+            FightModerationService.ModerationDecision decision =
+                    fightModerationService.moderatePost(title, description, attachedFile.isEmpty() ? null : attachedFile);
+            if (!decision.allowed()) {
+                setFeedback("Post blocked by moderation: " + decision.reason(), true);
+                return;
+            }
+
             if (editingPost == null) {
                 Post newPost = new Post();
                 newPost.setTitre(title);
@@ -119,7 +158,7 @@ public class FeedController implements Initializable {
                 newPost.setStatus(status);
                 newPost.setAttachedFile(attachedFile.isEmpty() ? null : attachedFile);
                 newPost.setGroupId(null);
-                newPost.setAuthorId(currentUserId);
+                newPost.setAuthorId(currentUserId());
                 newPost.setLikesCounter(0);
                 postService.createPost(newPost);
                 setFeedback("Public post created successfully.", false);
@@ -135,13 +174,17 @@ public class FeedController implements Initializable {
                 editingPost.setAttachedFile(attachedFile.isEmpty() ? null : attachedFile);
                 editingPost.setVisibility("public");
                 editingPost.setGroupId(null);
-                editingPost.setAuthorId(currentUserId);
+                editingPost.setAuthorId(currentUserId());
                 postService.updatePost(editingPost);
                 setFeedback("Post updated successfully.", false);
             }
 
             clearForm();
             refreshData();
+        } catch (PerspectiveModerationService.ModerationException e) {
+            setFeedback("Text moderation failed: " + e.getMessage(), true);
+        } catch (FightModerationService.ModerationException e) {
+            setFeedback("Moderation failed: " + e.getMessage(), true);
         } catch (Exception e) {
             setFeedback("Database error: " + e.getMessage(), true);
         }
@@ -149,15 +192,24 @@ public class FeedController implements Initializable {
 
     @FXML
     private void handleBrowseAttachment() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Choose Post Image");
-        chooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
-        );
+        try {
+            if (postsContainer == null || postsContainer.getScene() == null) {
+                setFeedback("Attachment picker is not ready yet. Try again.", true);
+                return;
+            }
 
-        File selected = chooser.showOpenDialog(postsContainer.getScene().getWindow());
-        if (selected != null) {
-            attachedFileField.setText(selected.getAbsolutePath());
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Choose Post Image");
+            chooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
+            );
+
+            File selected = chooser.showOpenDialog(postsContainer.getScene().getWindow());
+            if (selected != null) {
+                attachedFileField.setText(selected.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            setFeedback("Could not open attachment picker: " + e.getMessage(), true);
         }
     }
 
@@ -206,9 +258,9 @@ public class FeedController implements Initializable {
         }
 
         List<Group> myGroups = new ArrayList<>();
-        myGroups.addAll(groupService.findByLeaderId(currentUserId));
+        myGroups.addAll(groupService.findByLeaderId(currentUserId()));
 
-        for (Membership membership : membershipService.findByUser(currentUserId)) {
+        for (Membership membership : membershipService.findByUser(currentUserId())) {
             if (membership.getGroupId() == null) {
                 continue;
             }
@@ -324,13 +376,24 @@ public class FeedController implements Initializable {
 
         String date = post.getCreatedAt() == null ? "-" :
                 post.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        Label createdAt = new Label("Posted at: " + date + "  |  Likes: " + post.getLikesCounter());
+        Label createdAt = new Label("Posted at: " + date);
         createdAt.getStyleClass().add("post-meta");
 
+        Label reactionsSummary = new Label(reactionSummaryText(post));
+        reactionsSummary.getStyleClass().add("post-meta");
+
         HBox actions = new HBox(10);
-        Button likeBtn = new Button("Like");
-        likeBtn.getStyleClass().add("action-btn");
-        likeBtn.setOnAction(evt -> handleLike(post));
+        MenuButton reactMenu = new MenuButton("React");
+        reactMenu.getStyleClass().add("action-btn");
+        for (ReactionType type : ReactionType.values()) {
+            MenuItem item = new MenuItem(type.emoji() + " " + type.label());
+            item.setOnAction(evt -> handleReact(post, type));
+            reactMenu.getItems().add(item);
+        }
+
+        Button clearReactionBtn = new Button("Clear Reaction");
+        clearReactionBtn.getStyleClass().add("secondary-action");
+        clearReactionBtn.setOnAction(evt -> handleClearReaction(post));
 
         Button editBtn = new Button("Edit");
         editBtn.getStyleClass().add("action-btn");
@@ -340,7 +403,7 @@ public class FeedController implements Initializable {
         deleteBtn.getStyleClass().add("danger-btn");
         deleteBtn.setOnAction(evt -> handleDelete(post));
 
-        actions.getChildren().addAll(likeBtn, editBtn, deleteBtn);
+        actions.getChildren().addAll(reactMenu, clearReactionBtn, editBtn, deleteBtn);
 
         card.getChildren().addAll(top, meta, title, content);
 
@@ -355,13 +418,17 @@ public class FeedController implements Initializable {
             }
         }
 
-        card.getChildren().addAll(createdAt, actions);
+        card.getChildren().addAll(createdAt, reactionsSummary, actions);
         return card;
     }
 
     private void handleEdit(Post post) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first.", true);
+            return;
+        }
         if (!isOwnedByCurrentUser(post)) {
-            setFeedback("Only user #" + currentUserId + " can edit during testing.", true);
+            setFeedback("Only user #" + currentUserId() + " can edit during testing.", true);
             return;
         }
 
@@ -383,8 +450,12 @@ public class FeedController implements Initializable {
     }
 
     private void handleDelete(Post post) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first.", true);
+            return;
+        }
         if (!isOwnedByCurrentUser(post)) {
-            setFeedback("Only user #" + currentUserId + " can delete during testing.", true);
+            setFeedback("Only user #" + currentUserId() + " can delete during testing.", true);
             return;
         }
 
@@ -409,17 +480,33 @@ public class FeedController implements Initializable {
         }
     }
 
-    private void handleLike(Post post) {
-        if (isOwnedByCurrentUser(post)) {
-            setFeedback("User #" + currentUserId + " cannot like their own post in testing mode.", true);
+    private void handleReact(Post post, ReactionType type) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to react.", true);
             return;
         }
 
         try {
-            postService.incrementLike(post.getId());
+            postReactionService.setReaction(post.getId(), currentUserId(), type);
+            setFeedback("Reaction updated to " + type.emoji() + " " + type.label() + ".", false);
             refreshData();
         } catch (Exception e) {
-            setFeedback("Could not like post: " + e.getMessage(), true);
+            setFeedback("Could not react to post: " + e.getMessage(), true);
+        }
+    }
+
+    private void handleClearReaction(Post post) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to react.", true);
+            return;
+        }
+
+        try {
+            postReactionService.removeReaction(post.getId(), currentUserId());
+            setFeedback("Reaction removed.", false);
+            refreshData();
+        } catch (Exception e) {
+            setFeedback("Could not clear reaction: " + e.getMessage(), true);
         }
     }
 
@@ -464,7 +551,37 @@ public class FeedController implements Initializable {
     }
 
     private boolean isOwnedByCurrentUser(Post post) {
-        return post.getAuthorId() != null && post.getAuthorId() == currentUserId;
+        return post.getAuthorId() != null && post.getAuthorId() == currentUserId();
+    }
+
+    private int currentUserId() {
+        return CurrentUserContext.getCurrentUserId();
+    }
+
+    private String reactionSummaryText(Post post) {
+        try {
+            int currentUserId = currentUserId();
+            Map<ReactionType, Integer> counts = postReactionService.countByPost(post.getId());
+            ReactionType mine = currentUserId > 0 ? postReactionService.findUserReaction(post.getId(), currentUserId) : null;
+
+            StringJoiner joiner = new StringJoiner("   ");
+            int total = 0;
+            for (ReactionType type : ReactionType.values()) {
+                int count = counts.getOrDefault(type, 0);
+                total += count;
+                if (count > 0) {
+                    joiner.add(type.emoji() + " " + count);
+                }
+            }
+
+            String summary = total == 0 ? "No reactions yet." : ("Reactions: " + joiner);
+            if (mine != null) {
+                summary += "  |  You reacted: " + mine.emoji() + " " + mine.label();
+            }
+            return summary;
+        } catch (Exception e) {
+            return "Reactions unavailable: " + e.getMessage();
+        }
     }
 
     private void navigateTo(String fxmlPath) {

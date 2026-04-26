@@ -17,11 +17,17 @@ public class MembershipController {
 
     public Membership join(int groupId) throws SQLException {
         int currentUserId = CurrentUserContext.getCurrentUserId();
+        if (currentUserId <= 0) {
+            throw new IllegalStateException("Please sign in first to join groups.");
+        }
         return membershipService.addIfMissing(currentUserId, groupId, "member");
     }
 
     public boolean leave(int groupId) throws SQLException {
         int currentUserId = CurrentUserContext.getCurrentUserId();
+        if (currentUserId <= 0) {
+            throw new IllegalStateException("Please sign in first to leave groups.");
+        }
         return membershipService.removeByUserAndGroup(currentUserId, groupId);
     }
 
@@ -43,6 +49,9 @@ public class MembershipController {
 
     public Optional<Membership> currentUserMembership(int groupId) throws SQLException {
         int currentUserId = CurrentUserContext.getCurrentUserId();
+        if (currentUserId <= 0) {
+            return Optional.empty();
+        }
         return membershipService.findOne(currentUserId, groupId);
     }
 

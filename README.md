@@ -44,6 +44,84 @@ So by default the app expects:
 
 If your local setup is different, update [DataSource.java](src/main/java/com/pidev/utils/DataSource.java) before running.
 
+## Fight Moderation (Docker API)
+
+Group post creation now calls a fight moderation API before inserting posts in DB.
+The current endpoint (`/moderate-image`) expects `multipart/form-data` with a required `file` field.
+If a post has no local image attachment, moderation is skipped and the post is allowed.
+
+Set these environment variables before running the app:
+
+- `APP_FIGHT_MODERATION_URL` or `FIGHT_MODERATION_URL` (default: `http://127.0.0.1:8010/moderate-image`)
+- `FIGHT_MODERATION_ENABLED` (`true/false` or `1/0`, default: `true`)
+- `FIGHT_MODERATION_FAIL_OPEN` (`true/false` or `1/0`, default: `false`)
+- `FIGHT_MODERATION_DEBUG` (`true/false` or `1/0`, default: `false`, logs moderation HTTP/decision to console)
+- `FIGHT_MODERATION_CONFIDENCE` or `FIGHT_MODERATION_BLOCK_THRESHOLD` (default: `0.80`)
+- `FIGHT_MODERATION_TIMEOUT` in seconds (default: `8`)
+
+Windows PowerShell example:
+
+```powershell
+$env:APP_FIGHT_MODERATION_URL="http://127.0.0.1:8010/moderate-image"
+$env:FIGHT_MODERATION_ENABLED="true"
+$env:FIGHT_MODERATION_FAIL_OPEN="0"
+$env:FIGHT_MODERATION_DEBUG="1"
+$env:FIGHT_MODERATION_CONFIDENCE="0.35"
+$env:FIGHT_MODERATION_TIMEOUT="25"
+.\mvnw.cmd clean javafx:run
+```
+
+## Quick Multi-Account Testing
+
+- Open `Sign in` from top navbar.
+- In login page, choose an existing DB user from **Testing User** and click **Login As Selected User**.
+- Use **Logout (Guest Mode)** or navbar **Logout** to clear session.
+- Feed/group posting and joining now require an active signed-in user.
+
+## Reactions (Facebook-style)
+
+- The old single Like action is replaced with reactions:
+  - 👍 Like
+  - ❤️ Love
+  - 😂 Haha
+  - 😮 Wow
+  - 😢 Sad
+  - 😡 Angry
+- Reactions are persisted per `(post, user)` and shown in both main feed and group posts.
+
+## Perspective API (Text Moderation)
+
+Text in posts (title + description) is now checked with Perspective API before publish.
+
+If you prefer code-based setup, open:
+`src/main/java/com/pidev/Services/PerspectiveModerationService.java`
+and replace:
+`DEFAULT_API_KEY = "PASTE_YOUR_PERSPECTIVE_API_KEY_HERE"`
+with your real key.
+
+Set these env vars before running:
+
+- `PERSPECTIVE_API_KEY` (required unless `PERSPECTIVE_ENABLED=false`)
+- `PERSPECTIVE_ENABLED` (`true/false`, default: `true`)
+- `PERSPECTIVE_FAIL_OPEN` (`true/false`, default: `false`)
+- `PERSPECTIVE_THRESHOLD` (default: `0.20` for strict blocking)
+- `PERSPECTIVE_ATTRIBUTES` (optional CSV, default: `TOXICITY,SEVERE_TOXICITY,INSULT,THREAT,IDENTITY_ATTACK,PROFANITY`)
+- `PERSPECTIVE_TIMEOUT` in seconds (default: `10`)
+- `PERSPECTIVE_DEBUG` (`true/false`, default: `false`)
+
+Windows PowerShell example:
+
+```powershell
+$env:PERSPECTIVE_API_KEY="YOUR_KEY_HERE"
+$env:PERSPECTIVE_ENABLED="true"
+$env:PERSPECTIVE_FAIL_OPEN="0"
+$env:PERSPECTIVE_THRESHOLD="0.20"
+$env:PERSPECTIVE_ATTRIBUTES="TOXICITY,SEVERE_TOXICITY,INSULT,THREAT,IDENTITY_ATTACK,PROFANITY"
+$env:PERSPECTIVE_TIMEOUT="10"
+$env:PERSPECTIVE_DEBUG="1"
+.\mvnw.cmd clean javafx:run
+```
+
 ## How To Run
 
 ### IntelliJ IDEA

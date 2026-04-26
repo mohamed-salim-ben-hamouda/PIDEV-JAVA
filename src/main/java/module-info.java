@@ -7,6 +7,7 @@ module com.pidev.challenge_module {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome5;
     requires java.desktop;
+    requires java.net.http;
     requires org.kordamp.ikonli.core;
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;

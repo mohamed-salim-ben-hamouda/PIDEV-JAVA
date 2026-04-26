@@ -45,6 +45,9 @@ public class GroupController {
 
     public Group add(Group group) throws SQLException {
         int currentUserId = CurrentUserContext.getCurrentUserId();
+        if (currentUserId <= 0) {
+            throw new IllegalStateException("Please sign in first to create a group.");
+        }
 
         group.setLeaderId(currentUserId);
         group.setCreationDate(group.getCreationDate() == null ? LocalDateTime.now() : group.getCreationDate());

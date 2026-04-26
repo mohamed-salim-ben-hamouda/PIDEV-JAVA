@@ -1,9 +1,11 @@
 package com.pidev.Controllers.client;
 
+import com.pidev.utils.CurrentUserContext;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import java.io.IOException;
 import javafx.scene.control.MenuButton;
@@ -17,11 +19,19 @@ public class BaseController implements Initializable {
     private MenuButton challengesMenu;
     @FXML
     private MenuButton CvMenu;
+    @FXML
+    private Button signInButton;
+    @FXML
+    private Button logoutButton;
+
+    private final CurrentUserContext.UserChangeListener userChangeListener = this::updateSessionUi;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configureHoverMenu(challengesMenu);
         configureHoverMenu(CvMenu);
+        CurrentUserContext.addListener(userChangeListener);
+        updateSessionUi(CurrentUserContext.getCurrentUserId());
     }
 
     private void configureHoverMenu(MenuButton menuButton) {
@@ -70,4 +80,22 @@ public class BaseController implements Initializable {
     @FXML public void loadJobs() { loadViewFront("client/JobsView"); }
     @FXML public void loadMyCV() { loadViewFront("client/MyCVView"); }
     @FXML public void loadHackathon() { loadViewFront("client/HackathonView"); }
+
+    @FXML
+    public void handleLogout() {
+        CurrentUserContext.logout();
+        loadViewFront("client/home");
+    }
+
+    private void updateSessionUi(int userId) {
+        boolean loggedIn = userId > 0;
+        if (signInButton != null) {
+            signInButton.setVisible(!loggedIn);
+            signInButton.setManaged(!loggedIn);
+        }
+        if (logoutButton != null) {
+            logoutButton.setVisible(loggedIn);
+            logoutButton.setManaged(loggedIn);
+        }
+    }
 }

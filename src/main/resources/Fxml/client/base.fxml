@@ -35,7 +35,12 @@
                     </children>
                 </HBox>
                 <Region HBox.hgrow="ALWAYS" />
-                <Button onAction="#loadLogin" prefHeight="40.0" prefWidth="110.0" styleClass="primary-btn" text="Sign in" />
+                <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                    <children>
+                        <Button fx:id="signInButton" onAction="#loadLogin" prefHeight="38.0" prefWidth="95.0" styleClass="primary-btn" text="Sign in" />
+                        <Button fx:id="logoutButton" onAction="#handleLogout" prefHeight="38.0" prefWidth="95.0" styleClass="primary-btn" text="Logout" />
+                    </children>
+                </HBox>
             </children>
         </HBox>
     </top>
