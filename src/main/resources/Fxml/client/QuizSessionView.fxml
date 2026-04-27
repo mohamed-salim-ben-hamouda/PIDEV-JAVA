@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="860.0" prefWidth="1200.0" stylesheets="@../../styles/home.css"
@@ -27,8 +28,8 @@
                                             <children>
                                                 <Label fx:id="quizTitleLabel" styleClass="quiz-session-hero-title" text="Quiz" />
                                                 <Region HBox.hgrow="ALWAYS" />
-                                                <Button onAction="#onTranslate" styleClass="courses-action-btn primary" text="🌐 Traduire" />
-                                                <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter la session" />
+                                                <Button onAction="#onTranslate" styleClass="management-btn" text="🌐 Traduire" />
+                                                <Button onAction="#onCloseWindow" styleClass="management-btn" text="Quitter la session" />
                                             </children>
                                         </HBox>
                                         <Label fx:id="quizContextLabel" styleClass="quiz-session-hero-subtitle" text="Quiz du cours" />
@@ -77,46 +78,55 @@
                                     </children>
                                 </VBox>
 
-                                <VBox fx:id="questionSection" spacing="14.0" styleClass="quiz-question-panel" visible="false" managed="false">
+                                <StackPane fx:id="questionSectionWrap" visible="false" managed="false" styleClass="quiz-alert-shell">
                                     <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="quiz-question-topbar">
+                                        <Region fx:id="quizWarningOverlay" managed="false" mouseTransparent="true" styleClass="quiz-warning-overlay" opacity="0.0" />
+                                        <VBox fx:id="questionSection" spacing="14.0" styleClass="quiz-question-panel">
                                             <children>
-                                                <Label fx:id="questionNavLabel" styleClass="quiz-question-counter" text="Question 1 sur 1" />
-                                                <Label fx:id="answeredCounterLabel" styleClass="section-pill" text="0 / 0 repondues" />
-                                                <ProgressBar fx:id="questionProgressBar" progress="0.2" prefWidth="190.0" styleClass="quiz-progress-track" />
-                                                <Region HBox.hgrow="ALWAYS" />
-                                                <Label styleClass="quiz-language-badge" text="Navigation" />
-                                                <Label fx:id="timerBadgeLabel" styleClass="quiz-timer-badge,timer-badge" text="--:--" />
-                                            </children>
-                                        </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="quiz-question-topbar">
+                                                    <children>
+                                                        <Label fx:id="questionNavLabel" styleClass="quiz-question-counter" text="Question 1 sur 1" />
+                                                        <Label fx:id="answeredCounterLabel" styleClass="section-pill" text="0 / 0 repondues" />
+                                                        <ProgressBar fx:id="questionProgressBar" progress="0.2" prefWidth="190.0" styleClass="quiz-progress-track" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label styleClass="quiz-language-badge" text="Navigation" />
+                                                        <StackPane fx:id="timerBadgeContainer" styleClass="quiz-timer-badge-shell">
+                                                            <children>
+                                                                <Label fx:id="timerBadgeLabel" styleClass="quiz-timer-badge,timer-badge" text="--:--" />
+                                                            </children>
+                                                        </StackPane>
+                                                    </children>
+                                                </HBox>
 
-                                        <Label fx:id="liveScoreLabel" styleClass="section-pill" text="Score: 0 / 0" />
+                                                <Label fx:id="liveScoreLabel" styleClass="section-pill" text="Score: 0 / 0" />
 
-                                        <VBox spacing="12.0" styleClass="question-block">
-                                            <children>
-                                                <Label fx:id="questionTextLabel" styleClass="question-title" wrapText="true" text="Question" />
-                                                <Label fx:id="questionFeedbackLabel" styleClass="course-empty-subtitle" text="" />
-                                                <VBox fx:id="answersContainer" spacing="10.0" />
-                                            </children>
-                                        </VBox>
+                                                <VBox spacing="12.0" styleClass="question-block">
+                                                    <children>
+                                                        <Label fx:id="questionTextLabel" styleClass="question-title" wrapText="true" text="Question" />
+                                                        <Label fx:id="questionFeedbackLabel" styleClass="course-empty-subtitle" text="" />
+                                                        <VBox fx:id="answersContainer" spacing="10.0" />
+                                                    </children>
+                                                </VBox>
 
-                                        <HBox spacing="10.0">
-                                            <children>
-                                                        <Button fx:id="prevButton" onAction="#onPrevQuestion" styleClass="quiz-nav-button quiz-nav-prev" text="Question precedente" />
-                                                <Region HBox.hgrow="ALWAYS" />
-                                                        <Button fx:id="nextButton" onAction="#onNextQuestion" styleClass="quiz-nav-button quiz-nav-next" text="Question suivante" />
-                                                        <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="quiz-nav-button quiz-nav-submit" text="Soumettre mes reponses" />
-                                            </children>
-                                        </HBox>
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                                <Button fx:id="prevButton" onAction="#onPrevQuestion" styleClass="management-btn" text="Question precedente" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                <Button fx:id="nextButton" onAction="#onNextQuestion" styleClass="management-btn" text="Question suivante" />
+                                                                <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="management-btn" text="Soumettre mes reponses" />
+                                                    </children>
+                                                </HBox>
 
-                                        <VBox spacing="8.0" styleClass="quiz-quick-nav-wrap">
-                                            <children>
-                                                <Label styleClass="quiz-quick-nav-title" text="Navigation rapide" />
-                                                <HBox fx:id="quickNavContainer" spacing="8.0" />
+                                                <VBox spacing="8.0" styleClass="quiz-quick-nav-wrap">
+                                                    <children>
+                                                        <Label styleClass="quiz-quick-nav-title" text="Navigation rapide" />
+                                                        <HBox fx:id="quickNavContainer" spacing="8.0" />
+                                                    </children>
+                                                </VBox>
                                             </children>
                                         </VBox>
                                     </children>
-                                </VBox>
+                                </StackPane>
 
                                 <VBox fx:id="resultSection" spacing="12.0" styleClass="quiz-result-card" visible="false" managed="false">
                                     <children>
@@ -127,7 +137,7 @@
                                         <HBox spacing="10.0">
                                             <children>
                                                 <Button fx:id="downloadCertButton" onAction="#onDownloadCertificate" styleClass="courses-action-btn primary" text="Télécharger le certificat" visible="false" managed="false" />
-                                                <Button onAction="#onRetry" styleClass="courses-action-btn primary" text="Recommencer la session" />
+                                                <Button fx:id="retryButton" onAction="#onRetry" styleClass="courses-action-btn primary" text="Recommencer la session" />
                                                 <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter" />
                                             </children>
                                         </HBox>

@@ -1,6 +1,6 @@
 package com.pidev.Controllers.admin;
 
-import com.pidev.Services.GeminiQuizService;
+import com.pidev.Services.GrokQuizService;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -11,8 +11,8 @@ import java.io.File;
 
 public class GenerateQuizAIController {
 
-    // La clé API est maintenant intégrée en dur et cachée de l'interface
-    private static final String GEMINI_API_KEY = "AIzaSyDt-WBnwXtphyeHN9gmoZPmUVco4HiwWWc";
+    // Clé API Grok (xAI) — intégrée en dur et cachée de l'interface
+    private static final String GROK_API_KEY = System.getenv("GROQ_API_KEY");
 
     @FXML
     private Spinner<Integer> numQuestionsSpinner;
@@ -30,7 +30,7 @@ public class GenerateQuizAIController {
     private ProgressIndicator progressIndicator;
 
     private File selectedPdfFile;
-    private final GeminiQuizService geminiService = new GeminiQuizService();
+    private final GrokQuizService grokService = new GrokQuizService();
 
     @FXML
     public void initialize() {
@@ -70,24 +70,12 @@ public class GenerateQuizAIController {
 
         generateBtn.setDisable(true);
         progressIndicator.setVisible(true);
-        resultArea.setText("Analyse du PDF en cours...\nEnvoi à l'IA Gemini, veuillez patienter.");
-
-        // Configurer le callback de progression pour les erreurs 429
-        geminiService.setProgressCallback((modelName, waitSec, attempt, maxAttempts) ->
-                javafx.application.Platform.runLater(() ->
-                        resultArea.setText(
-                                "⏳ Quota Gemini momentanément dépassé.\n\n"
-                                        + "Attente automatique de " + waitSec + " secondes avant reprise...\n"
-                                        + "(tentative " + attempt + "/" + maxAttempts + ")\n\n"
-                                        + "Ne fermez pas cette fenêtre."
-                        )
-                )
-        );
+        resultArea.setText("Analyse du PDF en cours...\nEnvoi à Grok (xAI), veuillez patienter.");
 
         Task<String> generateTask = new Task<>() {
             @Override
             protected String call() throws Exception {
-                return geminiService.generateQuiz(selectedPdfFile, GEMINI_API_KEY, numQuestions);
+                return grokService.generateQuiz(selectedPdfFile, GROK_API_KEY, numQuestions);
             }
         };
 

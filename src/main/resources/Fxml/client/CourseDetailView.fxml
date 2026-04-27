@@ -16,7 +16,7 @@
     <top>
         <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="courses-detail-topbar">
             <children>
-                <Button fx:id="backButton" onAction="#onBack" text="Retour au dashboard" styleClass="courses-action-btn secondary" />
+                <Button fx:id="backButton" onAction="#onBack" text="Retour au menu" styleClass="management-btn" />
                 <FontIcon iconLiteral="fas-book-open" styleClass="section-title-icon" />
                 <Label fx:id="courseTitleLabel" styleClass="section-title" text="Cours" />
                 <Region HBox.hgrow="ALWAYS" />
@@ -40,7 +40,7 @@
                                 <Label styleClass="course-detail-hero-title" text="Parcours du cours" />
                                 <Label styleClass="course-detail-hero-subtitle" text="Consultez les chapitres, suivez votre progression et passez le quiz final." />
                                 <Label fx:id="courseMetaLabel" styleClass="course-detail-hero-subtitle" text="Niveau: - | Duree: - | Score validation: -" />
-                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Telecharger le PDF du cours" styleClass="courses-action-btn secondary" />
+                                <Button fx:id="openCoursePdfButton" onAction="#onOpenCoursePdf" text="Telecharger le PDF du cours" styleClass="management-btn" />
                             </children>
                         </VBox>
 
@@ -65,7 +65,7 @@
                                                 <Label fx:id="quizTitleLabel" styleClass="assessment-title" text="Quiz" />
                                                 <Region HBox.hgrow="ALWAYS" />
                                                 <Label fx:id="quizStateBadge" styleClass="status-badge status-pending" text="EN ATTENTE" />
-                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Ouvrir la session quiz" styleClass="courses-action-btn primary" />
+                                                <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Ouvrir la session quiz" styleClass="management-btn" />
                                             </children>
                                         </HBox>
 

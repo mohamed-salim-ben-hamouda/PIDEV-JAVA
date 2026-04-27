@@ -33,7 +33,7 @@
                     <Font name="System Bold" size="13.0" />
                 </font>
             </Label>
-            <Button mnemonicParsing="false" onAction="#onSelectFile" style="-fx-background-color: #e2e8f0; -fx-text-fill: #1e293b; -fx-cursor: hand;" text="Parcourir..." />
+            <Button mnemonicParsing="false" onAction="#onSelectFile" styleClass="management-btn" text="Parcourir..." />
             <Label fx:id="selectedFileLabel" text="Aucun fichier sélectionné" textFill="#94a3b8" />
         </HBox>
 

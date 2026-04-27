@@ -37,3 +37,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Secrets and IDE ###
+.env
+.env.*
+!.env.example
+.idea/
+*.log

@@ -117,7 +117,7 @@ public class LearningIntelligenceController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         VBox idBox = new VBox(2, name, email);
         
-        Button alertBtn = new Button("Alerter Superviseur");
+        Button alertBtn = new Button("Alerter Etudiant");
         alertBtn.getStyleClass().addAll("management-btn", "danger");
         alertBtn.setOnAction(e -> onAlertSupervisor(insight));
         

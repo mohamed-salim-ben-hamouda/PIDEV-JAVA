@@ -1,113 +1,233 @@
 package com.pidev.Services;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.json.JSONObject;
 
 /**
- * Service de traduction utilisant l'API MyMemory (gratuite, sans clé API).
- * Limite : 5000 mots/jour sur l'IP publique. Pour plus, ajoutez votre email
- * en paramètre &de=votre@email.com pour monter à 50 000 mots/jour.
+ * Service de traduction via Groq API — stratégie BATCH.
  *
- * Endpoint : https://api.mymemory.translated.net/get?q=TEXT&langpair=en|fr
+ * Le quiz est en FRANÇAIS par défaut.
+ * translateBatch(texts, "en") → traduit FR → EN
+ * translateBatch(texts, "fr") → traduit EN → FR (retour arrière)
+ *
+ * 1 seul appel API pour tout le quiz, pas de rate limit 429.
  */
 public class TranslationService {
 
-    private static final String API_URL = "https://api.mymemory.translated.net/get";
+    private static final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+    private static final String GROQ_MODEL   = "llama-3.3-70b-versatile";
+    private static final String API_KEY      = System.getenv("GROQ_API_KEY");
 
-    // Email optionnel pour augmenter la limite à 50 000 mots/jour
-    // Laissez vide ("") pour la limite gratuite de 5 000 mots/jour
-    private static final String OPTIONAL_EMAIL = "nouh.mezned@esprit.tn";
+    private static final int TIMEOUT_SECONDS = 60;
+    private static final int BATCH_SIZE      = 80;
 
-    private static final int TIMEOUT_SECONDS = 8;
     private static final Map<String, String> cache = new HashMap<>();
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(TIMEOUT_SECONDS))
             .build();
 
-    /**
-     * Traduit un texte vers la langue cible.
-     *
-     * @param text       Texte source
-     * @param targetLang "fr" pour français, "en" pour anglais
-     * @return Texte traduit, ou texte original en cas d'erreur
-     */
+    // ------------------------------------------------------------------
+    // API simple (compatibilité avec l'ancien code)
+    // ------------------------------------------------------------------
+
     public String translate(String text, String targetLang) {
-        if (text == null || text.isBlank()) {
-            return text;
+        if (text == null || text.isBlank()) return text;
+        String cacheKey = text + "|" + targetLang;
+        if (cache.containsKey(cacheKey)) return cache.get(cacheKey);
+        List<String> result = translateBatch(List.of(text), targetLang);
+        return result.isEmpty() ? text : result.get(0);
+    }
+
+    // ------------------------------------------------------------------
+    // API batch — UN seul appel pour toute la liste
+    // ------------------------------------------------------------------
+
+    /**
+     * @param texts      Liste de tous les textes à traduire
+     * @param targetLang "en" pour traduire le français en anglais
+     *                   "fr" pour revenir en français (retour arrière)
+     */
+    public List<String> translateBatch(List<String> texts, String targetLang) {
+        if (texts == null || texts.isEmpty()) return List.of();
+
+        // Vérifier le cache
+        List<String>  results        = new ArrayList<>(texts.size());
+        List<Integer> missingIndexes = new ArrayList<>();
+        List<String>  missingTexts   = new ArrayList<>();
+
+        for (int i = 0; i < texts.size(); i++) {
+            String key = texts.get(i) + "|" + targetLang;
+            if (cache.containsKey(key)) {
+                results.add(cache.get(key));
+            } else {
+                results.add(null);
+                missingIndexes.add(i);
+                missingTexts.add(texts.get(i));
+            }
         }
 
-        // Tronquer les textes trop longs (limite MyMemory ~500 chars par requête)
-        String textToTranslate = text.length() > 450 ? text.substring(0, 450) : text;
-
-        String cacheKey = textToTranslate + "|" + targetLang;
-        if (cache.containsKey(cacheKey)) {
-            System.out.println("[TranslationService] Cache hit");
-            return cache.get(cacheKey);
+        if (missingTexts.isEmpty()) {
+            System.out.println("[TranslationService] " + texts.size() + " textes depuis le cache");
+            return results;
         }
+
+        System.out.println("[TranslationService] Batch : " + missingTexts.size()
+                + " textes → " + (int) Math.ceil((double) missingTexts.size() / BATCH_SIZE) + " requête(s)");
+
+        // Appels par chunks
+        List<String> allTranslated = new ArrayList<>();
+        for (int start = 0; start < missingTexts.size(); start += BATCH_SIZE) {
+            List<String> chunk      = missingTexts.subList(start, Math.min(start + BATCH_SIZE, missingTexts.size()));
+            List<String> translated = callGroq(chunk, targetLang);
+            allTranslated.addAll(translated);
+        }
+
+        // Remplir résultats + cache
+        for (int i = 0; i < missingIndexes.size(); i++) {
+            String original    = missingTexts.get(i);
+            String translation = i < allTranslated.size() ? allTranslated.get(i) : original;
+            results.set(missingIndexes.get(i), translation);
+            cache.put(original + "|" + targetLang, translation);
+        }
+
+        return results;
+    }
+
+    // ------------------------------------------------------------------
+    // Appel Groq
+    // ------------------------------------------------------------------
+
+    private List<String> callGroq(List<String> texts, String targetLang) {
+        // Langue SOURCE = toujours l'opposé de la cible
+        // Le quiz est en FR → si targetLang="en" : FR→EN
+        //                   → si targetLang="fr" : EN→FR (retour)
+        String sourceLang = "en".equalsIgnoreCase(targetLang) ? "French" : "English";
+        String targetLangName = "en".equalsIgnoreCase(targetLang) ? "English" : "French";
+
+        // Construire le tableau JSON numéroté
+        JSONArray inputArray = new JSONArray();
+        for (int i = 0; i < texts.size(); i++) {
+            inputArray.put(new JSONObject().put("id", i).put("text", texts.get(i)));
+        }
+
+        String prompt = "You are a professional translator from " + sourceLang + " to " + targetLangName + ".\n\n"
+                + "Translate EVERY 'text' value in the JSON array below from " + sourceLang + " to " + targetLangName + ".\n\n"
+                + "Strict rules:\n"
+                + "- Return ONLY a valid JSON array: [{\"id\": 0, \"text\": \"translated text\"}, ...]\n"
+                + "- Keep the exact same 'id' values\n"
+                + "- Translate only the 'text' field, never the keys\n"
+                + "- Do NOT add explanations, markdown, or any text outside the JSON array\n\n"
+                + "Input:\n" + inputArray;
+
+        JSONObject body = new JSONObject()
+                .put("model", GROQ_MODEL)
+                .put("temperature", 0.1)
+                .put("messages", new JSONArray()
+                        .put(new JSONObject()
+                                .put("role", "system")
+                                .put("content", "You are a professional translator. Respond with valid JSON only, no markdown."))
+                        .put(new JSONObject()
+                                .put("role", "user")
+                                .put("content", prompt)));
 
         try {
-            // Déterminer la paire de langues (MyMemory détecte la source automatiquement)
-            String langPair = "en|fr";
-            if ("en".equalsIgnoreCase(targetLang)) {
-                langPair = "fr|en";
-            }
-
-            String encodedText = URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8);
-            String url = API_URL + "?q=" + encodedText + "&langpair=" + langPair;
-
-            if (!OPTIONAL_EMAIL.isBlank()) {
-                url += "&de=" + URLEncoder.encode(OPTIONAL_EMAIL, StandardCharsets.UTF_8);
-            }
-
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+                    .uri(URI.create(GROQ_API_URL))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + API_KEY)
                     .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
-                    .GET()
+                    .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                JSONObject json = new JSONObject(response.body());
-                String translated = json
-                        .getJSONObject("responseData")
-                        .getString("translatedText");
-
-                // Vérifier que la réponse n'est pas une erreur déguisée
-                if (translated != null && !translated.isBlank()
-                        && !translated.toUpperCase().startsWith("MYMEMORY WARNING")) {
-                    cache.put(cacheKey, translated);
-                    System.out.println("[TranslationService] OK: " + text.substring(0, Math.min(30, text.length())) + "...");
-                    return translated;
-                }
-
-                // Fallback : essayer la première alternative si la principale est invalide
-                if (json.has("matches") && json.getJSONArray("matches").length() > 0) {
-                    String alt = json.getJSONArray("matches")
-                            .getJSONObject(0)
-                            .getString("translation");
-                    if (alt != null && !alt.isBlank()) {
-                        cache.put(cacheKey, alt);
-                        return alt;
-                    }
-                }
+                return parseResponse(response.body(), texts);
             }
 
-            System.err.println("[TranslationService] HTTP " + response.statusCode() + " — retour texte original");
-            return text;
+            if (response.statusCode() == 429) {
+                int wait = extractRetryDelay(response.body());
+                System.out.println("[TranslationService] 429 — attente " + wait + "s puis retry...");
+                Thread.sleep(wait * 1000L);
+                HttpResponse<String> retry =
+                        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (retry.statusCode() == 200) return parseResponse(retry.body(), texts);
+                System.err.println("[TranslationService] Retry échoué : " + retry.statusCode());
+            } else {
+                System.err.println("[TranslationService] Erreur Groq " + response.statusCode()
+                        + " : " + response.body().substring(0, Math.min(200, response.body().length())));
+            }
 
         } catch (Exception e) {
-            System.err.println("[TranslationService] Erreur : " + e.getMessage());
-            return text;
+            System.err.println("[TranslationService] Exception : " + e.getMessage());
         }
+
+        return new ArrayList<>(texts); // fallback
+    }
+
+    // ------------------------------------------------------------------
+    // Parsing
+    // ------------------------------------------------------------------
+
+    private List<String> parseResponse(String body, List<String> originals) {
+        try {
+            String content = new JSONObject(body)
+                    .getJSONArray("choices").getJSONObject(0)
+                    .getJSONObject("message").getString("content").trim();
+
+            // Nettoyer markdown
+            if (content.startsWith("```json")) content = content.substring(7);
+            else if (content.startsWith("```"))  content = content.substring(3);
+            if (content.endsWith("```")) content = content.substring(0, content.length() - 3);
+            content = content.trim();
+
+            // Extraire le tableau si texte parasite avant
+            if (!content.startsWith("[")) {
+                int s = content.indexOf('['), e = content.lastIndexOf(']');
+                if (s != -1 && e > s) content = content.substring(s, e + 1);
+            }
+
+            JSONArray arr = new JSONArray(content);
+            Map<Integer, String> byId = new HashMap<>();
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject obj = arr.getJSONObject(i);
+                byId.put(obj.getInt("id"), obj.getString("text"));
+            }
+
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < originals.size(); i++) {
+                result.add(byId.getOrDefault(i, originals.get(i)));
+            }
+            System.out.println("[TranslationService] Batch OK : " + originals.size() + " textes traduits");
+            return result;
+
+        } catch (Exception e) {
+            System.err.println("[TranslationService] Erreur parsing : " + e.getMessage());
+            return new ArrayList<>(originals);
+        }
+    }
+
+    private int extractRetryDelay(String body) {
+        try {
+            int idx = body.indexOf("try again in ");
+            if (idx != -1) {
+                String digits = body.substring(idx + 13, Math.min(idx + 20, body.length()))
+                        .replaceAll("[^0-9]", "");
+                if (!digits.isEmpty()) return Integer.parseInt(digits) + 2;
+            }
+        } catch (Exception ignored) {}
+        return 10;
     }
 }

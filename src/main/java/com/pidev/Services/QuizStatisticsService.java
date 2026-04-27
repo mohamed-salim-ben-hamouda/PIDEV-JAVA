@@ -130,6 +130,53 @@ public class QuizStatisticsService {
         return attempts;
     }
 
+    public List<QuizAttemptDetail> findAttemptsForStudentQuiz(int quizId, float passingScore, Integer studentId) throws SQLException {
+        int resolvedStudentId = resolveStudentId(studentId);
+        String sql = "SELECT qa.attempt_nbr, qa.score, qa.submitted_at, u.prenom, u.nom, u.email "
+                + "FROM quiz_attempts qa "
+                + "LEFT JOIN user u ON qa.student_id = u.id "
+                + "WHERE qa.quiz_id = ? AND qa.student_id = ? "
+                + "ORDER BY qa.attempt_nbr DESC, qa.submitted_at DESC";
+
+        List<QuizAttemptDetail> attempts = new ArrayList<>();
+        try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+            statement.setInt(1, quizId);
+            statement.setInt(2, resolvedStudentId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    int attemptNumber = rs.getInt("attempt_nbr");
+                    double score = roundOneDecimal(rs.getDouble("score"));
+                    boolean passed = score >= passingScore;
+                    Timestamp submittedAtTs = rs.getTimestamp("submitted_at");
+                    LocalDateTime submittedAt = submittedAtTs == null ? null : submittedAtTs.toLocalDateTime();
+
+                    String prenom = rs.getString("prenom");
+                    String nom = rs.getString("nom");
+                    String email = rs.getString("email");
+                    String studentName = ((prenom == null ? "" : prenom.trim()) + " " + (nom == null ? "" : nom.trim())).trim();
+                    if (studentName.isEmpty()) {
+                        studentName = email == null || email.isBlank() ? "Etudiant" : email;
+                    }
+
+                    attempts.add(new QuizAttemptDetail(attemptNumber, score, passed, submittedAt, studentName, email == null ? "-" : email));
+                }
+            }
+        }
+        return attempts;
+    }
+
+    public int countStudentAttemptsForQuiz(int quizId, Integer studentId) throws SQLException {
+        int resolvedStudentId = resolveStudentId(studentId);
+        String sql = "SELECT COALESCE(MAX(attempt_nbr), 0) AS max_attempt FROM quiz_attempts WHERE quiz_id = ? AND student_id = ?";
+        try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+            statement.setInt(1, quizId);
+            statement.setInt(2, resolvedStudentId);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next() ? rs.getInt("max_attempt") : 0;
+            }
+        }
+    }
+
     public int saveQuizAttempt(Integer quizId, Integer studentId, double score) throws SQLException {
         if (quizId == null) {
             throw new SQLException("Quiz id is required to save an attempt.");

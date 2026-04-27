@@ -92,6 +92,7 @@ public class CourseDetailController {
     private Quiz quiz;
     private Course course;
     private int currentQuestionIndex;
+    private com.pidev.models.User currentUser; // utilisateur connecté
 
     @FXML
     public void initialize() {
@@ -133,6 +134,10 @@ public class CourseDetailController {
             openCoursePdfButton.setDisable(true);
         }
         loadCourseStructure();
+    }
+
+    public void setCurrentUser(com.pidev.models.User user) {
+        this.currentUser = user;
     }
 
     @FXML
@@ -201,6 +206,9 @@ public class CourseDetailController {
 
     @FXML
     private void onStartQuiz() {
+        if (!canOpenSelectedQuiz()) {
+            return;
+        }
         openSelectedQuizWindow();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
@@ -578,11 +586,15 @@ public class CourseDetailController {
         if (chapterQuiz != null) {
             Button openQuiz = new Button("Ouvrir session quiz");
             openQuiz.getStyleClass().setAll("courses-action-btn", "secondary");
+            boolean attemptsRemaining = hasAttemptsRemaining(chapterQuiz);
+            openQuiz.setDisable(!attemptsRemaining);
+            if (!attemptsRemaining) {
+                openQuiz.setText("Tentatives epuisees");
+            }
             openQuiz.setOnAction(event -> {
                 selectedChapter = chapter;
                 quiz = chapterQuiz;
                 updateQuizHeader();
-                startQuizButton.setDisable(false);
                 openSelectedQuizWindow();
             });
             card.getChildren().addAll(header, openQuiz);
@@ -607,24 +619,35 @@ public class CourseDetailController {
         int passing = Math.round(quiz.getPassingScore() <= 0 ? 70f : quiz.getPassingScore());
         quizMetaLabel.setText(questionCount + " questions | " + attempts + " tentatives max | score requis " + passing + "%");
 
-        if (selectedChapter != null && selectedChapter.getTitle() != null) {
-            quizHintLabel.setText("Chapitre: " + selectedChapter.getTitle());
-        } else {
-            quizHintLabel.setText("Quiz global du cours");
-        }
+        String baseHint = selectedChapter != null && selectedChapter.getTitle() != null
+                ? "Chapitre: " + selectedChapter.getTitle()
+                : "Quiz global du cours";
+        quizHintLabel.setText(baseHint);
 
         QuizAttemptState state = attemptsByQuizId.get(quiz.getId());
+        boolean attemptsRemaining = hasAttemptsRemaining(quiz);
+        startQuizButton.setDisable(!attemptsRemaining);
         if (state == null) {
-            quizStateBadge.setText("NOUVEAU");
-            quizStateBadge.getStyleClass().setAll("status-badge", "status-pending");
+            if (attemptsRemaining) {
+                quizStateBadge.setText("NOUVEAU");
+                quizStateBadge.getStyleClass().setAll("status-badge", "status-pending");
+            } else {
+                quizStateBadge.setText("LIMITE ATTEINTE");
+                quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+                quizHintLabel.setText(baseHint + " | Limite de tentatives atteinte");
+            }
             return;
         }
         if (state.passed) {
             quizStateBadge.setText(state.scorePercent + "% - VALIDE");
             quizStateBadge.getStyleClass().setAll("status-badge", "status-success");
-        } else {
+        } else if (attemptsRemaining) {
             quizStateBadge.setText("A REFAIRE " + state.scorePercent + "%");
             quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+        } else {
+            quizStateBadge.setText("LIMITE ATTEINTE");
+            quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+            quizHintLabel.setText(baseHint + " | Limite de tentatives atteinte");
         }
     }
 
@@ -678,32 +701,39 @@ public class CourseDetailController {
             }
 
             try {
-                List<QuizAttemptDetail> attempts = quizStatisticsService.findAttemptsForQuiz(
+                List<QuizAttemptDetail> attempts = quizStatisticsService.findAttemptsForStudentQuiz(
                         courseQuiz.getId(),
-                        courseQuiz.getPassingScore()
+                        courseQuiz.getPassingScore(),
+                        null
                 );
+                int attemptsUsed = attempts.stream()
+                        .mapToInt(QuizAttemptDetail::getAttemptNumber)
+                        .max()
+                        .orElse(0);
 
                 // Chercher la tentative réussie
                 QuizAttemptDetail passedAttempt = attempts.stream()
                         .filter(QuizAttemptDetail::isPassed)
-                        .findFirst()
+                        .max(Comparator.comparingInt(QuizAttemptDetail::getAttemptNumber))
+                        .orElse(null);
+
+                QuizAttemptDetail latestAttempt = attempts.stream()
+                        .max(Comparator.comparingInt(QuizAttemptDetail::getAttemptNumber))
                         .orElse(null);
 
                 if (passedAttempt != null) {
                     attemptsByQuizId.put(courseQuiz.getId(), new QuizAttemptState(
-                            passedAttempt.getAttemptNumber(),
+                            attemptsUsed,
                             (int) Math.round(passedAttempt.getScore()),
                             true
                     ));
-                } else if (!attempts.isEmpty()) {
+                } else if (latestAttempt != null) {
                     // Si aucune réussite, prendre le meilleur score
-                    QuizAttemptDetail bestAttempt = attempts.stream()
-                            .max(Comparator.comparingDouble(QuizAttemptDetail::getScore))
-                            .orElse(null);
+                    QuizAttemptDetail bestAttempt = latestAttempt;
                     
                     if (bestAttempt != null) {
                         attemptsByQuizId.put(courseQuiz.getId(), new QuizAttemptState(
-                                bestAttempt.getAttemptNumber(),
+                                attemptsUsed,
                                 (int) Math.round(bestAttempt.getScore()),
                                 false
                         ));
@@ -765,12 +795,17 @@ public class CourseDetailController {
             showWarning("Quiz", "Aucun quiz disponible pour ce chapitre.");
             return;
         }
+        if (!canOpenSelectedQuiz()) {
+            return;
+        }
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/QuizSessionView.fxml"));
             Parent root = loader.load();
             QuizSessionController controller = loader.getController();
+
             controller.setQuizContext(quiz, selectedChapter != null ? selectedChapter.getTitle() : "Quiz du cours");
+            controller.setCurrentUser(currentUser);  // ← LIGNE AJOUTÉE
 
             Stage stage = new Stage();
             stage.setTitle("Session Quiz - " + (quiz.getTitle() == null ? "Quiz" : quiz.getTitle()));
@@ -792,6 +827,30 @@ public class CourseDetailController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.showAndWait();
+    }
+
+    private boolean canOpenSelectedQuiz() {
+        if (quiz == null) {
+            return false;
+        }
+        if (hasAttemptsRemaining(quiz)) {
+            return true;
+        }
+        int maxAttempts = resolveMaxAttempts(quiz);
+        showWarning("Tentatives epuisees", "Vous avez atteint la limite de " + maxAttempts + " tentative(s) pour ce quiz.");
+        return false;
+    }
+
+    private boolean hasAttemptsRemaining(Quiz targetQuiz) {
+        if (targetQuiz == null) {
+            return false;
+        }
+        QuizAttemptState state = attemptsByQuizId.get(targetQuiz.getId());
+        return state == null || state.attemptNumber < resolveMaxAttempts(targetQuiz);
+    }
+
+    private int resolveMaxAttempts(Quiz targetQuiz) {
+        return targetQuiz != null && targetQuiz.getMaxAttempts() > 0 ? targetQuiz.getMaxAttempts() : 3;
     }
 
     private record QuizAttemptState(int attemptNumber, int scorePercent, boolean passed) {

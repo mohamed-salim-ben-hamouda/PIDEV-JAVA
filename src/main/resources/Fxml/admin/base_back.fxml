@@ -44,21 +44,13 @@
 
                                 <Label styleClass="menu-section" text="Main" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        onAction="#loadDashboard" styleClass="menu-item" text="Dashboard">
+                                        onAction="#loadDashboard" styleClass="menu-item" text="Dashboard Supervisor">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-tachometer-alt" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
 
-                                <Label styleClass="menu-section" text="User Management" />
-                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Users">
-                                    <graphic>
-                                        <FontIcon iconLiteral="fas-user" styleClass="menu-icon" />
-                                    </graphic>
-                                </Button>
-
-                                <Label styleClass="menu-section" text="Pedagogical Management" />
+                                <Label styleClass="menu-section" text="Supervisor Workspace" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                         onAction="#loadCourses" styleClass="menu-item" text="Courses">
                                     <graphic>
@@ -90,7 +82,7 @@
                                     </graphic>
                                 </Button>
 
-                                <Label styleClass="menu-section" text="Student Results" />
+                                <Label styleClass="menu-section" text="Student Tracking" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                         onAction="#loadQuizResults"
                                         styleClass="menu-item" text="Quiz Results">
@@ -120,33 +112,6 @@
                                     </graphic>
                                 </Button>
 
-                                <Label styleClass="menu-section" text="Community" />
-                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Groups">
-                                    <graphic>
-                                        <FontIcon iconLiteral="fas-users" styleClass="menu-icon" />
-                                    </graphic>
-                                </Button>
-                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Posts">
-                                    <graphic>
-                                        <FontIcon iconLiteral="fas-comments" styleClass="menu-icon" />
-                                    </graphic>
-                                </Button>
-
-                                <Label styleClass="menu-section" text="Challenges" />
-                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Challenges">
-                                    <graphic>
-                                        <FontIcon iconLiteral="fas-trophy" styleClass="menu-icon" />
-                                    </graphic>
-                                </Button>
-                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        styleClass="menu-item" text="Hackathons">
-                                    <graphic>
-                                        <FontIcon iconLiteral="fas-flag-checkered" styleClass="menu-icon" />
-                                    </graphic>
-                                </Button>
                             </children>
                             <padding>
                                 <Insets bottom="32.0" left="16.0" right="16.0" top="22.0" />
@@ -165,15 +130,15 @@
                     <children>
                         <VBox spacing="2.0">
                             <children>
-                                <Label styleClass="topbar-title" text="Skill Bridge Admin" />
-                                <Label styleClass="topbar-subtitle" text="Manage courses, users, groups, challenges and results" />
+                                <Label styleClass="topbar-title" text="Skill Bridge Supervisor Workspace" />
+                                <Label styleClass="topbar-subtitle" text="Monitor learners from the dashboard and manage pedagogical tools from the workspace menu" />
                             </children>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
                         <HBox alignment="CENTER" spacing="8.0" styleClass="profile-chip">
                             <children>
                                 <FontIcon iconLiteral="fas-user-circle" styleClass="profile-icon" />
-                                <Label styleClass="profile-name" text="Admin" />
+                                <Label styleClass="profile-name" text="Supervisor" />
                             </children>
                         </HBox>
                     </children>

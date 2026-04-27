@@ -334,6 +334,8 @@ public class CoursesController {
             Parent root = loader.load();
             CourseDetailController controller = loader.getController();
             controller.setCourse(course);
+            // On passe l'utilisateur connecté (Option A : via UserSession singleton)
+            controller.setCurrentUser(com.pidev.utils.UserSession.getCurrentUser());
             root.setUserData("course-detail-window");
 
             Stage detailStage = new Stage();
