@@ -13,7 +13,6 @@ public class ExtractTextFromPdfUtil {
         if (resolvedPath == null) {
             throw new RuntimeException("PDF not found: " + path);
         }
-
         try (PDDocument document = Loader.loadPDF(resolvedPath.toFile())) {
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
@@ -30,34 +29,27 @@ public class ExtractTextFromPdfUtil {
         if (rawPath == null || rawPath.isBlank()) {
             return null;
         }
-
         String normalizedPath = rawPath.trim().replace("\\", "/");
         if (normalizedPath.startsWith("/")) {
             normalizedPath = normalizedPath.substring(1);
         }
-
         Path directPath = Paths.get(normalizedPath);
         if (Files.exists(directPath)) {
             return directPath.toAbsolutePath().normalize();
         }
-
         Path projectRoot = Paths.get(System.getProperty("user.dir"));
-
         Path fromProjectRoot = projectRoot.resolve(normalizedPath);
         if (Files.exists(fromProjectRoot)) {
             return fromProjectRoot.normalize();
         }
-
         Path srcResources = projectRoot.resolve(Paths.get("src", "main", "resources", normalizedPath));
         if (Files.exists(srcResources)) {
             return srcResources.normalize();
         }
-
         Path targetResources = projectRoot.resolve(Paths.get("target", "classes", normalizedPath));
         if (Files.exists(targetResources)) {
             return targetResources.normalize();
         }
-
         return null;
     }
 

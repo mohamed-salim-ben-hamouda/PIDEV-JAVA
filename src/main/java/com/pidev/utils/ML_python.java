@@ -15,31 +15,28 @@ import java.util.concurrent.TimeUnit;
 
 public class ML_python {
 
-    private static final String DEFAULT_PYTHON_EXE =
-            "C:\\Program Files\\Python311\\python.exe";
+    private static final String python_exe = "C:\\Program Files\\Python311\\python.exe";
 
-    private static final String DEFAULT_SCRIPT_PATH =
-            "D:\\javaFX\\python ML\\scripts\\predict.py";
+    private static final String script_path = "D:\\javaFX\\python ML\\scripts\\predict.py";
 
-    private static final String DEFAULT_WORKING_DIR =
-            "D:\\javaFX\\python ML";
+    private static final String working_dir = "D:\\javaFX\\python ML";
 
-    private static final int PREDICTION_TIMEOUT_SECONDS = 15;
+    private static final int prediction_timeout = 15;
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final TypeReference<List<PredictionResult>> PREDICTION_RESULT_LIST_TYPE = new TypeReference<>() {};
+    private static final ObjectMapper obj_map = new ObjectMapper();
+    private static final TypeReference<List<PredictionResult>> prediction_result = new TypeReference<>() {};
 
     public static PredictionResult predict(String jsonInput) throws Exception {
         String predictionOutput = runPrediction(jsonInput);
-        return OBJECT_MAPPER.readValue(predictionOutput, PredictionResult.class);
+        return obj_map.readValue(predictionOutput, PredictionResult.class);
     }
 
     public static List<PredictionResult> predictAll(String jsonInput) throws Exception {
         String predictionOutput = runPrediction(jsonInput);
         if (predictionOutput.startsWith("[")) {
-            return OBJECT_MAPPER.readValue(predictionOutput, PREDICTION_RESULT_LIST_TYPE);
+            return obj_map.readValue(predictionOutput, prediction_result);
         }
-        return List.of(OBJECT_MAPPER.readValue(predictionOutput, PredictionResult.class));
+        return List.of(obj_map.readValue(predictionOutput, PredictionResult.class));
     }
 
     private static String runPrediction(String jsonInput) throws Exception {
@@ -47,22 +44,19 @@ public class ML_python {
             throw new IllegalArgumentException("Prediction input JSON cannot be empty.");
         }
 
-        String pythonExe = resolvePath("ml.python.exe", "ML_PYTHON_EXE", DEFAULT_PYTHON_EXE);
-        String scriptPath = resolvePath("ml.python.script", "ML_PYTHON_SCRIPT", DEFAULT_SCRIPT_PATH);
-        String workingDir = resolvePath("ml.python.workdir", "ML_PYTHON_WORKDIR", DEFAULT_WORKING_DIR);
-
+        String pythonExe = resolvePath("ml.python.exe", "ML_PYTHON_EXE", python_exe);
+        String scriptPath = resolvePath("ml.python.script", "ML_PYTHON_SCRIPT", script_path);
+        String workingDir = resolvePath("ml.python.workdir", "ML_PYTHON_WORKDIR", working_dir);
         validateReadableFile(pythonExe, "Python executable");
         validateReadableFile(scriptPath, "Prediction script");
         validateReadableDirectory(workingDir, "Python working directory");
         validateReadableFile(Path.of(workingDir, "artifacts", "model.pkl").toString(), "Trained model");
         validateReadableFile(Path.of(workingDir, "artifacts", "meta.pkl").toString(), "Prediction metadata");
-
+        
         ProcessBuilder pb = new ProcessBuilder(pythonExe, scriptPath);
         pb.directory(new File(workingDir));
         pb.redirectErrorStream(true);
-
         Process process = pb.start();
-
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8))) {
             writer.write(jsonInput);
@@ -79,7 +73,7 @@ public class ML_python {
             }
         }
 
-        boolean finished = process.waitFor(PREDICTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        boolean finished = process.waitFor(prediction_timeout, TimeUnit.SECONDS);
         if (!finished) {
             process.destroyForcibly();
             throw new RuntimeException("Python prediction timed out.");
@@ -101,6 +95,11 @@ public class ML_python {
         String systemPropertyValue = System.getProperty(systemPropertyName);
         if (systemPropertyValue != null && !systemPropertyValue.isBlank()) {
             return systemPropertyValue;
+        }
+
+        String envStyleSystemPropertyValue = System.getProperty(environmentVariableName);
+        if (envStyleSystemPropertyValue != null && !envStyleSystemPropertyValue.isBlank()) {
+            return envStyleSystemPropertyValue;
         }
 
         String environmentValue = System.getenv(environmentVariableName);

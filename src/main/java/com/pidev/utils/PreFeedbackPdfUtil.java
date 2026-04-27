@@ -45,13 +45,7 @@ public final class PreFeedbackPdfUtil {
     private PreFeedbackPdfUtil() {
     }
 
-    /**
-     * Writes a "Pre-Feedback" PDF from the Flowise JSON (either the inner object or a wrapper containing "json").
-     *
-     * @param preFeedbackJson  JSON string stored in DB (from FlowiseGraderUtil)
-     * @param outputDir        directory where the PDF should be created
-     * @param outputFileName   file name, e.g. "prefeedback-activity-12.pdf"
-     */
+
     public static Path writePreFeedbackPdf(String preFeedbackJson, Path outputDir, String outputFileName) throws IOException {
         Objects.requireNonNull(outputDir, "outputDir");
         if (outputFileName == null || outputFileName.isBlank()) {

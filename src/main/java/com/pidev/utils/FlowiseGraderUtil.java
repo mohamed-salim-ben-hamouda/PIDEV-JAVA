@@ -10,10 +10,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class FlowiseGraderUtil {
-    private static final String API_HOST = getConfig("flowise.apiHost", "FLOWISE_API_HOST", "http://localhost:3000");
-    private static final String FLOW_ID = getConfig("flowise.flowId", "FLOWISE_FLOW_ID", "0a927512-1564-4137-8f39-609c823aabf2");
-
-    private static final String API_KEY = getConfig("flowise.apiKey", "FLOWISE_API_KEY", "");
+    private static final String api_host = getRequiredConfig("flowise.apiHost", "FLOWISE_api_host");
+    private static final String flow_id = getRequiredConfig("flowise.flowId", "FLOWISE_flow_id");
+    private static final String api_key = getRequiredConfig("flowise.apiKey", "FLOWISE_api_key");
 
     public static JSONObject gradeFromPdfPaths(String challengePath, String submissionPath) {
 
@@ -53,16 +52,16 @@ public class FlowiseGraderUtil {
         HttpURLConnection conn = null;
 
         try {
-            URL url = new URL(API_HOST + "/api/v1/prediction/" + FLOW_ID);
+            URL url = new URL(api_host + "/api/v1/prediction/" + flow_id);
             conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             conn.setRequestProperty("Accept", "application/json");
 
-            if (API_KEY != null && !API_KEY.isBlank() && !"your_api_key".equalsIgnoreCase(API_KEY.trim())) {
-                conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
-                conn.setRequestProperty("X-API-Key", API_KEY);
+            if (api_key != null && !api_key.isBlank() && !"your_api_key".equalsIgnoreCase(api_key.trim())) {
+                conn.setRequestProperty("Authorization", "Bearer " + api_key);
+                conn.setRequestProperty("X-API-Key", api_key);
             }
             conn.setConnectTimeout(10000);
             conn.setReadTimeout(60000);
@@ -154,15 +153,19 @@ public class FlowiseGraderUtil {
         }
     }
 
-    private static String getConfig(String systemProperty, String envVar, String fallback) {
+    private static String getRequiredConfig(String systemProperty, String envVar) {
         String fromSys = System.getProperty(systemProperty);
         if (fromSys != null && !fromSys.isBlank()) {
             return fromSys.trim();
+        }
+        String fromEnvStyleSys = System.getProperty(envVar);
+        if (fromEnvStyleSys != null && !fromEnvStyleSys.isBlank()) {
+            return fromEnvStyleSys.trim();
         }
         String fromEnv = System.getenv(envVar);
         if (fromEnv != null && !fromEnv.isBlank()) {
             return fromEnv.trim();
         }
-        return fallback;
+        throw new IllegalStateException("Missing required config: " + envVar);
     }
 }

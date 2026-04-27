@@ -2,6 +2,7 @@ package com.pidev;
 
 import com.pidev.Controllers.client.BaseController;
 import com.pidev.utils.GithubUtil;
+import com.pidev.utils.EnvLoaderUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,6 +32,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        EnvLoaderUtil.loadDotEnvFromProjectRoot();
         configureJavaFxRendering();
         System.out.println("--- Testing Database Connection ---");
         DataSource ds = DataSource.getInstance();

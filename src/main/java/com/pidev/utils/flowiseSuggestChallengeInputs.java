@@ -11,10 +11,9 @@ import java.nio.charset.StandardCharsets;
 
 
 public class flowiseSuggestChallengeInputs {
-    private static final String API_HOST = getConfig("flowise.apiHost", "FLOWISE_API_HOST", "http://localhost:3000");
-    private static final String FLOW_ID = getConfig("flowise.flowId", "FLOWISE_FLOW_ID", "0297e941-8e3e-4bb3-82bd-35e5acaf1d7d");
-
-    private static final String API_KEY = getConfig("flowise.apiKey", "FLOWISE_API_KEY", "");
+    private static final String API_HOST = getRequiredConfig("flowise.apiHost", "FLOWISE_API_HOST");
+    private static final String FLOW_ID = getRequiredConfig("flowise.flowId", "FLOWISE_FLOW_ID");
+    private static final String API_KEY = getRequiredConfig("flowise.apiKey", "FLOWISE_API_KEY");
 
     public static JSONObject suggestChallenge(String challengePath){
         try {
@@ -145,15 +144,19 @@ public class flowiseSuggestChallengeInputs {
                     .put("raw", text);
         }
     }
-    private static String getConfig(String systemProperty, String envVar, String fallback) {
+    private static String getRequiredConfig(String systemProperty, String envVar) {
         String fromSys = System.getProperty(systemProperty);
         if (fromSys != null && !fromSys.isBlank()) {
             return fromSys.trim();
+        }
+        String fromEnvStyleSys = System.getProperty(envVar);
+        if (fromEnvStyleSys != null && !fromEnvStyleSys.isBlank()) {
+            return fromEnvStyleSys.trim();
         }
         String fromEnv = System.getenv(envVar);
         if (fromEnv != null && !fromEnv.isBlank()) {
             return fromEnv.trim();
         }
-        return fallback;
+        throw new IllegalStateException("Missing required config: " + envVar);
     }
 }

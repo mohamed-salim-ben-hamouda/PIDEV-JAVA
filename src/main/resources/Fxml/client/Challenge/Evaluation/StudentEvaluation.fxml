@@ -109,7 +109,8 @@
                             </VBox>
 
                             <Button  text="View Individual Ranking" styleClass="primary-btn" maxWidth="Infinity"
-                                    style="-fx-background-color: #4f46e5; -fx-padding: 15; -fx-font-size: 16;"/>
+                                    style="-fx-background-color: #4f46e5; -fx-padding: 15; -fx-font-size: 16;"
+                                    onAction="#openIndividualRanking"/>
                         </VBox>
                     </children>
                 </VBox>

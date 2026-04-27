@@ -4,6 +4,7 @@ import com.pidev.Services.Challenge.Classes.ServiceEvaluation;
 import com.pidev.Services.Challenge.Classes.ServiceMemberActivity;
 import com.pidev.Services.Challenge.Classes.ServiceProblemSolution;
 import com.pidev.utils.ImageAssets;
+import com.pidev.utils.IndividualRankingStageUtil;
 import com.pidev.utils.OpenPdfUtil;
 import com.pidev.models.Activity;
 import com.pidev.models.Evaluation;
@@ -11,7 +12,6 @@ import com.pidev.models.ProblemSolution;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -22,6 +22,8 @@ import java.util.List;
 
 
 public class StudentEvaluationController {
+    private static final int user_id = 2;
+
     @FXML
     private ImageView trophyImage;
     @FXML
@@ -65,7 +67,6 @@ public class StudentEvaluationController {
             submittedDate.setText("Submission date: Not available");
         }
         loadProblemSolutions(a.getId());
-        int user_id=2;
         double indiv_score = serviceMA.SelectIndivScore(user_id,this.a.getId());
         String indiv_scoreStr = String.format("%.2f", indiv_score);
         individualScore.setText(indiv_scoreStr);
@@ -143,10 +144,29 @@ public class StudentEvaluationController {
         }
     }
 
+    @FXML
+    public void openIndividualRanking() {
+        if (a == null || a.getChallenge() == null || a.getChallenge().getId() == null) {
+            showError("This challenge ranking is not available right now.");
+            return;
+        }
+
+        try {
+            IndividualRankingStageUtil.showRanking(
+                    result == null || result.getScene() == null ? null : result.getScene().getWindow(),
+                    a.getChallenge().getTitle(),
+                    serviceEval.getPassedIndividualRankingForChallenge(a.getChallenge().getId()),
+                    user_id
+            );
+        } catch (IOException ex) {
+            showError("Could not open the individual ranking stage:\n" + ex.getMessage());
+        }
+    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Open PDF");
-        alert.setHeaderText("Unable to open feedback PDF");
+        alert.setTitle("Student Evaluation");
+        alert.setHeaderText("Action could not be completed");
         alert.setContentText(message);
         alert.showAndWait();
     }

@@ -3,6 +3,10 @@ package com.pidev.Controllers.client.Challenge;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.Services.Challenge.Classes.ServiceChallenge;
 import com.pidev.models.Challenge;
+import com.pidev.models.Calendar.CalendarStatus;
+import com.pidev.models.Calendar.DayCalendarEntry;
+import com.pidev.models.Calendar.DayCalendarEntryAccumulator;
+import com.pidev.utils.ChallengeCalendarUtil;
 import com.pidev.utils.flowiseSuggestChallengeInputs;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -19,13 +23,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -38,27 +38,18 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.DayOfWeek;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ChallengeController implements Initializable {
     private static final int user_id = 1;
-    private static final String DAY_CARD_STYLE = "-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-radius: 18; -fx-background-radius: 18; -fx-padding: 12;";
-    private static final String DAY_NUMBER_STYLE = "-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #0f172a;";
-    private static final String TODAY_BADGE_STYLE = "-fx-background-color: #3559e0; -fx-background-radius: 999; -fx-padding: 4 10 4 10; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold;";
-    private static final String DAY_ENTRY_STYLE = "-fx-background-radius: 10; -fx-padding: 6 8 6 8;";
-    private static final DateTimeFormatter WEEK_RANGE_FORMATTER = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH);
-    private static final DateTimeFormatter WEEK_RANGE_END_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
     @FXML
     private VBox myChallengesPane;
@@ -417,7 +408,7 @@ public class ChallengeController implements Initializable {
             challengeListContainer.getChildren().add(fallback);
         }
     }
-
+    //Calendar
     private void refreshCalendarData() {
         try {
             calendarChallenges = service.displayForSupervisor(user_id);
@@ -441,30 +432,12 @@ public class ChallengeController implements Initializable {
     }
 
     public void generateCalendar(LocalDate weekStart) {
-        if (calendarGrid == null || monthLabel == null) {
-            return;
-        }
-
-        currentWeekStart = weekStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        monthLabel.setText(formatWeekLabel(currentWeekStart));
-        calendarGrid.getChildren().removeIf(node -> {
-            Integer rowIndex = GridPane.getRowIndex(node);
-            return (rowIndex == null ? 0 : rowIndex) > 0;
-        });
-
-        for (int column = 0; column < 7; column++) {
-            LocalDate date = currentWeekStart.plusDays(column);
-            VBox dayCell = createDayCell(date);
-            calendarGrid.add(dayCell, column, 1);
-        }
-    }
-
-    private String formatWeekLabel(LocalDate weekStart) {
-        LocalDate weekEnd = weekStart.plusDays(6);
-        if (weekStart.getMonth() == weekEnd.getMonth() && weekStart.getYear() == weekEnd.getYear()) {
-            return weekStart.format(WEEK_RANGE_FORMATTER) + " - " + weekEnd.format(DateTimeFormatter.ofPattern("d, yyyy", Locale.ENGLISH));
-        }
-        return weekStart.format(WEEK_RANGE_FORMATTER) + " - " + weekEnd.format(WEEK_RANGE_END_FORMATTER);
+        currentWeekStart = ChallengeCalendarUtil.renderWeek(
+                calendarGrid,
+                monthLabel,
+                weekStart,
+                this::getEntriesForDate
+        );
     }
 
     public List<CalendarStatus> getStatusesForDate(LocalDate date) {
@@ -540,83 +513,6 @@ public class ChallengeController implements Initializable {
         return activity.getSubmissionDate().toLocalDate();
     }
 
-    private VBox createDayCell(LocalDate date) {
-        VBox dayBox = new VBox(8);
-        dayBox.setPrefHeight(145);
-        dayBox.setMaxWidth(Double.MAX_VALUE);
-        dayBox.setStyle(DAY_CARD_STYLE);
-
-        HBox header = new HBox(8);
-        Label dayNumber = new Label(String.valueOf(date.getDayOfMonth()));
-        dayNumber.setStyle(DAY_NUMBER_STYLE);
-        header.getChildren().add(dayNumber);
-
-        if (LocalDate.now().equals(date)) {
-            Label todayLabel = new Label("Today");
-            todayLabel.setStyle(TODAY_BADGE_STYLE);
-            header.getChildren().add(todayLabel);
-        }
-
-        VBox entriesBox = new VBox(6);
-        List<DayCalendarEntry> entries = getEntriesForDate(date);
-        for (DayCalendarEntry entry : entries) {
-            entriesBox.getChildren().add(createEntryLabel(entry));
-        }
-
-        dayBox.getChildren().addAll(header, entriesBox);
-        GridPane.setHgrow(dayBox, Priority.ALWAYS);
-        return dayBox;
-    }
-
-    private VBox createEntryLabel(DayCalendarEntry entry) {
-        String suffix = entry.count() > 1 ? " (" + entry.count() + ")" : "";
-        VBox entryBox = new VBox(2);
-        entryBox.setMaxWidth(Double.MAX_VALUE);
-        entryBox.setStyle(DAY_ENTRY_STYLE + entry.status().badgeStyle());
-
-        Label titleLabel = new Label(buildEntryText(entry) + suffix);
-        titleLabel.setMaxWidth(Double.MAX_VALUE);
-        titleLabel.setWrapText(true);
-        titleLabel.setTextOverrun(OverrunStyle.CLIP);
-        titleLabel.setMinHeight(Region.USE_PREF_SIZE);
-        titleLabel.setStyle("-fx-font-size: 11; " + entry.status().textStyle());
-        entryBox.getChildren().add(titleLabel);
-
-        if (shouldShowGroupName(entry)) {
-            Label groupLabel = new Label("Group : " + entry.groupName());
-            groupLabel.setMaxWidth(Double.MAX_VALUE);
-            groupLabel.setWrapText(true);
-            groupLabel.setTextOverrun(OverrunStyle.CLIP);
-            groupLabel.setMinHeight(Region.USE_PREF_SIZE);
-            groupLabel.setStyle("-fx-font-size: 10; " + entry.status().textStyle());
-            entryBox.getChildren().add(groupLabel);
-        }
-
-        return entryBox;
-    }
-
-    private String buildEntryText(DayCalendarEntry entry) {
-        if (entry.status() == CalendarStatus.DEADLINE) {
-            return safeTitle(entry.title());
-        }
-        return safeTitle(entry.title());
-    }
-
-    private String safeTitle(String title) {
-        if (title == null || title.isBlank()) {
-            return "Challenge";
-        }
-        return title.trim();
-    }
-
-    private boolean shouldShowGroupName(DayCalendarEntry entry) {
-        return (entry.status() == CalendarStatus.IN_PROGRESS
-                || entry.status() == CalendarStatus.SUBMITTED
-                || entry.status() == CalendarStatus.EVALUATED)
-                && entry.groupName() != null
-                && !entry.groupName().isBlank();
-    }
-
     private void mergeEntry(Map<String, DayCalendarEntryAccumulator> entries, String title, CalendarStatus status) {
         mergeEntry(entries, title, null, status);
     }
@@ -631,45 +527,6 @@ public class ChallengeController implements Initializable {
         } else {
             existing.increment();
         }
-    }
-
-    private DayStatusCounts buildDayStatusCounts(LocalDate date) {
-        List<CalendarStatus> statuses = getStatusesForDate(date);
-        int published = 0;
-        int inProgress = 0;
-        int submitted = 0;
-        int evaluated = 0;
-        int notEvaluated = 0;
-
-        for (CalendarStatus status : statuses) {
-            switch (status) {
-                case PUBLISHED -> published++;
-                case IN_PROGRESS -> inProgress++;
-                case SUBMITTED -> submitted++;
-                case EVALUATED -> evaluated++;
-                case NOT_EVALUATED -> notEvaluated++;
-                case DEADLINE -> notEvaluated++;
-            }
-        }
-
-        EnumSet<CalendarStatus> visibleStatuses = EnumSet.noneOf(CalendarStatus.class);
-        if (published > 0) {
-            visibleStatuses.add(CalendarStatus.PUBLISHED);
-        }
-        if (inProgress > 0) {
-            visibleStatuses.add(CalendarStatus.IN_PROGRESS);
-        }
-        if (submitted > 0) {
-            visibleStatuses.add(CalendarStatus.SUBMITTED);
-        }
-        if (evaluated > 0) {
-            visibleStatuses.add(CalendarStatus.EVALUATED);
-        }
-        if (notEvaluated > 0) {
-            visibleStatuses.add(CalendarStatus.NOT_EVALUATED);
-        }
-
-        return new DayStatusCounts(published, inProgress, submitted, evaluated, notEvaluated, visibleStatuses);
     }
 
     private void toggleError(Label label, boolean show) {
@@ -739,81 +596,4 @@ public class ChallengeController implements Initializable {
         });
     }
 
-    public enum CalendarStatus {
-        PUBLISHED("#3559e0", "-fx-background-color: #dbeafe;", "-fx-text-fill: #1d4ed8;"),
-        IN_PROGRESS("#f59e0b", "-fx-background-color: #fef3c7;", "-fx-text-fill: #b45309;"),
-        SUBMITTED("#16a34a", "-fx-background-color: #dcfce7;", "-fx-text-fill: #15803d;"),
-        EVALUATED("#06b6d4", "-fx-background-color: #cffafe;", "-fx-text-fill: #0e7490;"),
-        NOT_EVALUATED("#ef4444", "-fx-background-color: #fee2e2;", "-fx-text-fill: #b91c1c;"),
-        DEADLINE("#dc2626", "-fx-background-color: #fee2e2;", "-fx-text-fill: #b91c1c;");
-
-        private final String color;
-        private final String badgeStyle;
-        private final String textStyle;
-
-        CalendarStatus(String color, String badgeStyle, String textStyle) {
-            this.color = color;
-            this.badgeStyle = badgeStyle;
-            this.textStyle = textStyle;
-        }
-
-        public String color() {
-            return color;
-        }
-
-        public String badgeStyle() {
-            return badgeStyle;
-        }
-
-        public String textStyle() {
-            return textStyle;
-        }
-    }
-
-    private record DayStatusCounts(
-            int published,
-            int inProgress,
-            int submitted,
-            int evaluated,
-            int notEvaluated,
-            EnumSet<CalendarStatus> visibleStatuses
-    ) {
-    }
-
-    private record DayCalendarEntry(String title, String groupName, CalendarStatus status, int count) {
-    }
-
-    private static final class DayCalendarEntryAccumulator {
-        private final String title;
-        private final String groupName;
-        private final CalendarStatus status;
-        private int count;
-
-        private DayCalendarEntryAccumulator(String title, String groupName, CalendarStatus status, int count) {
-            this.title = title;
-            this.groupName = groupName;
-            this.status = status;
-            this.count = count;
-        }
-
-        private String title() {
-            return title;
-        }
-
-        private CalendarStatus status() {
-            return status;
-        }
-
-        private String groupName() {
-            return groupName;
-        }
-
-        private int count() {
-            return count;
-        }
-
-        private void increment() {
-            count++;
-        }
-    }
 }

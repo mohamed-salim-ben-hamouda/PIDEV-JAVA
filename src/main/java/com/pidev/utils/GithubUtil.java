@@ -8,10 +8,10 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 public class GithubUtil {
-    private static final String org = "skill-bridge-app";
+    private static final String token = getRequiredConfig("github.token", "GITHUB_TOKEN");
+    private static final String org = getRequiredConfig("github.org", "GITHUB_ORG");
     private final HttpClient client = HttpClient.newHttpClient();
 
-    // CREATE REPO
     public String createRepository(String repoName) throws Exception {
 
         String json = "{ \"name\": \"" + repoName + "\", \"private\": true }";
@@ -34,7 +34,6 @@ public class GithubUtil {
         }
     }
 
-    // ADD SINGLE COLLABORATOR
     public void addCollaborator(String repo, String username, String permission) throws Exception {
 
         String url = "https://api.github.com/repos/" + org + "/" + repo + "/collaborators/" + username;
@@ -58,7 +57,6 @@ public class GithubUtil {
         }
     }
 
-    // ADD MULTIPLE USERS
     public void addCollaborators(String repo, List<String> users, String permission) throws Exception {
         for (String user : users) {
             addCollaborator(repo, user, permission);
@@ -71,9 +69,27 @@ public class GithubUtil {
         String repoUrl = createRepository(repoName);
 
         Thread.sleep(2000);
-        addCollaborator(repoName, supervisor, "maintain");
+        addCollaborator(repoName, supervisor, "admin");
         addCollaborators(repoName, students, "push");
 
         return repoUrl;
+    }
+
+    private static String getRequiredConfig(String systemProperty, String envVar) {
+        String fromSys = System.getProperty(systemProperty);
+        if (fromSys != null && !fromSys.isBlank()) {
+            return fromSys.trim();
+        }
+
+        String fromEnvStyleSys = System.getProperty(envVar);
+        if (fromEnvStyleSys != null && !fromEnvStyleSys.isBlank()) {
+            return fromEnvStyleSys.trim();
+        }
+
+        String fromEnv = System.getenv(envVar);
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv.trim();
+        }
+        throw new IllegalStateException("Missing required config: " + envVar);
     }
 }

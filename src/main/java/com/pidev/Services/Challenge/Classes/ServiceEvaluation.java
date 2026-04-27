@@ -3,11 +3,12 @@ package com.pidev.Services.Challenge.Classes;
 import com.pidev.Services.Challenge.Interfaces.IEvaluation;
 import com.pidev.models.Activity;
 import com.pidev.models.Evaluation;
+import com.pidev.models.IndividualRankingEntry;
 import com.pidev.utils.DataSource;
 
-import javax.management.Query;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -213,5 +214,73 @@ public class ServiceEvaluation implements IEvaluation {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public List<IndividualRankingEntry> getPassedIndividualRankingForChallenge(int challengeId) {
+        List<IndividualRankingEntry> ranking = new ArrayList<>();
+        String query = "SELECT u.id AS user_id, u.nom, u.prenom, u.photo, ma.indiv_score, e.group_score " +
+                "FROM activity a " +
+                "JOIN evaluation e ON e.activity_id_id = a.id " +
+                "JOIN member_activity ma ON ma.id_activity_id = a.id " +
+                "JOIN user u ON u.id = ma.user_id_id " +
+                "WHERE a.id_challenge_id = ? " +
+                "AND ma.indiv_score IS NOT NULL " +
+                "AND e.group_score IS NOT NULL";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, challengeId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                double indivScore = rs.getDouble("indiv_score");
+                if (rs.wasNull()) {
+                    continue;
+                }
+
+                double groupScore = rs.getDouble("group_score");
+                if (rs.wasNull()) {
+                    continue;
+                }
+
+                double finalScore = calculateFinalScore(indivScore, groupScore);
+                if (finalScore < 10) {
+                    continue;
+                }
+
+                String firstName = rs.getString("prenom");
+                String lastName = rs.getString("nom");
+                String displayName = ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
+                if (displayName.isBlank()) {
+                    displayName = "Student " + rs.getInt("user_id");
+                }
+
+                ranking.add(new IndividualRankingEntry(
+                        rs.getInt("user_id"),
+                        displayName,
+                        rs.getString("photo"),
+                        finalScore
+                ));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to build challenge ranking", e);
+        }
+
+        ranking.sort(Comparator
+                .comparingDouble(IndividualRankingEntry::getFinalScore).reversed()
+                .thenComparing(IndividualRankingEntry::getDisplayName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparingInt(IndividualRankingEntry::getUserId));
+
+        for (int i = 0; i < ranking.size(); i++) {
+            ranking.get(i).setRank(i + 1);
+        }
+
+        return ranking;
+    }
+
+    private double calculateFinalScore(double indivScore, double groupScore) {
+        if (indivScore == 0) {
+            return 0;
+        }
+        return indivScore * 0.7 + groupScore * 0.3;
     }
 }
