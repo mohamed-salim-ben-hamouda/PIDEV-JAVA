@@ -26,7 +26,7 @@ public class EmailService {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(SENDER_EMAIL, "MindCare Hackathons"));
+            message.setFrom(new InternetAddress(SENDER_EMAIL, "skill bridge Hackathons"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setContent(htmlContent, "text/html; charset=utf-8");

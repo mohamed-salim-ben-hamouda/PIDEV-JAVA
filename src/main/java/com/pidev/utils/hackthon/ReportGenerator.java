@@ -61,7 +61,7 @@ public class ReportGenerator {
         }
     }
 
-    public static void generateSponsorshipContract(SponsorHackathon sh, String filePath, String signaturePath) throws IOException {
+        public static void generateSponsorshipContract(SponsorHackathon sh, String filePath, String signaturePath) throws IOException {
         try (PdfWriter writer = new PdfWriter(filePath);
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {

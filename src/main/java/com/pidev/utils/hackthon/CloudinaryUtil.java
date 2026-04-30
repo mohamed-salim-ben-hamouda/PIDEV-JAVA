@@ -9,7 +9,7 @@ import java.util.Map;
 public class CloudinaryUtil {
     private static final String CLOUD_NAME = "dvs4zymiq";
     private static final String API_KEY = "xxxxxxxxxxxxxxx";
-    private static final String API_SECRET = "xxxxxxxxxx";
+    private static final String API_SECRET = "xxxxxxxxxxxxxxxxxxxxxxx";
     private static final String UPLOAD_PRESET = "hackthon";
 
     private static Cloudinary cloudinary;

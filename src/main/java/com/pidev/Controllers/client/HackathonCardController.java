@@ -72,7 +72,6 @@ public class HackathonCardController {
         loadSponsors(h.getId());
     }
 
-
     @FXML
     private void handleAIConsult() {
         try {
@@ -213,7 +212,4 @@ public class HackathonCardController {
             sponsorsBox.getChildren().add(noSponsors);
         }
     }
-
-
-    
 }

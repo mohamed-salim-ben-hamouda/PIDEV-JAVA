@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class GeminiService {
 
-    private static final String API_KEY = "xxxxxxxxxxxxxxxxxx";
+    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="
             + API_KEY;
 

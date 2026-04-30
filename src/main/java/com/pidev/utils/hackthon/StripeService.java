@@ -6,7 +6,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import com.pidev.models.Hackathon;
 
 public class StripeService {
-    private static final String SECRET_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    private static final String SECRET_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
     static {
         Stripe.apiKey = SECRET_KEY;
