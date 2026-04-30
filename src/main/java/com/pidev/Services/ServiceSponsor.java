@@ -17,7 +17,7 @@ public class ServiceSponsor implements ICrud<Sponsor> {
     }
 
     @Override
-    public void add(Sponsor sponsor) {
+    public boolean add(Sponsor sponsor) {
         String query = "INSERT INTO sponsor (name, description, logo_url, website_url, created_at, creator_id_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, sponsor.getName());
@@ -28,13 +28,15 @@ public class ServiceSponsor implements ICrud<Sponsor> {
             pst.setInt(6, sponsor.getCreator().getId());
             pst.executeUpdate();
             System.out.println("Sponsor added!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 
     @Override
-    public void update(Sponsor sponsor) {
+    public boolean update(Sponsor sponsor) {
         String query = "UPDATE sponsor SET name=?, description=?, logo_url=?, website_url=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, sponsor.getName());
@@ -44,8 +46,10 @@ public class ServiceSponsor implements ICrud<Sponsor> {
             pst.setInt(5, sponsor.getId());
             pst.executeUpdate();
             System.out.println("Sponsor updated!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 

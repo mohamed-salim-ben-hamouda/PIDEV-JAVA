@@ -56,6 +56,10 @@ public class SponsorFormController implements Initializable {
     @FXML
     private void save() {
         if (!validate()) return;
+        if (SessionManager.getInstance().getUser() == null) {
+            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING, "No active session. Please login first.").showAndWait();
+            return;
+        }
 
         boolean isNew = (sponsor == null);
         if (isNew) sponsor = new Sponsor();
@@ -64,7 +68,7 @@ public class SponsorFormController implements Initializable {
         sponsor.setDescription(descriptionArea.getText());
         sponsor.setLogoUrl(selectedImagePath);
         sponsor.setWebsiteUrl(websiteUrlField.getText());
-        sponsor.setCreator(SessionManager.getUser());
+        sponsor.setCreator(SessionManager.getInstance().getUser());
 
         if (isNew) {
             service.add(sponsor);

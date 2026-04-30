@@ -18,7 +18,7 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
     }
 
     @Override
-    public void add(SponsorHackathon sh) {
+    public boolean add(SponsorHackathon sh) {
         String query = "INSERT INTO sponsor_hackathon (sponsor_id, hackathon_id, contribution_type, contribution_value) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sh.getSponsor().getId());
@@ -31,13 +31,15 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
             }
             pst.executeUpdate();
             System.out.println("SponsorHackathon relation added!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 
     @Override
-    public void update(SponsorHackathon sh) {
+    public boolean update(SponsorHackathon sh) {
         String query = "UPDATE sponsor_hackathon SET sponsor_id=?, hackathon_id=?, contribution_type=?, contribution_value=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sh.getSponsor().getId());
@@ -51,8 +53,10 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
             pst.setInt(5, sh.getId());
             pst.executeUpdate();
             System.out.println("SponsorHackathon relation updated!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 

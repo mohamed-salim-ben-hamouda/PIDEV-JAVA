@@ -17,7 +17,7 @@ public class ServiceHackathon implements ICrud<Hackathon> {
     }
 
     @Override
-    public void add(Hackathon h) {
+    public boolean add(Hackathon h) {
         String query = "INSERT INTO hackathon (title, theme, description, rules, start_at, end_at, " +
                 "registration_open_at, registration_close_at, fee, max_teams, team_size_max, location, " +
                 "cover_url, status, created_at, creator_id_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -40,13 +40,15 @@ public class ServiceHackathon implements ICrud<Hackathon> {
             pst.setInt(16, h.getCreator().getId());
             pst.executeUpdate();
             System.out.println("Hackathon added!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 
     @Override
-    public void update(Hackathon h) {
+    public boolean update(Hackathon h) {
         String query = "UPDATE hackathon SET title=?, theme=?, description=?, rules=?, start_at=?, end_at=?, " +
                 "registration_open_at=?, registration_close_at=?, fee=?, max_teams=?, team_size_max=?, location=?, " +
                 "cover_url=?, status=? WHERE id=?";
@@ -68,8 +70,10 @@ public class ServiceHackathon implements ICrud<Hackathon> {
             pst.setInt(15, h.getId());
             pst.executeUpdate();
             System.out.println("Hackathon updated!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 

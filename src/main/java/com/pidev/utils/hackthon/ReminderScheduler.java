@@ -75,7 +75,7 @@ public class ReminderScheduler {
     }
 
     private static void sendReminderEmail(Hackathon h) {
-        User user = SessionManager.getUser(); // Simulation de l'utilisateur connecté
+        User user = SessionManager.getInstance().getUser(); // Simulation de l'utilisateur connecté
         if (user != null && user.getEmail() != null) {
             String content = "<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;'>" +
                     "  <div style='background: linear-gradient(135deg, #f093fb, #f5576c); padding: 40px 20px; text-align: center; color: white;'>" +

@@ -124,21 +124,36 @@ public class HackathonCardController {
     }
 
     private void completeParticipation() {
+        User user = SessionManager.getInstance().getUser();
+        if (user == null) {
+            Alert sessionAlert = new Alert(Alert.AlertType.WARNING);
+            sessionAlert.setContentText("Veuillez vous connecter pour participer au hackathon.");
+            sessionAlert.showAndWait();
+            return;
+        }
+
         Participation p = new Participation();
         p.setHackathon(currentHackathon);
         p.setStatus("inscrit");
         p.setPaymentStatus("payé");
         p.setPaymentRef("REF-" + System.currentTimeMillis()); // Avoids 'payment_ref' cannot be null
-        p.setGroupId(1); // DUMMY FIX: Forces a Group ID to bypass the "cannot be null" DB error for your demo
+        p.setRegisteredAt(java.time.LocalDateTime.now());
+        // No group selected yet from UI: keep null to avoid invalid FK to `group` table.
+        p.setGroupId(null);
 
         System.out.println("DEBUG: Attempting to save participation to DB...");
-        serviceP.add(p);
+        boolean saved = serviceP.add(p);
+        if (!saved) {
+            Alert fail = new Alert(Alert.AlertType.ERROR);
+            fail.setContentText("Echec de l'enregistrement de participation.");
+            fail.showAndWait();
+            return;
+        }
 
         // ADD TO MEMORY (FOR DEMO): even if DB fails, the reminder will work!
         ReminderScheduler.addTestParticipation(p);
 
         // Send Email Confirmation
-        User user = SessionManager.getUser();
         if (user != null && user.getEmail() != null) {
             String emailContent = "<div style='font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;'>" +
                     "  <div style='background: linear-gradient(135deg, #6e8efb, #a777e3); padding: 40px 20px; text-align: center; color: white;'>" +

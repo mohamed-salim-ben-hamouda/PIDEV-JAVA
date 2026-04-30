@@ -65,6 +65,10 @@ public class HackathonFormController implements Initializable {
     @FXML
     private void save() {
         if (!validate()) return;
+        if (SessionManager.getInstance().getUser() == null) {
+            new Alert(Alert.AlertType.WARNING, "No active session. Please login first.").showAndWait();
+            return;
+        }
 
         boolean isNew = (hackathon == null);
         if (isNew) hackathon = new Hackathon();
@@ -83,7 +87,7 @@ public class HackathonFormController implements Initializable {
         hackathon.setLocation(locationField.getText());
         hackathon.setCoverUrl(selectedImagePath);
         hackathon.setStatus("upcoming");
-        hackathon.setCreator(SessionManager.getUser());
+        hackathon.setCreator(SessionManager.getInstance().getUser());
 
         if (isNew) {
             service.add(hackathon);

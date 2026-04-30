@@ -4,11 +4,15 @@ import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.pidev.models.Hackathon;
+import com.pidev.utils.EnvConfig;
 
 public class StripeService {
-    private static final String SECRET_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    private static final String SECRET_KEY = EnvConfig.get("STRIPE_SECRET_KEY");
 
     static {
+        if (SECRET_KEY == null || SECRET_KEY.isBlank()) {
+            throw new IllegalStateException("Missing STRIPE_SECRET_KEY in .env");
+        }
         Stripe.apiKey = SECRET_KEY;
     }
 

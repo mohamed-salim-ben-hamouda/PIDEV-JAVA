@@ -3,6 +3,7 @@ package com.pidev.utils.hackthon;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.pidev.utils.EnvConfig;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -11,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class GeminiService {
 
-    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    private static final String API_KEY = EnvConfig.get("GEMINI_API_KEY");
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="
             + API_KEY;
 
@@ -23,6 +24,9 @@ public class GeminiService {
      * @return Un CompletableFuture contenant la réponse de l'IA
      */
     public static CompletableFuture<String> getAdvice(String hackathonTitle, String hackathonTheme) {
+        if (API_KEY == null || API_KEY.isBlank()) {
+            return CompletableFuture.completedFuture("Configuration manquante: GEMINI_API_KEY dans .env");
+        }
         String prompt = "Donne-moi 3 conseils courts et motivants pour réussir le hackathon suivant : \n" +
                 "Titre: " + hackathonTitle + "\n" +
                 "Thème: " + hackathonTheme + "\n" +

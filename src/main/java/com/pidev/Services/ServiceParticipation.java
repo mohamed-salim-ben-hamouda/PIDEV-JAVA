@@ -17,7 +17,7 @@ public class ServiceParticipation implements ICrud<Participation> {
     }
 
     @Override
-    public void add(Participation p) {
+    public boolean add(Participation p) {
         String query = "INSERT INTO participation (status, payment_status, payment_ref, registred_at, hackathon_id, group_id_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, p.getStatus());
@@ -25,20 +25,21 @@ public class ServiceParticipation implements ICrud<Participation> {
             pst.setString(3, p.getPaymentRef());
             pst.setTimestamp(4, Timestamp.valueOf(p.getRegisteredAt()));
             pst.setInt(5, p.getHackathon().getId());
-            if (p.getGroupId() != null) {
-                pst.setInt(6, p.getGroupId());
-            } else {
-                pst.setNull(6, Types.INTEGER);
-            }
+            pst.setInt(6, resolveValidGroupId(p.getGroupId()));
             pst.executeUpdate();
             System.out.println("Participation added!");
+            return true;
         } catch (SQLException e) {
+            if ("23000".equals(e.getSQLState())) {
+                System.err.println("Participation insert failed: invalid foreign key value for group_id_id.");
+            }
             System.err.println(e.getMessage());
+            return false;
         }
     }
 
     @Override
-    public void update(Participation p) {
+    public boolean update(Participation p) {
         String query = "UPDATE participation SET status=?, payment_status=?, payment_ref=?, registred_at=?, hackathon_id=?, group_id_id=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, p.getStatus());
@@ -46,16 +47,14 @@ public class ServiceParticipation implements ICrud<Participation> {
             pst.setString(3, p.getPaymentRef());
             pst.setTimestamp(4, Timestamp.valueOf(p.getRegisteredAt()));
             pst.setInt(5, p.getHackathon().getId());
-            if (p.getGroupId() != null) {
-                pst.setInt(6, p.getGroupId());
-            } else {
-                pst.setNull(6, Types.INTEGER);
-            }
+            pst.setInt(6, resolveValidGroupId(p.getGroupId()));
             pst.setInt(7, p.getId());
             pst.executeUpdate();
             System.out.println("Participation updated!");
+            return true;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            return false;
         }
     }
 
@@ -122,5 +121,39 @@ public class ServiceParticipation implements ICrud<Participation> {
         }
         
         return p;
+    }
+
+    private int resolveValidGroupId(Integer requestedGroupId) throws SQLException {
+        if (requestedGroupId != null && groupExists(requestedGroupId)) {
+            return requestedGroupId;
+        }
+
+        Integer fallbackGroupId = fetchAnyExistingGroupId();
+        if (fallbackGroupId != null) {
+            return fallbackGroupId;
+        }
+
+        throw new SQLException("No existing group found. Cannot insert participation with required group_id_id.");
+    }
+
+    private boolean groupExists(int groupId) throws SQLException {
+        String query = "SELECT id FROM `group` WHERE id = ? LIMIT 1";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, groupId);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private Integer fetchAnyExistingGroupId() throws SQLException {
+        String query = "SELECT id FROM `group` ORDER BY id ASC LIMIT 1";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+            return null;
+        }
     }
 }
