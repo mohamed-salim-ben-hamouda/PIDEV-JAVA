@@ -1,0 +1,218 @@
+/* --- Global Settings --- */
+.root {
+    -fx-font-family: "Segoe UI Semibold", "System", sans-serif;
+    -fx-background-color: #f8fafc;
+}
+
+/* --- ScrollPane Styling --- */
+.transparent-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.transparent-scroll .viewport {
+    -fx-background-color: transparent !important;
+}
+
+/* --- Navigation Bar --- */
+.nav-item {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #475569;
+    -fx-cursor: hand;
+}
+
+.nav-item:hover {
+    -fx-text-fill: #6366f1;
+}
+
+.nav-logout-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6366f1;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+}
+
+.nav-logout-btn:hover {
+    -fx-text-fill: #4f46e5;
+    -fx-underline: true;
+}
+
+/* --- Hero Section --- */
+.hero-title {
+    -fx-font-size: 54px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #3b5998;
+}
+
+.hero-subtitle {
+    -fx-font-size: 18px;
+    -fx-text-fill: #64748b;
+    -fx-line-spacing: 4px;
+}
+
+.primary-btn {
+    -fx-background-color: #6366f1;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 14 35;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.3), 10, 0, 0, 4);
+}
+
+.primary-btn:hover {
+    -fx-background-color: #4f46e5;
+    -fx-translate-y: -2;
+}
+
+/* --- Section Typography --- */
+.section-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1e293b;
+}
+
+.section-subtitle {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6366f1;
+}
+
+/* --- Module Cards --- */
+.module-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18px;
+    -fx-padding: 25;
+    -fx-pref-width: 220;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.04), 10, 0, 0, 2);
+}
+
+.module-card:hover {
+    -fx-translate-y: -5;
+    -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.1), 15, 0, 0, 8);
+}
+
+/* --- Team Member Cards --- */
+.main-card {
+    -fx-background-color: white;
+    -fx-background-radius: 24px;
+    -fx-padding: 30 20;
+    -fx-pref-width: 240px;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.03), 20, 0, 0, 10);
+}
+
+.main-card:hover {
+    -fx-translate-y: -8;
+    -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.15), 25, 0, 0, 12);
+}
+
+.member-name {
+    -fx-font-weight: 700;
+    -fx-font-size: 16px;
+    -fx-text-fill: #1e293b;
+}
+
+.member-role {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #6366f1;
+}
+
+/* --- Social Overlays --- */
+.social-wrapper {
+    -fx-opacity: 0.0;
+    -fx-alignment: CENTER;
+    -fx-spacing: 15;
+}
+
+.main-card:hover .social-wrapper {
+    -fx-opacity: 1.0;
+}
+
+.social-circle {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-min-width: 40px;
+    -fx-max-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+    -fx-alignment: CENTER;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.12), 8, 0, 0, 3);
+}
+
+.social-circle:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* Fix for Ikonli Colors */
+.fb-icon {
+    -fx-icon-color: #3b82f6;
+}
+
+.insta-icon {
+    -fx-icon-color: #e1306c;
+}
+
+/* --- About Section --- */
+.about-text {
+    -fx-fill: #64748b;
+    -fx-font-size: 16px;
+    -fx-line-spacing: 6px;
+}
+
+.about-img-container {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 30, 0, 0, 15);
+    -fx-background-radius: 35;
+}
+
+.scroll-pane,
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: rgba(214, 226, 243, 0.85);
+    -fx-background-radius: 999;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: linear-gradient(to bottom, #8fb3ef 0%, #6f99e7 100%);
+    -fx-background-radius: 999;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #7ea7eb 0%, #5f8ddf 100%);
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-padding: 2;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: #7f97b8;
+    -fx-padding: 0.22em;
+}
