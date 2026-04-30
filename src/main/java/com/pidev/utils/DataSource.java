@@ -10,9 +10,9 @@ public class DataSource {
 
     private Connection connection;
 
-    private final String USER = "root";//connexion
-    private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/pidev";
+    private final String USER = EnvConfig.get("DB_USER", "root");
+    private final String PASSWORD = EnvConfig.get("DB_PASSWORD", "");
+    private final String URL = EnvConfig.get("DB_URL", "jdbc:mysql://localhost:3306/pidev");
 
     private DataSource() {
         try {

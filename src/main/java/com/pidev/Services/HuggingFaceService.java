@@ -20,7 +20,7 @@ public class HuggingFaceService {
 
     // IMPORTANT: Remplacez cette clé par votre propre Access Token Hugging Face
     // Vous pouvez obtenir un token gratuit sur https://huggingface.co/settings/tokens
-    private static final String API_TOKEN = "";
+    private static final String API_TOKEN = com.pidev.utils.EnvConfig.get("HF_API_TOKEN", "");
     
     private static final String VISION_MODEL_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base";
     private static final String GENERATION_MODEL_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell";

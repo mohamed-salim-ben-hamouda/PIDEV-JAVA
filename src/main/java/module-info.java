@@ -19,6 +19,7 @@ module com.pidev.challenge_module {
     requires org.bytedeco.javacpp;
     requires org.bytedeco.openblas;
     requires java.net.http;
+    requires io.github.cdimascio.dotenv.java;
 
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
