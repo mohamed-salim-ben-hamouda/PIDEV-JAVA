@@ -14,11 +14,7 @@ import java.util.List;
 
 public class AIService {
 
-    /**
-     * SOLUTION FINALE : GROQ API (Compatible avec votre clé gsk_...)
-     * Votre clé commence par 'gsk_', ce qui signifie qu'elle appartient à GROQ, pas Gemini.
-     * Groq est l'API la plus rapide au monde et elle est GRATUITE.
-     */
+
     private static final String API_KEY = "";
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
     private static final String MODEL_ID = "llama-3.1-8b-instant"; // Version stable et supportée en 2026
@@ -101,6 +97,7 @@ public class AIService {
                 " - Translate ONLY textual content. \n" +
                 " - Keep all dates EXACTLY as they are (format YYYY-MM-DD). \n" +
                 " - Keep boolean values unchanged (true/false). \n" +
+                " - If currentlyWorking is true, endDate MUST be null. \n" +
                 " - Keep empty arrays if they exist. \n" +
                 " - If a field is already in the target language, keep it as is. \n" +
                 " - Preserve formatting consistency. \n" +
@@ -114,6 +111,7 @@ public class AIService {
                 " - educations (all text fields) \n" +
                 " - skills (all text fields) \n" +
                 " - languages (all text fields) \n" +
+                " - certifs (name and issuedBy fields) \n" +
                 " \n" +
                 " INPUT CV (JSON): \n" +
                 cvJson + " \n" +
@@ -134,7 +132,8 @@ public class AIService {
                 " ], \n" +
                 " \"educations\": [{\"degree\": \"...\", \"fieldOfStudy\": \"...\", \"school\": \"...\", \"city\": \"...\", \"startDate\": \"YYYY-MM-DD\", \"endDate\": \"YYYY-MM-DD\", \"description\": \"...\"}], \n" +
                 " \"skills\": [{\"nom\": \"...\", \"type\": \"...\", \"level\": \"...\"}], \n" +
-                " \"languages\": [{\"nom\": \"...\", \"niveau\": \"...\"}] \n" +
+                " \"languages\": [{\"nom\": \"...\", \"niveau\": \"...\"}], \n" +
+                " \"certifs\": [{\"name\": \"...\", \"issuedBy\": \"...\", \"issueDate\": \"YYYY-MM-DD\", \"expDate\": \"YYYY-MM-DD\"}] \n" +
                 " }";
 
         JsonObject requestBody = new JsonObject();
@@ -174,19 +173,136 @@ public class AIService {
         return parseAiResponse(response.body());
     }
 
+    public AtsAnalysis analyzeAtsWithAI(Cv cv, String jobTitle, String jobDescription) throws IOException, InterruptedException {
+        String cvJson = gson.toJson(cv);
+        String prompt = "Analyze the following CV against a job description for ATS (Applicant Tracking System) compatibility.\n\n" +
+                "JOB TITLE: " + jobTitle + "\n" +
+                "JOB DESCRIPTION: " + jobDescription + "\n\n" +
+                "CV CONTENT (JSON): " + cvJson + "\n\n" +
+                "STRICT RULES:\n" +
+                "- Return ONLY a valid JSON object.\n" +
+                "- Analyze keywords, skills, and experience relevance.\n" +
+                "- The response must be in French.\n\n" +
+                "EXPECTED JSON STRUCTURE:\n" +
+                "{\n" +
+                "  \"score\": 75, (Integer between 0-100)\n" +
+                "  \"matchedSkills\": [\"Skill 1\", \"Skill 2\"],\n" +
+                "  \"missingSkills\": [\"Skill A\", \"Skill B\"],\n" +
+                "  \"strengths\": [\"Point fort 1\"],\n" +
+                "  \"weaknesses\": [\"Point faible 1\"],\n" +
+                "  \"suggestions\": [\"Suggestion 1\"]\n" +
+                "}";
+
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("model", MODEL_ID);
+
+        JsonArray messages = new JsonArray();
+        JsonObject systemMsg = new JsonObject();
+        systemMsg.addProperty("role", "system");
+        systemMsg.addProperty("content", "You are an ATS analysis expert. Return ONLY valid JSON.");
+        messages.add(systemMsg);
+
+        JsonObject userMsg = new JsonObject();
+        userMsg.addProperty("role", "user");
+        userMsg.addProperty("content", prompt);
+        messages.add(userMsg);
+
+        requestBody.add("messages", messages);
+
+        JsonObject responseFormat = new JsonObject();
+        responseFormat.addProperty("type", "json_object");
+        requestBody.add("response_format", responseFormat);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + API_KEY.trim())
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new IOException("Erreur API Groq: " + response.body());
+        }
+
+        JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
+        String content = root.getAsJsonArray("choices").get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString();
+        return gson.fromJson(content, AtsAnalysis.class);
+    }
+
+    public String generateMotivationLetter(Cv cv, Offer offer, String language) throws IOException, InterruptedException {
+        String cvJson = gson.toJson(cv);
+        String targetLang = (language == null || language.isEmpty()) ? (cv.getLangue() != null ? cv.getLangue() : "Français") : language;
+
+        String prompt = "Generate a professional motivation letter for the following job offer using ONLY the provided CV information.\n\n" +
+                "OFFER TITLE: " + offer.getTitle() + "\n" +
+                "COMPANY: " + (offer.getEntreprise() != null ? offer.getEntreprise().getNom() : "l'entreprise") + "\n" +
+                "OFFER DESCRIPTION: " + offer.getDescription() + "\n\n" +
+                "CV DATA (JSON): " + cvJson + "\n\n" +
+                "STRICT RULES:\n" +
+                "- Language: " + targetLang + "\n" +
+                "- Do NOT invent any experience, education, date, or skill not present in the CV.\n" +
+                "- Use the candidate's real name and contact info if present in CV.\n" +
+                "- If a date is NULL and currentlyWorking is true, use 'Présent' or 'Present'.\n" +
+                "- Maintain a professional, enthusiastic, and persuasive tone.\n" +
+                "- Focus on matching the candidate's strengths to the offer's requirements.\n" +
+                "- Length: Around 300-400 words.\n" +
+                "- Format: Standard business letter format (Header, Date, Recipient, Salutation, Body, Closing).\n" +
+                "- Return ONLY the text of the letter. No explanations.";
+
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("model", MODEL_ID);
+
+        JsonArray messages = new JsonArray();
+        JsonObject systemMsg = new JsonObject();
+        systemMsg.addProperty("role", "system");
+        systemMsg.addProperty("content", "You are an expert career consultant. You write compelling, factual motivation letters.");
+        messages.add(systemMsg);
+
+        JsonObject userMsg = new JsonObject();
+        userMsg.addProperty("role", "user");
+        userMsg.addProperty("content", prompt);
+        messages.add(userMsg);
+
+        requestBody.add("messages", messages);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + API_KEY.trim())
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new IOException("Erreur API Groq: " + response.body());
+        }
+
+        JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
+        return root.getAsJsonArray("choices").get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString();
+    }
+
     private String constructPrompt(String jobTitle, String notes, String language, List<String> sections) {
         String sectionsStr = String.join(", ", sections);
 
         return "Generate a professional CV in " + language + " for the position: " + jobTitle + ".\n" +
-                "Details: " + notes + "\n" +
-                "Mandatory sections: " + sectionsStr + ".\n\n" +
+                "User Provided Info: " + (notes != null && !notes.isBlank() ? notes : "None") + "\n" +
+                "Mandatory sections to include: " + sectionsStr + ".\n\n" +
+                "STRICT RULES TO PREVENT HALLUCINATION:\n" +
+                "1. Use ONLY information provided by the user in the 'User Provided Info' section.\n" +
+                "2. If the user DID NOT provide dates for experiences or education, leave the 'startDate' and 'endDate' fields as NULL or empty string. DO NOT invent dates.\n" +
+                "3. If currentlyWorking is true, endDate MUST be null. Do not invent an end date.\n" +
+                "4. If the user DID NOT provide a school name, degree, or company name, leave those fields empty. DO NOT invent names of institutions or companies.\n" +
+                "5. If a section is requested (e.g., 'Expériences') but the user provided NO information for it, return an EMPTY ARRAY [] for that section.\n" +
+                "6. Focus on professional and realistic formatting based ONLY on provided facts.\n\n" +
                 "CRITICAL: Return ONLY a JSON object with this exact structure:\n" +
                 "{\n" +
                 "  \"summary\": \"...\",\n" +
                 "  \"experiences\": [{\"jobTitle\": \"...\", \"company\": \"...\", \"location\": \"...\", \"startDate\": \"YYYY-MM-DD\", \"endDate\": \"YYYY-MM-DD\", \"currentlyWorking\": false, \"description\": \"...\"}],\n" +
                 "  \"educations\": [{\"degree\": \"...\", \"fieldOfStudy\": \"...\", \"school\": \"...\", \"city\": \"...\", \"startDate\": \"YYYY-MM-DD\", \"endDate\": \"YYYY-MM-DD\", \"description\": \"...\"}],\n" +
                 "  \"skills\": [{\"nom\": \"...\", \"type\": \"hard/soft\", \"level\": \"Expert\"}],\n" +
-                "  \"languages\": [{\"nom\": \"...\", \"niveau\": \"...\"}]\n" +
+                "  \"languages\": [{\"nom\": \"...\", \"niveau\": \"...\"}],\n" +
+                "  \"certifications\": [{\"name\": \"...\", \"issuedBy\": \"...\", \"issueDate\": \"YYYY-MM-DD\", \"expDate\": \"YYYY-MM-DD\"}]\n" +
                 "}";
     }
 
@@ -207,6 +323,7 @@ public class AIService {
             cv.setEducations(parseEducations(json));
             cv.setSkills(parseSkills(json));
             cv.setLanguages(parseLanguages(json));
+            cv.setCertifs(parseCertifs(json));
 
             return cv;
         } catch (Exception e) {
@@ -276,6 +393,23 @@ public class AIService {
                 l.setNom(getString(obj, "nom"));
                 l.setNiveau(getString(obj, "niveau"));
                 list.add(l);
+            }
+        }
+        return list;
+    }
+
+    private List<Certif> parseCertifs(JsonObject json) {
+        List<Certif> list = new ArrayList<>();
+        String key = json.has("certifications") ? "certifications" : (json.has("certifs") ? "certifs" : null);
+        if (key != null && json.get(key).isJsonArray()) {
+            for (JsonElement e : json.getAsJsonArray(key)) {
+                JsonObject obj = e.getAsJsonObject();
+                Certif c = new Certif();
+                c.setName(getString(obj, "name"));
+                c.setIssuedBy(getString(obj, "issuedBy"));
+                c.setIssueDate(parseDate(getString(obj, "issueDate")));
+                c.setExpDate(parseDate(getString(obj, "expDate")));
+                list.add(c);
             }
         }
         return list;

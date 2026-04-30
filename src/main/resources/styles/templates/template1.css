@@ -1,0 +1,92 @@
+.cv-container {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.sidebar {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.profile-circle {
+    -fx-stroke: #f97316;
+    -fx-stroke-width: 3;
+}
+
+.upload-icon {
+    -fx-font-size: 30;
+    -fx-text-fill: #94a3b8;
+}
+
+.profile-stack:hover .profile-circle {
+    -fx-stroke: #ea580c;
+    -fx-effect: dropshadow(three-pass-box, rgba(249,115,22,0.3), 10, 0, 0, 0);
+}
+
+.sidebar-title {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+    -fx-border-color: #f97316;
+    -fx-border-width: 0 0 0 4;
+    -fx-padding: 0 0 0 10;
+}
+
+.contact-info {
+    -fx-font-size: 12;
+    -fx-text-fill: #64748b;
+}
+
+.candidate-name {
+    -fx-font-size: 32;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.candidate-title {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f97316;
+}
+
+.section-title {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+    -fx-border-color: #f97316;
+    -fx-border-width: 0 0 0 5;
+    -fx-padding: 0 0 0 12;
+}
+
+.summary-text {
+    -fx-font-size: 14;
+    -fx-text-fill: #475569;
+    -fx-line-spacing: 4;
+}
+
+.item-title {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.item-subtitle {
+    -fx-font-size: 12;
+    -fx-text-fill: #64748b;
+    -fx-font-style: italic;
+}
+
+.item-description {
+    -fx-font-size: 13;
+    -fx-text-fill: #475569;
+}
+
+.skill-tag {
+    -fx-background-color: #fff7ed;
+    -fx-text-fill: #c2410c;
+    -fx-padding: 4 10;
+    -fx-background-radius: 5;
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+}

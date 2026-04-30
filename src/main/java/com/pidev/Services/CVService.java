@@ -38,16 +38,35 @@ public class CVService {
 
     private void ensureTableSchema() {
         try {
+            // Fix existing columns to allow NULL (Important for "Present" status)
+            modifyColumnToNullable("experience", "end_date", "DATE");
+            modifyColumnToNullable("education", "end_date", "DATE");
+
+            // Fix potential length issues by converting to TEXT
+            modifyColumnType("experience", "job_title", "TEXT");
+            modifyColumnType("experience", "company", "TEXT");
+            modifyColumnType("experience", "location", "TEXT");
+            modifyColumnType("education", "degree", "TEXT");
+            modifyColumnType("education", "field_of_study", "TEXT");
+            modifyColumnType("education", "school", "TEXT");
+            modifyColumnType("education", "city", "TEXT");
+            modifyColumnType("certif", "name", "TEXT");
+            modifyColumnType("certif", "issued_by", "TEXT");
+
             // Check and add missing columns for experience
-            addColumnIfNotExists("experience", "location", "VARCHAR(255)");
+            addColumnIfNotExists("experience", "job_title", "TEXT");
+            addColumnIfNotExists("experience", "company", "TEXT");
+            addColumnIfNotExists("experience", "location", "TEXT");
             addColumnIfNotExists("experience", "start_date", "DATE");
             addColumnIfNotExists("experience", "end_date", "DATE");
             addColumnIfNotExists("experience", "currently_working", "TINYINT(1) DEFAULT 0");
             addColumnIfNotExists("experience", "description", "TEXT");
 
             // Check and add missing columns for education
-            addColumnIfNotExists("education", "field_of_study", "VARCHAR(255)");
-            addColumnIfNotExists("education", "city", "VARCHAR(255)");
+            addColumnIfNotExists("education", "degree", "TEXT");
+            addColumnIfNotExists("education", "field_of_study", "TEXT");
+            addColumnIfNotExists("education", "school", "TEXT"); // Using TEXT to avoid "Data too long"
+            addColumnIfNotExists("education", "city", "TEXT");
             addColumnIfNotExists("education", "start_date", "DATE");
             addColumnIfNotExists("education", "end_date", "DATE");
             addColumnIfNotExists("education", "description", "TEXT");
@@ -56,11 +75,40 @@ public class CVService {
             addColumnIfNotExists("skill", "type", "VARCHAR(50)");
 
             // Check and add missing columns for certif
+            addColumnIfNotExists("certif", "name", "TEXT");
+            addColumnIfNotExists("certif", "issued_by", "TEXT");
             addColumnIfNotExists("certif", "issue_date", "DATE");
             addColumnIfNotExists("certif", "exp_date", "DATE");
 
+            // Check and add missing columns for cv
+            addColumnIfNotExists("cv", "photo_url", "VARCHAR(255)");
+            modifyColumnType("cv", "summary", "TEXT");
+            modifyColumnType("cv", "nom_cv", "TEXT");
+            modifyColumnType("cv", "linkedin_url", "TEXT");
+
         } catch (SQLException e) {
             System.err.println("Note: Erreur lors de la vérification du schéma (possible colonnes déjà existantes): " + e.getMessage());
+        }
+    }
+
+    private void modifyColumnToNullable(String tableName, String columnName, String type) throws SQLException {
+        String alterSql = "ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + type + " NULL";
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate(alterSql);
+            System.out.println("Colonne modifiée en NULLABLE: " + tableName + "." + columnName);
+        } catch (SQLException e) {
+            // Might fail if table or column doesn't exist yet, which is handled by ensureTableSchema calling addColumnIfNotExists later
+            System.err.println("Note: Impossible de modifier " + tableName + "." + columnName + " : " + e.getMessage());
+        }
+    }
+
+    private void modifyColumnType(String tableName, String columnName, String newType) throws SQLException {
+        String alterSql = "ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + newType;
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate(alterSql);
+            System.out.println("Type de colonne modifié: " + tableName + "." + columnName + " en " + newType);
+        } catch (SQLException e) {
+            System.err.println("Note: Impossible de modifier le type de " + tableName + "." + columnName + " : " + e.getMessage());
         }
     }
 
@@ -84,8 +132,8 @@ public class CVService {
     public Cv ajouter(Cv cv) throws SQLException {
         validateCv(cv, false);
 
-        String sql = "INSERT INTO cv (nom_cv, langue, id_template, progression, creation_date, updated_at, user_id, linkedin_url, summary) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO cv (nom_cv, langue, id_template, progression, creation_date, updated_at, user_id, linkedin_url, summary, photo_url) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             fillCvStatement(preparedStatement, cv);
@@ -118,9 +166,9 @@ public class CVService {
                 String sql = "INSERT INTO experience (cv_id, job_title, company, location, start_date, end_date, currently_working, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement ps = connection.prepareStatement(sql)) {
                     ps.setInt(1, cv.getId());
-                    ps.setString(2, exp.getJobTitle());
-                    ps.setString(3, exp.getCompany());
-                    ps.setString(4, exp.getLocation());
+                    ps.setString(2, truncate(exp.getJobTitle(), 5000));
+                    ps.setString(3, truncate(exp.getCompany(), 5000));
+                    ps.setString(4, truncate(exp.getLocation(), 5000));
                     ps.setDate(5, exp.getStartDate() != null ? Date.valueOf(exp.getStartDate()) : null);
                     ps.setDate(6, exp.getEndDate() != null ? Date.valueOf(exp.getEndDate()) : null);
                     ps.setBoolean(7, exp.getCurrentlyWorking() != null ? exp.getCurrentlyWorking() : false);
@@ -135,10 +183,10 @@ public class CVService {
                 String sql = "INSERT INTO education (cv_id, degree, field_of_study, school, city, start_date, end_date, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement ps = connection.prepareStatement(sql)) {
                     ps.setInt(1, cv.getId());
-                    ps.setString(2, edu.getDegree());
-                    ps.setString(3, edu.getFieldOfStudy());
-                    ps.setString(4, edu.getSchool());
-                    ps.setString(5, edu.getCity());
+                    ps.setString(2, truncate(edu.getDegree(), 5000));
+                    ps.setString(3, truncate(edu.getFieldOfStudy(), 5000));
+                    ps.setString(4, truncate(edu.getSchool(), 5000));
+                    ps.setString(5, truncate(edu.getCity(), 5000));
                     ps.setDate(6, edu.getStartDate() != null ? Date.valueOf(edu.getStartDate()) : null);
                     ps.setDate(7, edu.getEndDate() != null ? Date.valueOf(edu.getEndDate()) : null);
                     ps.setString(8, edu.getDescription());
@@ -152,9 +200,9 @@ public class CVService {
                 String sql = "INSERT INTO skill (cv_id, nom, type, level) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement ps = connection.prepareStatement(sql)) {
                     ps.setInt(1, cv.getId());
-                    ps.setString(2, skill.getNom());
-                    ps.setString(3, skill.getType());
-                    ps.setString(4, skill.getLevel());
+                    ps.setString(2, truncate(skill.getNom(), 255));
+                    ps.setString(3, truncate(skill.getType(), 50));
+                    ps.setString(4, truncate(skill.getLevel(), 255));
                     ps.executeUpdate();
                 }
             }
@@ -165,8 +213,8 @@ public class CVService {
                 String sql = "INSERT INTO certif (cv_id, name, issued_by, issue_date, exp_date) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement ps = connection.prepareStatement(sql)) {
                     ps.setInt(1, cv.getId());
-                    ps.setString(2, cert.getName());
-                    ps.setString(3, cert.getIssuedBy());
+                    ps.setString(2, truncate(cert.getName(), 5000));
+                    ps.setString(3, truncate(cert.getIssuedBy(), 5000));
                     ps.setDate(4, cert.getIssueDate() != null ? Date.valueOf(cert.getIssueDate()) : null);
                     ps.setDate(5, cert.getExpDate() != null ? Date.valueOf(cert.getExpDate()) : null);
                     ps.executeUpdate();
@@ -179,8 +227,8 @@ public class CVService {
                 String sql = "INSERT INTO langue (cv_id, nom, niveau) VALUES (?, ?, ?)";
                 try (PreparedStatement ps = connection.prepareStatement(sql)) {
                     ps.setInt(1, cv.getId());
-                    ps.setString(2, lang.getNom());
-                    ps.setString(3, lang.getNiveau());
+                    ps.setString(2, truncate(lang.getNom(), 255));
+                    ps.setString(3, truncate(lang.getNiveau(), 255));
                     ps.executeUpdate();
                 }
             }
@@ -199,21 +247,58 @@ public class CVService {
         }
     }
 
+    public Cv getById(int id) throws SQLException {
+        String sql = "SELECT c.*, u.nom, u.prenom, u.email, u.photo "
+                + "FROM cv c "
+                + "LEFT JOIN user u ON c.user_id = u.id "
+                + "WHERE c.id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    Cv cv = mapCvWithUser(resultSet);
+                    fetchRelatedEntities(cv);
+                    return cv;
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Cv> afficher() throws SQLException {
-        String sql = "SELECT id, nom_cv, langue, id_template, progression, creation_date, updated_at, user_id, linkedin_url, summary "
-                + "FROM cv ORDER BY id DESC";
+        String sql = "SELECT c.*, u.nom, u.prenom, u.email, u.photo "
+                + "FROM cv c "
+                + "LEFT JOIN user u ON c.user_id = u.id "
+                + "ORDER BY c.id DESC";
         List<Cv> cvs = new ArrayList<>();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                Cv cv = mapCv(resultSet);
+                Cv cv = mapCvWithUser(resultSet);
                 fetchRelatedEntities(cv);
                 cvs.add(cv);
             }
         }
 
         return cvs;
+    }
+
+    private Cv mapCvWithUser(ResultSet resultSet) throws SQLException {
+        Cv cv = mapCv(resultSet);
+
+        Integer userId = getNullableInteger(resultSet, "user_id");
+        if (userId != null) {
+            User user = new User(userId);
+            user.setNom(resultSet.getString("nom"));
+            user.setPrenom(resultSet.getString("prenom"));
+            user.setEmail(resultSet.getString("email"));
+            user.setPhoto(resultSet.getString("photo"));
+            cv.setUser(user);
+        }
+
+        return cv;
     }
 
     private void fetchRelatedEntities(Cv cv) throws SQLException {
@@ -313,11 +398,11 @@ public class CVService {
 
             // 1. Update CV basic info
             String updateCvSql = "UPDATE cv SET nom_cv = ?, langue = ?, id_template = ?, progression = ?, creation_date = ?, "
-                    + "updated_at = ?, user_id = ?, linkedin_url = ?, summary = ? WHERE id = ?";
+                    + "updated_at = ?, user_id = ?, linkedin_url = ?, summary = ?, photo_url = ? WHERE id = ?";
 
             try (PreparedStatement ps = connection.prepareStatement(updateCvSql)) {
                 fillCvStatement(ps, cv);
-                ps.setInt(10, cv.getId());
+                ps.setInt(11, cv.getId());
                 ps.executeUpdate();
             }
 
@@ -331,9 +416,9 @@ public class CVService {
                 try (PreparedStatement ps = connection.prepareStatement(expSql)) {
                     for (Experience exp : cv.getExperiences()) {
                         ps.setInt(1, cv.getId());
-                        ps.setString(2, exp.getJobTitle());
-                        ps.setString(3, exp.getCompany());
-                        ps.setString(4, exp.getLocation());
+                        ps.setString(2, truncate(exp.getJobTitle(), 255));
+                        ps.setString(3, truncate(exp.getCompany(), 255));
+                        ps.setString(4, truncate(exp.getLocation(), 255));
                         ps.setDate(5, exp.getStartDate() != null ? Date.valueOf(exp.getStartDate()) : null);
                         ps.setDate(6, exp.getEndDate() != null ? Date.valueOf(exp.getEndDate()) : null);
                         ps.setBoolean(7, exp.getCurrentlyWorking() != null ? exp.getCurrentlyWorking() : false);
@@ -349,10 +434,10 @@ public class CVService {
                 try (PreparedStatement ps = connection.prepareStatement(eduSql)) {
                     for (Education edu : cv.getEducations()) {
                         ps.setInt(1, cv.getId());
-                        ps.setString(2, edu.getDegree());
-                        ps.setString(3, edu.getFieldOfStudy());
-                        ps.setString(4, edu.getSchool());
-                        ps.setString(5, edu.getCity());
+                        ps.setString(2, truncate(edu.getDegree(), 255));
+                        ps.setString(3, truncate(edu.getFieldOfStudy(), 255));
+                        ps.setString(4, truncate(edu.getSchool(), 5000));
+                        ps.setString(5, truncate(edu.getCity(), 255));
                         ps.setDate(6, edu.getStartDate() != null ? Date.valueOf(edu.getStartDate()) : null);
                         ps.setDate(7, edu.getEndDate() != null ? Date.valueOf(edu.getEndDate()) : null);
                         ps.setString(8, edu.getDescription());
@@ -367,9 +452,9 @@ public class CVService {
                 try (PreparedStatement ps = connection.prepareStatement(skillSql)) {
                     for (Skill skill : cv.getSkills()) {
                         ps.setInt(1, cv.getId());
-                        ps.setString(2, skill.getNom());
-                        ps.setString(3, skill.getType());
-                        ps.setString(4, skill.getLevel());
+                        ps.setString(2, truncate(skill.getNom(), 255));
+                        ps.setString(3, truncate(skill.getType(), 50));
+                        ps.setString(4, truncate(skill.getLevel(), 255));
                         ps.executeUpdate();
                     }
                 }
@@ -381,8 +466,8 @@ public class CVService {
                 try (PreparedStatement ps = connection.prepareStatement(certSql)) {
                     for (Certif cert : cv.getCertifs()) {
                         ps.setInt(1, cv.getId());
-                        ps.setString(2, cert.getName());
-                        ps.setString(3, cert.getIssuedBy());
+                        ps.setString(2, truncate(cert.getName(), 255));
+                        ps.setString(3, truncate(cert.getIssuedBy(), 255));
                         ps.setDate(4, cert.getIssueDate() != null ? Date.valueOf(cert.getIssueDate()) : null);
                         ps.setDate(5, cert.getExpDate() != null ? Date.valueOf(cert.getExpDate()) : null);
                         ps.executeUpdate();
@@ -396,8 +481,8 @@ public class CVService {
                 try (PreparedStatement ps = connection.prepareStatement(langSql)) {
                     for (Langue lang : cv.getLanguages()) {
                         ps.setInt(1, cv.getId());
-                        ps.setString(2, lang.getNom());
-                        ps.setString(3, lang.getNiveau());
+                        ps.setString(2, truncate(lang.getNom(), 255));
+                        ps.setString(3, truncate(lang.getNiveau(), 255));
                         ps.executeUpdate();
                     }
                 }
@@ -454,6 +539,7 @@ public class CVService {
         preparedStatement.setInt(7, cv.getUser().getId());
         setNullableString(preparedStatement, 8, cv.getLinkedinUrl());
         setNullableString(preparedStatement, 9, cv.getSummary());
+        setNullableString(preparedStatement, 10, cv.getPhotoUrl());
     }
 
     private Cv mapCv(ResultSet resultSet) throws SQLException {
@@ -466,13 +552,9 @@ public class CVService {
         cv.setCreationDate(toLocalDateTime(resultSet.getTimestamp("creation_date")));
         cv.setUpdatedAt(toLocalDateTime(resultSet.getTimestamp("updated_at")));
 
-        Integer userId = getNullableInteger(resultSet, "user_id");
-        if (userId != null) {
-            cv.setUser(new User(userId));
-        }
-
         cv.setLinkedinUrl(resultSet.getString("linkedin_url"));
         cv.setSummary(resultSet.getString("summary"));
+        cv.setPhotoUrl(resultSet.getString("photo_url"));
         return cv;
     }
 
@@ -485,11 +567,12 @@ public class CVService {
             validateId(cv.getId(), "L'ID du CV est obligatoire");
         }
 
-        validateRequiredString(cv.getNomCv(), "Le nom du CV est obligatoire", 2, 30, "Le nom du CV doit contenir entre 2 et 30 caractères");
-        validateRequiredString(cv.getLangue(), "La langue est obligatoire", 2, 30, "La langue doit contenir entre 2 et 30 caractères");
+        validateRequiredString(cv.getNomCv(), "Le nom du CV est obligatoire", 2, 255, "Le nom du CV doit contenir entre 2 et 255 caractères");
+        validateRequiredString(cv.getLangue(), "La langue est obligatoire", 2, 50, "La langue doit contenir entre 2 et 50 caractères");
 
         if (!LANGUES_AUTORISEES.contains(normalize(cv.getLangue()))) {
-            throw new IllegalArgumentException("La langue doit être Français, Anglais, Arabe ou Allemand");
+            // Log warning but don't throw exception for translation flexibility
+            System.out.println("Warning: Langue non standard détectée: " + cv.getLangue());
         }
 
         if (cv.getIdTemplate() != null && cv.getIdTemplate() <= 0) {
@@ -509,15 +592,15 @@ public class CVService {
         }
 
         if (cv.getLinkedinUrl() != null && !cv.getLinkedinUrl().isBlank()) {
-            validateUrl(cv.getLinkedinUrl());
+            // validateUrl(cv.getLinkedinUrl()); // Skip strict URL validation to avoid issues with translation
         }
 
         if (cv.getSummary() != null) {
             if (cv.getSummary().isBlank()) {
                 throw new IllegalArgumentException("Le résumé ne peut pas être vide");
             }
-            if (cv.getSummary().length() > 1000) {
-                throw new IllegalArgumentException("Le résumé ne peut pas dépasser 1000 caractères");
+            if (cv.getSummary().length() > 5000) {
+                throw new IllegalArgumentException("Le résumé ne peut pas dépasser 5000 caractères");
             }
         }
     }
@@ -585,5 +668,10 @@ public class CVService {
 
     private String normalize(String value) {
         return value == null ? null : value.trim();
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null) return null;
+        return value.length() <= maxLength ? value : value.substring(0, maxLength);
     }
 }

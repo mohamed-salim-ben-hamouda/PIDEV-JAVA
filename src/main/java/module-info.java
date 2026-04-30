@@ -10,6 +10,7 @@ module com.pidev.challenge_module {
     requires org.kordamp.ikonli.core;
     requires com.google.gson;
     requires java.net.http;
+    requires itextpdf;
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
     opens com.pidev.Controllers.client to javafx.fxml;

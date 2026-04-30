@@ -3,10 +3,14 @@ package com.pidev.Controllers.client;
 import com.pidev.models.*;
 import com.pidev.Services.CVService;
 import com.pidev.Services.AIService;
+import com.pidev.Services.PdfService;
+import javafx.event.ActionEvent;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -22,6 +26,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
+import javafx.scene.shape.Circle;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
+import java.io.File;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -34,6 +49,11 @@ import java.util.ResourceBundle;
 
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import java.io.IOException;
 import java.time.LocalDate;
 
 public class MyCVController implements Initializable {
@@ -65,6 +85,10 @@ public class MyCVController implements Initializable {
     private CheckBox aiGenEdu;
     @FXML
     private CheckBox aiGenSkills;
+    @FXML
+    private CheckBox aiGenLang;
+    @FXML
+    private CheckBox aiGenCertifs;
 
     @FXML
     private TextField searchField;
@@ -82,6 +106,8 @@ public class MyCVController implements Initializable {
     private Button clearButton;
 
     // Preview Fields
+    @FXML private Button atsButton;
+    @FXML private VBox templatePreviewContainer;
     @FXML private Label previewNomLabel;
     @FXML private Label previewLangueLabel;
     @FXML private Label previewSummaryLabel;
@@ -99,9 +125,13 @@ public class MyCVController implements Initializable {
     @FXML
     private ComboBox<Integer> templateComboBox;
     @FXML
+    private HBox templateGallery;
+    @FXML
     private TextField linkedinUrlField;
     @FXML
     private TextArea summaryArea;
+
+    private String currentPhotoUrl;
 
     @FXML
     private VBox experiencesContainer;
@@ -127,6 +157,7 @@ public class MyCVController implements Initializable {
 
     private final CVService cvService = new CVService();
     private final AIService aiService = new AIService();
+    private final PdfService pdfService = new PdfService();
     private List<Cv> allCvs = new ArrayList<>();
     private Cv selectedCv;
     private boolean readOnlyMode;
@@ -142,6 +173,7 @@ public class MyCVController implements Initializable {
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> refreshCards());
         filterLangueComboBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshCards());
+
         nomCvField.textProperty().addListener((observable, oldValue, newValue) -> updateRequiredFieldHighlights());
         langueComboBox.valueProperty().addListener((observable, oldValue, newValue) -> updateRequiredFieldHighlights());
 
@@ -149,6 +181,99 @@ public class MyCVController implements Initializable {
         showListPage();
         loadCvs();
         updateRequiredFieldHighlights();
+        populateTemplateGallery();
+    }
+
+    private void populateTemplateGallery() {
+        templateGallery.getChildren().clear();
+        for (int i = 1; i <= 3; i++) {
+            final int templateId = i;
+            VBox card = new VBox(10);
+            card.getStyleClass().add("template-preview-card");
+            card.setAlignment(Pos.CENTER);
+            card.setPrefSize(130, 180);
+
+            // Image Preview (ImageView instead of styled VBox)
+            ImageView imgPreview = new ImageView();
+            try {
+                String imgPath = "/images/templates/template" + i + ".png";
+                Image image = new Image(getClass().getResourceAsStream(imgPath));
+                imgPreview.setImage(image);
+            } catch (Exception e) {
+                System.err.println("Could not load template image: " + e.getMessage());
+                // Fallback style if image missing
+                imgPreview.getStyleClass().add("template-img-placeholder");
+            }
+
+            imgPreview.setFitWidth(110);
+            imgPreview.setFitHeight(140);
+            imgPreview.setPreserveRatio(true);
+            imgPreview.getStyleClass().add("template-img-preview");
+
+            Label name = new Label("Modèle " + i);
+            name.getStyleClass().add("template-name");
+
+            card.getChildren().addAll(imgPreview, name);
+            card.setOnMouseClicked(e -> selectTemplate(templateId));
+
+            // Highlight if selected
+            if (templateComboBox.getValue() != null && templateComboBox.getValue() == templateId) {
+                card.getStyleClass().add("selected");
+            }
+
+            templateGallery.getChildren().add(card);
+        }
+    }
+
+    private void selectTemplate(int id) {
+        templateComboBox.setValue(id);
+        populateTemplateGallery(); // Refresh highlights
+    }
+
+    @FXML
+    private void handleUploadPhoto() {
+        if (selectedCv == null) {
+            showError("Erreur", "Veuillez d'abord sélectionner ou créer un CV.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une photo de profil");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(listPage.getScene().getWindow());
+        if (selectedFile != null) {
+            try {
+                // Store the absolute path for reliability
+                String photoPath = selectedFile.getAbsolutePath();
+                selectedCv.setPhotoUrl(photoPath);
+
+                // Save to database
+                cvService.modifier(selectedCv);
+
+                // Refresh preview immediately
+                handleViewCv(selectedCv);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de sauvegarder la photo : " + e.getMessage());
+            }
+        }
+    }
+
+    @FXML
+    private void handleRemovePhoto() {
+        if (selectedCv == null) return;
+
+        selectedCv.setPhotoUrl(null);
+        try {
+            cvService.modifier(selectedCv);
+            handleViewCv(selectedCv);
+        } catch (SQLException e) {
+            showError("Erreur", "Impossible de supprimer l'image : " + e.getMessage());
+        }
     }
 
     @FXML
@@ -488,61 +613,258 @@ public class MyCVController implements Initializable {
 
     private void handleViewCv(Cv cv) {
         selectedCv = cv;
+        int templateId = (cv.getIdTemplate() != null) ? cv.getIdTemplate() : 1;
 
-        // Populate Preview Page
-        previewNomLabel.setText(safe(cv.getNomCv()).toUpperCase());
-        previewLangueLabel.setText(safe(cv.getLangue()));
-        previewSummaryLabel.setText(cv.getSummary() != null && !cv.getSummary().isBlank() ? cv.getSummary() : "Aucun résumé fourni.");
-        previewLinkedinLabel.setText(cv.getLinkedinUrl() != null && !cv.getLinkedinUrl().isBlank() ? cv.getLinkedinUrl() : "Non renseigné");
+        try {
+            String fxmlPath = "/Fxml/client/templates/Template" + templateId + ".fxml";
+            URL fxmlLocation = getClass().getResource(fxmlPath);
+            if (fxmlLocation == null) {
+                showError("Erreur", "Template introuvable: " + fxmlPath);
+                return;
+            }
 
-        previewExpBox.getChildren().clear();
-        if (cv.getExperiences() != null) {
-            for (Experience exp : cv.getExperiences()) {
-                String dates = (exp.getStartDate() != null ? exp.getStartDate().format(CARD_DATE_FORMATTER) : "")
-                        + " - " + (exp.getCurrentlyWorking() != null && exp.getCurrentlyWorking() ? "Aujourd'hui" : (exp.getEndDate() != null ? exp.getEndDate().format(CARD_DATE_FORMATTER) : ""));
-                String subtitle = exp.getCompany() + (exp.getLocation() != null ? " | " + exp.getLocation() : "") + " (" + dates + ")";
-                previewExpBox.getChildren().add(createPreviewItem(exp.getJobTitle(), subtitle, exp.getDescription()));
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
+            Node templateRoot = loader.load();
+
+            // Critical: Refresh data from DB to ensure we have the latest photo URL
+            Cv latestCv = cvService.getById(cv.getId());
+            if (latestCv != null) {
+                selectedCv = latestCv;
+            }
+
+            templatePreviewContainer.getChildren().clear();
+            templatePreviewContainer.getChildren().add(templateRoot);
+
+            // Add PDF button at the bottom of the preview
+            Button pdfBtn = new Button("Exporter en PDF");
+            pdfBtn.getStyleClass().add("action-button-primary"); // Assuming this class exists or similar
+            pdfBtn.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;");
+            pdfBtn.setOnAction(e -> handleDownloadPdf(selectedCv));
+
+            VBox buttonContainer = new VBox(pdfBtn);
+            buttonContainer.setAlignment(Pos.CENTER);
+            buttonContainer.setPadding(new Insets(20));
+            templatePreviewContainer.getChildren().add(buttonContainer);
+
+            // Populate Template Data using lookups
+            populateTemplateData(templateRoot, selectedCv);
+
+            showPreviewPage();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible de charger le template : " + e.getMessage());
+        }
+    }
+
+    private void populateTemplateData(Node root, Cv cv) {
+        // Profile Image
+        Node profileNode = root.lookup("#profileCircle");
+        if (profileNode instanceof Circle) {
+            Circle circle = (Circle) profileNode;
+            String photoPath = cv.getPhotoUrl();
+
+            // Find upload icon label (if present in template)
+            Node uploadIcon = root.lookup("#uploadIcon");
+
+            // Fallback to user photo if CV photo is null
+            if (photoPath == null && cv.getUser() != null) {
+                photoPath = cv.getUser().getPhoto();
+            }
+
+            if (photoPath != null && !photoPath.isBlank()) {
+                try {
+                    // Check if path is valid and accessible
+                    String finalPath;
+                    if (!photoPath.startsWith("http") && !photoPath.startsWith("file:")) {
+                        File file = new File(photoPath);
+                        if (file.exists()) {
+                            finalPath = file.toURI().toString();
+                        } else {
+                            finalPath = "file:" + photoPath;
+                        }
+                    } else {
+                        finalPath = photoPath;
+                    }
+
+                    // Load image synchronously
+                    Image img = new Image(finalPath, false);
+
+                    if (img.isError()) {
+                        System.err.println("Error loading image from: " + finalPath);
+                        if (uploadIcon != null) uploadIcon.setVisible(true);
+                        circle.setFill(javafx.scene.paint.Color.web("#f1f5f9"));
+                    } else {
+                        // Use ImagePattern with proportional=true to FILL and CENTER automatically
+                        circle.setFill(new javafx.scene.paint.ImagePattern(img, 0, 0, 1, 1, true));
+
+                        // Remove any style that might interfere with setFill
+                        circle.setStyle("");
+
+                        if (uploadIcon != null) uploadIcon.setVisible(false);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to load profile image: " + e.getMessage());
+                    if (uploadIcon != null) uploadIcon.setVisible(true);
+                    circle.setFill(javafx.scene.paint.Color.web("#f1f5f9"));
+                }
+            } else {
+                if (uploadIcon != null) uploadIcon.setVisible(true);
+                circle.setFill(javafx.scene.paint.Color.web("#f1f5f9"));
+                circle.setStyle("");
+            }
+
+            // Make circle clickable for upload (if not in readOnlyMode)
+            if (!readOnlyMode) {
+                circle.setCursor(javafx.scene.Cursor.HAND);
+
+                // Click to upload
+                circle.setOnMouseClicked(event -> {
+                    if (event.getButton() == MouseButton.PRIMARY) {
+                        handleUploadPhoto();
+                    }
+                });
+
+                // Context menu to remove
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem uploadItem = new MenuItem("📷 Changer la photo");
+                uploadItem.setOnAction(e -> handleUploadPhoto());
+                MenuItem removeItem = new MenuItem("🗑️ Supprimer la photo");
+                removeItem.setOnAction(e -> handleRemovePhoto());
+                contextMenu.getItems().addAll(uploadItem, removeItem);
+
+                circle.setOnContextMenuRequested(event ->
+                        contextMenu.show(circle, event.getScreenX(), event.getScreenY())
+                );
             }
         }
 
-        previewEduBox.getChildren().clear();
-        if (cv.getEducations() != null) {
-            for (Education edu : cv.getEducations()) {
-                String dates = (edu.getStartDate() != null ? edu.getStartDate().format(CARD_DATE_FORMATTER) : "")
-                        + " - " + (edu.getEndDate() != null ? edu.getEndDate().format(CARD_DATE_FORMATTER) : "");
-                String subtitle = edu.getSchool() + (edu.getCity() != null ? " | " + edu.getCity() : "") + " (" + dates + ")";
-                previewEduBox.getChildren().add(createPreviewItem(edu.getDegree() + " en " + edu.getFieldOfStudy(), subtitle, edu.getDescription()));
+        // Basic Info
+        setLabelText(root, "#nameLabel", safe(cv.getNomCv()).toUpperCase());
+        setLabelText(root, "#titleLabel", safe(cv.getLangue()).toUpperCase());
+        setLabelText(root, "#emailLabel", cv.getUser() != null ? cv.getUser().getEmail() : "");
+
+        // Handle LinkedIn specifically
+        Node linkedinNode = root.lookup("#linkedinLabel");
+        if (linkedinNode instanceof Label) {
+            Label linkedinLabel = (Label) linkedinNode;
+            if (cv.getLinkedinUrl() != null && !cv.getLinkedinUrl().isBlank()) {
+                linkedinLabel.setText(cv.getLinkedinUrl());
+                linkedinLabel.setVisible(true);
+                linkedinLabel.setManaged(true);
+            } else {
+                linkedinLabel.setVisible(false);
+                linkedinLabel.setManaged(false);
             }
         }
 
-        previewSkillBox.getChildren().clear();
-        if (cv.getSkills() != null) {
-            for (Skill skill : cv.getSkills()) {
-                previewSkillBox.getChildren().add(createPreviewItem(skill.getNom(), skill.getType() + " | " + skill.getLevel(), null));
+        setLabelText(root, "#summaryLabel", cv.getSummary());
+
+        // Hide phone and location if not available (they are placeholders for now)
+        hideNodeIfEmpty(root, "#phoneLabel", null);
+        hideNodeIfEmpty(root, "#locationLabel", null);
+
+        // Collections
+        populateVBox(root, "#experienceBox", cv.getExperiences(), exp -> {
+            VBox box = new VBox(5);
+            Label title = new Label(exp.getJobTitle());
+            title.getStyleClass().add("item-title");
+
+            String dates = (exp.getStartDate() != null ? exp.getStartDate().format(CARD_DATE_FORMATTER) : "")
+                    + " - " + (exp.getCurrentlyWorking() != null && exp.getCurrentlyWorking() ? "Présent" : (exp.getEndDate() != null ? exp.getEndDate().format(CARD_DATE_FORMATTER) : "Présent"));
+            Label subtitle = new Label(exp.getCompany() + " | " + exp.getLocation() + " (" + dates + ")");
+            subtitle.getStyleClass().add("item-subtitle");
+
+            Label desc = new Label(exp.getDescription());
+            desc.setWrapText(true);
+            desc.getStyleClass().add("item-description");
+
+            box.getChildren().addAll(title, subtitle, desc);
+            return box;
+        });
+
+        populateVBox(root, "#educationBox", cv.getEducations(), edu -> {
+            VBox box = new VBox(5);
+            Label title = new Label(edu.getDegree() + " en " + edu.getFieldOfStudy());
+            title.getStyleClass().add("item-title");
+
+            String dates = (edu.getStartDate() != null ? edu.getStartDate().format(CARD_DATE_FORMATTER) : "")
+                    + " - " + (edu.getEndDate() != null ? edu.getEndDate().format(CARD_DATE_FORMATTER) : "Présent");
+            Label subtitle = new Label(edu.getSchool() + " | " + edu.getCity() + " (" + dates + ")");
+            subtitle.getStyleClass().add("item-subtitle");
+
+            box.getChildren().addAll(title, subtitle);
+            return box;
+        });
+
+        populateVBox(root, "#skillsBox", cv.getSkills(), skill -> {
+            Label label = new Label(skill.getNom());
+            label.getStyleClass().add("skill-tag");
+            return label;
+        });
+
+        populateVBox(root, "#languagesBox", cv.getLanguages(), lang -> {
+            Label label = new Label(lang.getNom() + " - " + lang.getNiveau());
+            label.getStyleClass().add("language-text");
+            return label;
+        });
+
+        populateVBox(root, "#certificationsBox", cv.getCertifs(), cert -> {
+            VBox box = new VBox(2);
+            Label name = new Label(cert.getName());
+            name.getStyleClass().add("item-title");
+
+            String dates = (cert.getIssueDate() != null ? cert.getIssueDate().format(CARD_DATE_FORMATTER) : "")
+                    + (cert.getExpDate() != null ? " - Expire le: " + cert.getExpDate().format(CARD_DATE_FORMATTER) : "");
+            Label subtitle = new Label(cert.getIssuedBy() + " (" + dates + ")");
+            subtitle.getStyleClass().add("item-subtitle");
+
+            box.getChildren().addAll(name, subtitle);
+            return box;
+        });
+    }
+
+    private void hideNodeIfEmpty(Node root, String id, String value) {
+        Node node = root.lookup(id);
+        if (node != null) {
+            if (value == null || value.isBlank()) {
+                node.setVisible(false);
+                node.setManaged(false);
+            } else {
+                if (node instanceof Label) {
+                    ((Label) node).setText(value);
+                }
+                node.setVisible(true);
+                node.setManaged(true);
             }
         }
+    }
 
-        previewCertBox.getChildren().clear();
-        if (cv.getCertifs() != null) {
-            for (Certif cert : cv.getCertifs()) {
-                String dates = (cert.getIssueDate() != null ? "Obtenu le " + cert.getIssueDate().format(CARD_DATE_FORMATTER) : "")
-                        + (cert.getExpDate() != null ? " | Expire le " + cert.getExpDate().format(CARD_DATE_FORMATTER) : "");
-                previewCertBox.getChildren().add(createPreviewItem(cert.getName(), cert.getIssuedBy() + " (" + dates + ")", null));
+    private void setLabelText(Node root, String id, String text) {
+        Node node = root.lookup(id);
+        if (node instanceof Label) {
+            ((Label) node).setText(text != null && !text.isBlank() ? text : "...");
+        }
+    }
+
+    private <T> void populateVBox(Node root, String id, List<T> items, java.util.function.Function<T, Node> mapper) {
+        Node node = root.lookup(id);
+        if (node instanceof VBox && items != null) {
+            VBox box = (VBox) node;
+            box.getChildren().clear();
+            for (T item : items) {
+                box.getChildren().add(mapper.apply(item));
+            }
+        } else if (node instanceof HBox && items != null) {
+            HBox box = (HBox) node;
+            box.getChildren().clear();
+            for (T item : items) {
+                box.getChildren().add(mapper.apply(item));
             }
         }
-
-        previewLangBox.getChildren().clear();
-        if (cv.getLanguages() != null) {
-            for (Langue lang : cv.getLanguages()) {
-                previewLangBox.getChildren().add(createPreviewItem(lang.getNom(), lang.getNiveau(), null));
-            }
-        }
-
-        showPreviewPage();
     }
 
     @FXML
-    private void handleTranslateCv() {
+    public void handleTranslateCv() {
         if (selectedCv == null) return;
 
         List<String> choices = List.of("Français", "Anglais", "Allemand");
@@ -587,6 +909,40 @@ public class MyCVController implements Initializable {
                 }
             }).start();
         });
+    }
+
+    @FXML
+    public void handleShowAtsAnalysis(ActionEvent event) {
+        if (selectedCv == null) {
+            showError("Erreur", "Veuillez d'abord sélectionner un CV à analyser.");
+            return;
+        }
+
+        try {
+            URL fxmlLocation = getClass().getResource("/Fxml/client/AtsAnalysisDialog.fxml");
+            if (fxmlLocation == null) {
+                showError("Erreur", "Fichier FXML introuvable: /Fxml/client/AtsAnalysisDialog.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
+            VBox root = loader.load();
+
+            AtsAnalysisController controller = loader.getController();
+            if (controller != null) {
+                controller.setCv(selectedCv);
+            }
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Analyse ATS - " + safe(selectedCv.getNomCv()));
+            stage.setScene(new Scene(root));
+            stage.centerOnScreen();
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur", "Erreur lors de l'ouverture du dialogue: " + e.getMessage());
+        }
     }
 
     private VBox createPreviewItem(String title, String subtitle, String description) {
@@ -649,7 +1005,10 @@ public class MyCVController implements Initializable {
         Cv cv = new Cv();
         cv.setNomCv(nomCvField.getText());
         cv.setLangue(langueComboBox.getValue());
-        cv.setIdTemplate(templateComboBox.getValue());
+
+        Integer templateId = templateComboBox.getValue();
+        cv.setIdTemplate(templateId != null ? templateId : 1); // Default to Template 1
+
         cv.setUser(new User(1));
         cv.setLinkedinUrl(emptyToNull(linkedinUrlField.getText()));
         cv.setSummary(emptyToNull(summaryArea.getText()));
@@ -673,8 +1032,13 @@ public class MyCVController implements Initializable {
                 if (companyF != null) exp.setCompany(companyF.getText());
                 if (locationF != null) exp.setLocation(locationF.getText());
                 if (startD != null) exp.setStartDate(startD.getValue());
-                if (endD != null) exp.setEndDate(endD.getValue());
-                if (currentC != null) exp.setCurrentlyWorking(currentC.isSelected());
+                if (currentC != null && currentC.isSelected()) {
+                    exp.setCurrentlyWorking(true);
+                    exp.setEndDate(null);
+                } else {
+                    exp.setCurrentlyWorking(false);
+                    if (endD != null) exp.setEndDate(endD.getValue());
+                }
                 if (descA != null) exp.setDescription(descA.getText());
 
                 if (!normalize(exp.getJobTitle()).isBlank() || !normalize(exp.getCompany()).isBlank()) {
@@ -838,6 +1202,7 @@ public class MyCVController implements Initializable {
         nomCvField.setText(safe(cv.getNomCv()));
         langueComboBox.setValue(cv.getLangue());
         templateComboBox.setValue(cv.getIdTemplate());
+        populateTemplateGallery(); // Update gallery highlights
         linkedinUrlField.setText(safe(cv.getLinkedinUrl()));
         summaryArea.setText(safe(cv.getSummary()));
 
@@ -874,7 +1239,8 @@ public class MyCVController implements Initializable {
         selectedCv = null;
         nomCvField.clear();
         langueComboBox.getSelectionModel().clearSelection();
-        templateComboBox.getSelectionModel().clearSelection();
+        templateComboBox.setValue(1); // Default to Template 1
+        populateTemplateGallery(); // Show gallery highlights
         linkedinUrlField.clear();
         summaryArea.clear();
         clearContainers();
@@ -948,6 +1314,8 @@ public class MyCVController implements Initializable {
         if (aiGenExp.isSelected()) sections.add("Expériences");
         if (aiGenEdu.isSelected()) sections.add("Formations");
         if (aiGenSkills.isSelected()) sections.add("Compétences");
+        if (aiGenLang.isSelected()) sections.add("Langues");
+        if (aiGenCertifs.isSelected()) sections.add("Certifications");
 
         // Show loading indicator (could be improved)
         submitButton.setDisable(true);
@@ -957,11 +1325,18 @@ public class MyCVController implements Initializable {
                 Cv generatedCv = aiService.generateCvWithAI(jobTitle, notes, language, sections);
                 generatedCv.setNomCv("CV IA - " + jobTitle);
                 generatedCv.setLangue(language);
+                generatedCv.setCreationDate(LocalDateTime.now());
+                generatedCv.setUpdatedAt(LocalDateTime.now());
+                generatedCv.setIdTemplate(1); // Default template
+                generatedCv.setUser(new User(1)); // Default user
+
+                // Save to DB immediately so we can view it
+                Cv savedCv = cvService.ajouter(generatedCv);
 
                 Platform.runLater(() -> {
-                    handleShowCreateForm(); // Switch to form page
-                    populateFormWithGeneratedCv(generatedCv);
                     submitButton.setDisable(false);
+                    handleViewCv(savedCv); // Show final preview directly
+                    showInfo("Génération réussie", "Votre CV a été généré avec succès par l'IA.");
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
@@ -1082,16 +1457,98 @@ public class MyCVController implements Initializable {
     private void validateRequiredFields() {
         updateRequiredFieldHighlights();
 
-        List<String> missingFields = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        // Basic Info Validation
         if (normalize(nomCvField.getText()).isBlank()) {
-            missingFields.add("Nom du CV");
-        }
-        if (langueComboBox.getValue() == null || normalize(langueComboBox.getValue()).isBlank()) {
-            missingFields.add("Langue");
+            errors.add("Le nom du CV est obligatoire.");
+        } else if (nomCvField.getText().length() > 255) {
+            errors.add("Le nom du CV est trop long (max 255 caractères).");
         }
 
-        if (!missingFields.isEmpty()) {
-            throw new IllegalArgumentException("Veuillez renseigner les champs obligatoires : " + String.join(", ", missingFields) + ".");
+        if (langueComboBox.getValue() == null || normalize(langueComboBox.getValue()).isBlank()) {
+            errors.add("La langue est obligatoire.");
+        }
+
+        if (linkedinUrlField.getText() != null && linkedinUrlField.getText().length() > 255) {
+            errors.add("L'URL LinkedIn est trop longue (max 255 caractères).");
+        }
+
+        if (summaryArea.getText() != null && summaryArea.getText().length() > 5000) {
+            errors.add("Le résumé est trop long (max 5000 caractères).");
+        }
+
+        // Experiences Validation
+        for (javafx.scene.Node node : experiencesContainer.getChildren()) {
+            if (node instanceof VBox) {
+                VBox row = (VBox) node;
+                TextField titleF = (TextField) findNodeInParent(row, "Titre du poste");
+                TextField companyF = (TextField) findNodeInParent(row, "Entreprise");
+                TextField locationF = (TextField) findNodeInParent(row, "Lieu");
+
+                if (titleF != null && titleF.getText().length() > 255) errors.add("Titre du poste trop long dans les expériences.");
+                if (companyF != null && companyF.getText().length() > 255) errors.add("Nom d'entreprise trop long dans les expériences.");
+                if (locationF != null && locationF.getText().length() > 255) errors.add("Lieu trop long dans les expériences.");
+            }
+        }
+
+        // Education Validation
+        for (javafx.scene.Node node : educationContainer.getChildren()) {
+            if (node instanceof VBox) {
+                VBox row = (VBox) node;
+                TextField degreeF = (TextField) findNodeInParent(row, "Diplôme");
+                TextField studyF = (TextField) findNodeInParent(row, "Domaine d'étude");
+                TextField cityF = (TextField) findNodeInParent(row, "Ville");
+                TextField schoolF = (TextField) findNodeInParent(row, "Établissement");
+
+                if (degreeF != null && degreeF.getText().length() > 255) errors.add("Diplôme trop long dans les formations.");
+                if (studyF != null && studyF.getText().length() > 255) errors.add("Domaine d'étude trop long dans les formations.");
+                if (cityF != null && cityF.getText().length() > 255) errors.add("Ville trop longue dans les formations.");
+                // School is TEXT in DB, but let's keep it reasonable
+                if (schoolF != null && schoolF.getText().length() > 2000) errors.add("Le nom de l'établissement est trop long.");
+            }
+        }
+
+        // Skills Validation
+        for (javafx.scene.Node node : skillsContainer.getChildren()) {
+            if (node instanceof VBox) {
+                VBox row = (VBox) node;
+                TextField nameF = (TextField) findNodeInParent(row, "Compétence");
+                TextField typeF = (TextField) findNodeInParent(row, "Type (ex: Hard Skill)");
+                TextField levelF = (TextField) findNodeInParent(row, "Niveau");
+
+                if (nameF != null && nameF.getText().length() > 255) errors.add("Nom de compétence trop long.");
+                if (typeF != null && typeF.getText().length() > 50) errors.add("Type de compétence trop long (max 50).");
+                if (levelF != null && levelF.getText().length() > 255) errors.add("Niveau de compétence trop long.");
+            }
+        }
+
+        // Certifications Validation
+        for (javafx.scene.Node node : certifsContainer.getChildren()) {
+            if (node instanceof VBox) {
+                VBox row = (VBox) node;
+                TextField nameF = (TextField) findNodeInParent(row, "Certification");
+                TextField issuerF = (TextField) findNodeInParent(row, "Organisme");
+
+                if (nameF != null && nameF.getText().length() > 255) errors.add("Nom de certification trop long.");
+                if (issuerF != null && issuerF.getText().length() > 255) errors.add("Organisme de certification trop long.");
+            }
+        }
+
+        // Languages Validation
+        for (javafx.scene.Node node : languagesContainer.getChildren()) {
+            if (node instanceof VBox) {
+                VBox row = (VBox) node;
+                TextField nameF = (TextField) findNodeInParent(row, "Langue");
+                TextField levelF = (TextField) findNodeInParent(row, "Niveau");
+
+                if (nameF != null && nameF.getText().length() > 255) errors.add("Nom de langue trop long.");
+                if (levelF != null && levelF.getText().length() > 255) errors.add("Niveau de langue trop long.");
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join("\n", errors));
         }
     }
 
@@ -1193,16 +1650,36 @@ public class MyCVController implements Initializable {
         }
     }
 
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void handleDownloadPdf(Cv cv) {
+        if (cv == null) return;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Exporter le CV en PDF");
+        fileChooser.setInitialFileName("CV_" + (cv.getUser() != null ? cv.getUser().getNom() : cv.getNomCv()).replace(" ", "_") + ".pdf");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
+
+        File file = fileChooser.showSaveDialog(previewPage.getScene().getWindow());
+        if (file != null) {
+            try {
+                pdfService.generateCvPdf(cv, file.getAbsolutePath());
+                showInfo("Succès", "Votre CV a été exporté avec succès en PDF !");
+            } catch (Exception e) {
+                e.printStackTrace();
+                showError("Erreur", "Impossible de générer le PDF : " + e.getMessage());
+            }
+        }
     }
 
     private void showInfo(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

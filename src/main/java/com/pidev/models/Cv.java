@@ -17,6 +17,7 @@ public class Cv {
     private User user;
     private String linkedinUrl;
     private String summary;
+    private String photoUrl;
     private List<Experience> experiences;
     private List<Education> educations;
     private List<Skill> skills;
@@ -145,6 +146,14 @@ public class Cv {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public List<Experience> getExperiences() {

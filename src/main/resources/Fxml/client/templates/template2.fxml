@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.ImageView?>
+
+<HBox prefWidth="800.0" styleClass="cv-container" stylesheets="@../../../styles/templates/template2.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Sidebar -->
+        <VBox prefWidth="300.0" spacing="30.0" styleClass="sidebar">
+            <padding>
+                <Insets bottom="40.0" left="30.0" right="30.0" top="40.0" />
+            </padding>
+            <children>
+                <VBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <StackPane fx:id="profileStack" styleClass="profile-stack">
+                            <children>
+                                <Circle fx:id="profileCircle" radius="80.0" styleClass="profile-circle" />
+                                <Label fx:id="uploadIcon" mouseTransparent="true" styleClass="upload-icon" text="📷" />
+                            </children>
+                        </StackPane>
+                    </children>
+                </VBox>
+
+                <VBox spacing="10.0">
+                    <children>
+                        <Label fx:id="emailLabel" id="emailLabel" styleClass="sidebar-info" text="✉ amine.ben.slimane@..." />
+                        <Label fx:id="phoneLabel" id="phoneLabel" styleClass="sidebar-info" text="📞 +216 22 429 174" />
+                        <Label fx:id="locationLabel" id="locationLabel" styleClass="sidebar-info" text="📍 Ariana, Tunisie" />
+                        <Label fx:id="linkedinLabel" id="linkedinLabel" styleClass="sidebar-info" text="🔗 linkedin.com/in/..." />
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="sidebar-header" text="COMPÉTENCES" />
+                        <VBox fx:id="skillsBox" id="skillsBox" spacing="8.0" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="sidebar-header" text="LANGUES" />
+                        <VBox fx:id="languagesBox" id="languagesBox" spacing="8.0" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <!-- Main Content -->
+        <VBox HBox.hgrow="ALWAYS" spacing="35.0" styleClass="main-content">
+            <padding>
+                <Insets bottom="50.0" left="40.0" right="40.0" top="50.0" />
+            </padding>
+            <children>
+                <VBox spacing="8.0">
+                    <children>
+                        <Label fx:id="nameLabel" id="nameLabel" styleClass="name-text" text="Amine Ben Slimane" />
+                        <Label fx:id="titleLabel" id="titleLabel" styleClass="title-text" text="Développeur Fullstack Senior" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="10.0">
+                    <children>
+                        <Label styleClass="content-header" text="Profil" />
+                        <Label fx:id="summaryLabel" id="summaryLabel" styleClass="summary-text" wrapText="true" text="Résumé..." />
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="content-header" text="Expérience professionnelle" />
+                        <VBox fx:id="experienceBox" id="experienceBox" spacing="25.0" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="content-header" text="Éducation" />
+                        <VBox fx:id="educationBox" id="educationBox" spacing="25.0" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="content-header" text="Certifications" />
+                        <VBox fx:id="certificationsBox" id="certificationsBox" spacing="15.0" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</HBox>

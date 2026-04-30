@@ -98,6 +98,53 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.03), 20, 0, 0, 10);
 }
 
+/* --- Template Gallery --- */
+.template-gallery-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.template-preview-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-transition: all 0.3s;
+}
+
+.template-preview-card:hover {
+    -fx-border-color: #6366f1;
+    -fx-translate-y: -3;
+}
+
+.template-preview-card.selected {
+    -fx-border-color: #6366f1;
+    -fx-background-color: #f5f3ff;
+    -fx-border-width: 3;
+}
+
+.template-img-preview {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+    -fx-background-radius: 5;
+}
+
+.template-img-placeholder {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 8;
+    -fx-border-color: #cbd5e1;
+    -fx-border-width: 1;
+}
+
+.template-name {
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
 .main-card:hover {
     -fx-translate-y: -8;
     -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.15), 25, 0, 0, 12);

@@ -3,6 +3,7 @@ package com.pidev.Services;
 import com.pidev.models.CvApplication;
 import com.pidev.models.Cv;
 import com.pidev.models.Offer;
+import com.pidev.models.Notif;
 import com.pidev.utils.DataSource;
 
 import java.sql.*;
@@ -12,12 +13,14 @@ import java.util.List;
 
 public class CvApplicationService {
     private final Connection connection;
+    private final NotificationService notificationService;
 
     public CvApplicationService() {
         this.connection = DataSource.getInstance().getConnection();
         if (this.connection == null) {
             throw new IllegalStateException("Connexion MySQL indisponible");
         }
+        this.notificationService = new NotificationService();
         ensureTableExists();
     }
 
@@ -83,6 +86,35 @@ public class CvApplicationService {
             ps.setString(1, status);
             ps.setInt(2, applicationId);
             ps.executeUpdate();
+        }
+
+        // Trigger notification if status is ACCEPTED
+        if ("ACCEPTED".equalsIgnoreCase(status)) {
+            sendAcceptanceNotification(applicationId);
+        }
+    }
+
+    private void sendAcceptanceNotification(int applicationId) {
+        try {
+            String sql = "SELECT a.offer_id, o.title, cv.user_id FROM cv_application a " +
+                    "JOIN offer o ON a.offer_id = o.id " +
+                    "JOIN cv ON a.cv_id = cv.id " +
+                    "WHERE a.id = ?";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, applicationId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int userId = rs.getInt("user_id");
+                        String jobTitle = rs.getString("title");
+                        String message = "Your CV has been accepted for " + jobTitle + ". You are invited for an interview.";
+
+                        Notif notification = new Notif(userId, message);
+                        notificationService.addNotification(notification);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error sending acceptance notification: " + e.getMessage());
         }
     }
 }
