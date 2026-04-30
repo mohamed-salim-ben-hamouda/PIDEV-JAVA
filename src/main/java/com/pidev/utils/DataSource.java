@@ -10,12 +10,13 @@ public class DataSource {
 
     private Connection connection;
 
-    private final String USER = "root";
-    private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/skill_bridge";
+    private final String USER = EnvConfig.get("DB_USER", "root");
+    private final String PASSWORD = EnvConfig.get("DB_PASSWORD", "");
+    private final String URL = EnvConfig.get("DB_URL", "jdbc:mysql://localhost:3306/skill_bridge");
 
     private DataSource() {
         try {
+            //etablisement de connection
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("Connection established successfully.");
         } catch (SQLException e) {

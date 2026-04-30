@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import com.pidev.utils.DataSource;
 import com.pidev.utils.hackthon.ReminderScheduler;
-import java.io.IOException;
 import java.sql.Connection;
 public class Main extends Application {
     @Override
@@ -25,7 +24,7 @@ public class Main extends Application {
             primaryStage.setScene(scene);
             primaryStage.show();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Could not load base.fxml. Check the path in src/main/resources/Fxml/");
             e.printStackTrace();
         }

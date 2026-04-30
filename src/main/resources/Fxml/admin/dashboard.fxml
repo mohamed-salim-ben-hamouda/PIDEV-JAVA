@@ -17,7 +17,7 @@
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.pidev.Controllers.admin.DashboardController">
     <content>
-        <VBox spacing="28.0" styleClass="dashboard-page">
+        <VBox spacing="32.0" styleClass="dashboard-page">
             <children>
                 <HBox spacing="22.0">
                     <children>
@@ -43,7 +43,7 @@
                     </children>
                 </HBox>
 
-                <FlowPane hgap="22.0" prefWrapLength="1240.0" vgap="22.0">
+                <FlowPane hgap="24.0" prefWrapLength="1240.0" vgap="24.0">
                     <children>
                         <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
                             <children>
@@ -57,7 +57,7 @@
                                     </children>
                                 </HBox>
                                 <Label styleClass="metric-label" text="Users" />
-                                <Label styleClass="metric-number" text="6" />
+                                <Label fx:id="userCountLabel" styleClass="metric-number" text="0" />
                             </children>
                         </VBox>
                         <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
@@ -71,8 +71,8 @@
                                         </StackPane>
                                     </children>
                                 </HBox>
-                                <Label styleClass="metric-label" text="Courses" />
-                                <Label styleClass="metric-number" text="24" />
+                                <Label styleClass="metric-label" text="Connected Users" />
+                                <Label fx:id="connectedUserCountLabel" styleClass="metric-number" text="0" />
                             </children>
                         </VBox>
                         <VBox prefHeight="126.0" prefWidth="250.0" styleClass="metric-card">
@@ -236,9 +236,6 @@
                     </children>
                 </VBox>
             </children>
-            <padding>
-                <Insets bottom="36.0" left="36.0" right="36.0" top="12.0" />
-            </padding>
         </VBox>
     </content>
 </ScrollPane>

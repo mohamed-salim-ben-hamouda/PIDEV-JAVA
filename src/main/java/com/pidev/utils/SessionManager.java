@@ -3,20 +3,39 @@ package com.pidev.utils;
 import com.pidev.models.User;
 
 public class SessionManager {
-    private static User user;
+    private static SessionManager instance;
+    private User currentUser;
 
-    public static User getUser() {
-        if (user == null) {
-            // Mocking a logged in user for now
-            user = new User(1);
-            user.setNom("Omaima");
-            user.setPrenom("Barhoumi");
-            user.setEmail("barhoumi.omaima@esprit.tn"); 
+    private SessionManager() {}
+
+    public static SessionManager getInstance() {
+        if (instance == null) {
+            instance = new SessionManager();
         }
-        return user;
+        return instance;
     }
 
-    public static void setUser(User user) {
-        SessionManager.user = user;
+    public User getUser() {
+        return currentUser;
+    }
+
+    public void setUser(User user) {
+        this.currentUser = user;
+    }
+
+    public void cleanUserSession() {
+        this.currentUser = null;
+    }
+
+    public void logout() {
+        cleanUserSession();
+    }
+
+    public boolean isLogged() {
+        return currentUser != null;
+    }
+
+    public boolean isAdmin() {
+        return isLogged() && currentUser.getRole() == User.Role.ADMIN;
     }
 }

@@ -17,15 +17,21 @@ module com.pidev.challenge_module {
     requires jakarta.mail;
     requires com.google.gson;
     requires java.net.http;
-    
-    // Excel Exports
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
-    
-    // PDF Exports (iText 7)
     requires kernel;
     requires layout;
     requires io;
+    requires java.prefs;
+    requires jbcrypt;
+    requires itextpdf;
+    requires jdk.httpserver;
+    requires java.mail;
+    requires activation;
+    requires org.bytedeco.opencv;
+    requires org.bytedeco.javacpp;
+    requires org.bytedeco.openblas;
+    requires io.github.cdimascio.dotenv.java;
 
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
@@ -36,5 +42,4 @@ module com.pidev.challenge_module {
     exports com.pidev.Controllers.admin;
     exports com.pidev.Controllers.client;
     exports com.pidev.models;
-    //exports com.pidev.Views;
 }
