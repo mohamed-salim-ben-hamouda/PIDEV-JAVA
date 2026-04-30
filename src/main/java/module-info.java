@@ -8,6 +8,19 @@ module com.pidev.challenge_module {
     requires org.kordamp.ikonli.fontawesome5;
     requires java.desktop;
     requires org.kordamp.ikonli.core;
+    requires java.prefs;
+    requires jbcrypt;
+    requires itextpdf;
+    requires com.google.gson;
+    requires jdk.httpserver;
+    requires java.mail;
+    requires activation;
+    requires org.bytedeco.opencv;
+    requires org.bytedeco.javacpp;
+    requires org.bytedeco.openblas;
+    requires java.net.http;
+    requires io.github.cdimascio.dotenv.java;
+
     opens com.pidev to javafx.fxml;
     opens com.pidev.Controllers.client.User to javafx.fxml;
     opens com.pidev.Controllers.client to javafx.fxml;
@@ -17,5 +30,4 @@ module com.pidev.challenge_module {
     exports com.pidev.Controllers.admin;
     exports com.pidev.Controllers.client;
     exports com.pidev.models;
-    //exports com.pidev.Views;
 }

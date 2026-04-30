@@ -10,12 +10,13 @@ public class DataSource {
 
     private Connection connection;
 
-    private final String USER = "root";
-    private final String PASSWORD = "";
-    private final String URL = "jdbc:mysql://localhost:3306/pidev";
+    private final String USER = EnvConfig.get("DB_USER", "root");
+    private final String PASSWORD = EnvConfig.get("DB_PASSWORD", "");
+    private final String URL = EnvConfig.get("DB_URL", "jdbc:mysql://localhost:3306/pidev");
 
     private DataSource() {
         try {
+            //etablisement de connection
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("Connection established successfully.");
         } catch (SQLException e) {
@@ -26,7 +27,7 @@ public class DataSource {
     public Connection getConnection() {
         return connection;
     }
-
+//singleton
     public static DataSource getInstance() {
         if (instance == null) {
             instance = new DataSource();

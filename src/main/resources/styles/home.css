@@ -14,11 +14,37 @@
     -fx-background-color: transparent !important;
 }
 
+/* --- Navigation Bar --- */
+.nav-item {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #475569;
+    -fx-cursor: hand;
+}
+
+.nav-item:hover {
+    -fx-text-fill: #6366f1;
+}
+
+.nav-logout-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6366f1;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+}
+
+.nav-logout-btn:hover {
+    -fx-text-fill: #4f46e5;
+    -fx-underline: true;
+}
+
 /* --- Hero Section --- */
 .hero-title {
     -fx-font-size: 54px;
     -fx-font-weight: 900;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: #3b5998;
 }
 
 .hero-subtitle {
@@ -54,7 +80,6 @@
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-text-fill: #6366f1;
-    -fx-character-spacing: 2px;
 }
 
 /* --- Module Cards --- */

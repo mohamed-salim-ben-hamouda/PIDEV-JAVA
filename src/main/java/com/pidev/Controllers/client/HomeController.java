@@ -13,11 +13,16 @@ import javafx.scene.Node;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import com.pidev.utils.SessionManager;
+import com.pidev.Services.UserService;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.StackPane;
 
 public class HomeController {
 
     @FXML
-    private MenuButton challengesMenu; // Linked to the button in image_a509af.png
+    private MenuButton challengesMenu; 
 
 
     @FXML
@@ -45,6 +50,30 @@ public class HomeController {
 
 
     @FXML
+    private void openProfile(MouseEvent event) {
+        if (!SessionManager.getInstance().isLogged()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Accès refusé");
+            alert.setHeaderText(null);
+            alert.setContentText("Vous devez être connecté pour accéder à votre profil.");
+            alert.show();
+            return;
+        }
+        
+        try {
+            Parent view = FXMLLoader.load(getClass().getResource("/Fxml/client/User/profile.fxml"));
+            Node source = (Node) event.getSource();
+            Scene scene = source.getScene();
+            StackPane contentArea = (StackPane) scene.lookup("#contentArea");
+            if (contentArea != null) {
+                contentArea.getChildren().setAll(view);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void navigateToModule(MouseEvent event) {
         String fxmlFile = "";
         Node source = (Node) event.getSource();
@@ -66,6 +95,24 @@ public class HomeController {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        var user = SessionManager.getInstance().getUser();
+        if (user != null) {
+            new UserService().setConnectedStatus(user.getId(), false);
+        }
+        SessionManager.getInstance().logout();
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Fxml/client/User/login.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Login");
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
