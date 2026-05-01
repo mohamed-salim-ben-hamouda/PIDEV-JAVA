@@ -7,17 +7,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
-import com.pidev.utils.SessionManager;
-import com.pidev.Services.UserService;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
 
 public class HomeController {
 
@@ -50,85 +45,39 @@ public class HomeController {
 
 
     @FXML
-    private void openProfile(MouseEvent event) {
-        if (!SessionManager.getInstance().isLogged()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Accès refusé");
-            alert.setHeaderText(null);
-            alert.setContentText("Vous devez être connecté pour accéder à votre profil.");
-            alert.show();
-            return;
+    private void navigateToModule(MouseEvent event) {
+        String fxmlFile = "";
+        Node source = (Node) event.getSource();
+
+        // Determine which button was clicked based on its ID or Text
+        if (source.getId().contains("challenges")) {
+            fxmlFile = "/com/skillbridge/views/challenges.fxml"; //
+        } else if (source.getId().contains("courses")) {
+            fxmlFile = "/com/skillbridge/views/courses.fxml";
         }
 
-        try {
-            Parent view = FXMLLoader.load(getClass().getResource("/Fxml/client/User/profile.fxml"));
-            Node source = (Node) event.getSource();
-            Scene scene = source.getScene();
-            StackPane contentArea = (StackPane) scene.lookup("#contentArea");
-            if (contentArea != null) {
-                contentArea.getChildren().setAll(view);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!fxmlFile.isEmpty()) {
+            switchScene(event, fxmlFile);
         }
     }
 
     @FXML
-    private void navigateToModule(MouseEvent event) {
-        Node source = (Node) event.getSource();
-        String fxmlFile = "";
-
-        if (source.getId() == null) return;
-
-        switch (source.getId()) {
-            case "coursesModule":
-                fxmlFile = "CoursesView";
-                break;
-            case "challengesModule":
-                fxmlFile = "Challenge";
-                break;
-            case "jobsModule":
-                fxmlFile = "OfferList";
-                break;
-            case "cvModule":
-                fxmlFile = "MyCVView";
-                break;
-            case "groupsModule":
-                fxmlFile = "GroupsView";
-                break;
-            case "hackathonModule":
-                fxmlFile = "HackathonView";
-                break;
-            default:
-                // Fallback for older IDs if any
-                if (source.getId().contains("challenges")) {
-                    fxmlFile = "Challenge";
-                } else if (source.getId().contains("courses")) {
-                    fxmlFile = "CoursesView";
-                }
-                break;
-        }
-
-        if (!fxmlFile.isEmpty()) {
-            loadViewInContentArea(event, fxmlFile);
-        }
-    }
-
-    private void loadViewInContentArea(MouseEvent event, String fxmlName) {
+    private void goToCourses(MouseEvent event) {
         try {
-            Parent view = FXMLLoader.load(getClass().getResource("/Fxml/client/" + fxmlName + ".fxml"));
-            // Find the contentArea StackPane from the scene
-            Scene scene = ((Node) event.getSource()).getScene();
-            StackPane contentArea = (StackPane) scene.lookup("#contentArea");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
+            Parent root = loader.load();
+            com.pidev.Controllers.client.BaseController controller = loader.getController();
+            controller.loadCourses();
 
-            if (contentArea != null) {
-                contentArea.getChildren().setAll(view);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            if (stage.getScene() == null) {
+                stage.setScene(new Scene(root));
             } else {
-                // If we can't find contentArea, try to switch the whole scene (fallback)
-                scene.setRoot(view);
+                stage.getScene().setRoot(root);
             }
+            stage.show();
         } catch (IOException e) {
-            System.err.println("Error: Could not load " + fxmlName + ". Check the path.");
+            System.err.println("Could not open courses module from home view.");
             e.printStackTrace();
         }
     }
@@ -138,24 +87,6 @@ public class HomeController {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        var user = SessionManager.getInstance().getUser();
-        if (user != null) {
-            new UserService().setConnectedStatus(user.getId(), false);
-        }
-        SessionManager.getInstance().logout();
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Fxml/client/User/login.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Login");
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

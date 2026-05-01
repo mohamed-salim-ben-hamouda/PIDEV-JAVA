@@ -94,6 +94,51 @@ public class BaseController implements Initializable {
     }
 
     @FXML
+    public void loadCourses() {
+        loadView("course_management");
+    }
+
+    @FXML
+    public void loadChapters() {
+        loadView("chapter_management");
+    }
+
+    @FXML
+    public void loadQuizzes() {
+        loadView("quiz_management");
+    }
+
+    @FXML
+    public void loadQuizResults() {
+        loadView("quiz_results");
+    }
+
+    @FXML
+    public void loadLearningIntelligence() {
+        loadView("learning_intelligence");
+    }
+
+    @FXML
+    public void loadQuestions() {
+        loadView("question_management");
+    }
+
+    @FXML
+    public void loadAnswers() {
+        loadView("answer_management");
+    }
+
+    @FXML
+    public void loadGenerateQuizAI() {
+        loadView("generate_quiz_ai");
+    }
+
+    @FXML
+    public void loadMultiplayerQuiz() {
+        loadView("multiplayer_quiz");
+    }
+
+    @FXML
     public void loadHome() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));

@@ -7,32 +7,42 @@ import java.sql.SQLException;
 public class DataSource {
 
     private static DataSource instance;
+
     private Connection connection;
 
-    private final String USER = EnvConfig.get("DB_USER", "root");
-    private final String PASSWORD = EnvConfig.get("DB_PASSWORD", "");
-    private final String URL = EnvConfig.get("DB_URL", "jdbc:mysql://localhost:3306/pidev");
+    private final String USER = "root";
+    private final String PASSWORD = "";
+        private final String[] URLS = {
+           // "jdbc:mysql://localhost:3306/gestion_cours",
+            "jdbc:mysql://localhost:3306/pidev"
+        };
 
     private DataSource() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // IMPORTANT
-
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-
-            if (connection != null && !connection.isClosed()) {
-                System.out.println("✅ Database connection SUCCESS");
-            }
-
-        } catch (ClassNotFoundException e) {
-            System.err.println("❌ MySQL Driver not found");
-        } catch (SQLException e) {
-            System.err.println("❌ DB CONNECTION FAILED: " + e.getMessage());
-            connection = null;
-        }
+        openConnection();
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                openConnection();
+            }
+        } catch (SQLException e) {
+            connection = null;
+        }
         return connection;
+    }
+
+    private void openConnection() {
+        connection = null;
+        for (String url : URLS) {
+            try {
+                connection = DriverManager.getConnection(url, USER, PASSWORD);
+                System.out.println("Connection established successfully: " + url);
+                return;
+            } catch (SQLException e) {
+                System.err.println("Database connection failed for " + url + ": " + e.getMessage());
+            }
+        }
     }
 
     public static DataSource getInstance() {

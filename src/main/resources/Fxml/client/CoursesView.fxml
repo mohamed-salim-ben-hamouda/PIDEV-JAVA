@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane prefHeight="860.0" prefWidth="1200.0" stylesheets="@../../styles/home.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.client.CoursesController">
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="transparent-scroll">
+            <content>
+                <VBox spacing="22.0" styleClass="courses-page student-dashboard">
+                    <children>
+                        <VBox spacing="8.0" styleClass="courses-hero">
+                            <children>
+                                <HBox spacing="14.0" alignment="CENTER_LEFT">
+                                    <children>
+                                        <VBox styleClass="hero-badge">
+                                            <children>
+                                                <FontIcon iconLiteral="fas-book" iconSize="24" styleClass="hero-badge-icon" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="3.0">
+                                            <children>
+                                                <Label styleClass="courses-hero-title" text="Bienvenue sur votre espace d'apprentissage" />
+                                                <Label styleClass="courses-hero-subtitle" text="Continuez votre progression et developpez vos competences" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <HBox spacing="16.0" styleClass="courses-stats-row">
+                            <children>
+                                <VBox styleClass="course-stat-card stat-blue" spacing="6.0">
+                                    <children>
+                                        <Label fx:id="inProgressLabel" styleClass="stat-value" text="0" />
+                                        <Label styleClass="stat-label" text="Cours en cours" />
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="course-stat-card stat-green" spacing="6.0">
+                                    <children>
+                                        <Label fx:id="completedLabel" styleClass="stat-value" text="0" />
+                                        <Label styleClass="stat-label" text="Cours termines" />
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="course-stat-card stat-gold" spacing="6.0">
+                                    <children>
+                                        <Label fx:id="lockedLabel" styleClass="stat-value" text="0" />
+                                        <Label styleClass="stat-label" text="A debloquer" />
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="course-stat-card stat-purple" spacing="6.0">
+                                    <children>
+                                        <Label fx:id="averageScoreLabel" styleClass="stat-value" text="0%" />
+                                        <Label styleClass="stat-label" text="Score moyen" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="10.0" styleClass="courses-toolbar" alignment="CENTER_LEFT">
+                            <children>
+                                <TextField fx:id="searchField" promptText="Rechercher un cours, une description, un niveau..." onAction="#onSearch" styleClass="courses-search" HBox.hgrow="ALWAYS" />
+                                <ComboBox fx:id="difficultyFilterCombo" onAction="#onSortChanged" promptText="Niveau" prefWidth="170.0" styleClass="courses-filter" />
+                                <Button onAction="#onRefresh" text="Rafraichir" styleClass="courses-action-btn secondary" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <FontIcon iconLiteral="fas-book" styleClass="section-title-icon" />
+                                <Label styleClass="section-title" text="Cours en cours" />
+                                <Label fx:id="inProgressCountLabel" styleClass="section-pill" text="0" />
+                            </children>
+                        </HBox>
+
+                        <FlowPane fx:id="inProgressFlow" hgap="18.0" vgap="18.0" prefWrapLength="1120.0" styleClass="course-flow" />
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <FontIcon iconLiteral="fas-trophy" styleClass="section-title-icon" />
+                                <Label styleClass="section-title" text="Cours termines" />
+                                <Label fx:id="completedCountLabel" styleClass="section-pill" text="0" />
+                            </children>
+                        </HBox>
+
+                        <FlowPane fx:id="completedFlow" hgap="18.0" vgap="18.0" prefWrapLength="1120.0" styleClass="course-flow" />
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <FontIcon iconLiteral="fas-lock" styleClass="section-title-icon" />
+                                <Label styleClass="section-title" text="Cours disponibles" />
+                                <Label fx:id="lockedCountLabel" styleClass="section-pill" text="0" />
+                            </children>
+                        </HBox>
+
+                        <FlowPane fx:id="lockedFlow" hgap="18.0" vgap="18.0" prefWrapLength="1120.0" styleClass="course-flow" />
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <FontIcon iconLiteral="fas-lightbulb" styleClass="section-title-icon" />
+                                <Label styleClass="section-title" text="Cours recommandes pour vous" />
+                                <Label fx:id="recommendedCountLabel" styleClass="section-pill" text="0" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="recommendedTopLabel" styleClass="section-pill" text="Top: -" />
+                                <Label fx:id="recommendationMessageLabel" styleClass="course-empty-subtitle" text="" />
+                            </children>
+                        </HBox>
+
+                        <FlowPane fx:id="recommendedFlow" hgap="18.0" vgap="18.0" prefWrapLength="1120.0" styleClass="course-flow" />
+
+                    </children>
+                    <padding>
+                        <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="860.0" prefWidth="1200.0" stylesheets="@../../styles/home.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.client.QuizSessionController">
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="transparent-scroll">
+            <content>
+                <VBox alignment="TOP_CENTER" styleClass="quiz-session-shell">
+                    <children>
+                        <VBox spacing="16.0" styleClass="quiz-session-frame" prefWidth="900.0" maxWidth="900.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="quiz-session-hero">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                            <children>
+                                                <Label fx:id="quizTitleLabel" styleClass="quiz-session-hero-title" text="Quiz" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#onTranslate" styleClass="management-btn" text="🌐 Traduire" />
+                                                <Button onAction="#onCloseWindow" styleClass="management-btn" text="Quitter la session" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="quizContextLabel" styleClass="quiz-session-hero-subtitle" text="Quiz du cours" />
+                                    </children>
+                                </VBox>
+
+                                <HBox spacing="14.0" styleClass="quiz-session-stats" alignment="CENTER">
+                                    <children>
+                                        <VBox styleClass="quiz-metric-card" spacing="6.0">
+                                            <children>
+                                                <Label fx:id="questionCountLabel" styleClass="stat-value" text="0" />
+                                                <Label styleClass="stat-label" text="Questions" />
+                                            </children>
+                                        </VBox>
+                                        <VBox styleClass="quiz-metric-card" spacing="6.0">
+                                            <children>
+                                                <Label fx:id="attemptLabel" styleClass="stat-value" text="1/3" />
+                                                <Label styleClass="stat-label" text="Tentative" />
+                                            </children>
+                                        </VBox>
+                                        <VBox styleClass="quiz-metric-card" spacing="6.0">
+                                            <children>
+                                                <Label fx:id="requiredScoreLabel" styleClass="stat-value" text="70%" />
+                                                <Label styleClass="stat-label" text="Score requis" />
+                                            </children>
+                                        </VBox>
+                                        <VBox styleClass="quiz-metric-card" spacing="6.0">
+                                            <children>
+                                                <Label fx:id="timeLimitLabel" styleClass="stat-value" text="∞" />
+                                                <Label styleClass="stat-label" text="Temps" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <VBox fx:id="introSection" spacing="16.0" styleClass="quiz-intro-card">
+                                    <children>
+                                        <Label styleClass="assessment-title" text="Instructions" />
+                                        <Label styleClass="course-card-description" wrapText="true"
+                                               text="• Lisez attentivement chaque question avant de repondre.
+• Une seule reponse est correcte par question.
+• Vous pouvez naviguer entre les questions a tout moment.
+• Vous pouvez modifier vos reponses avant de soumettre.
+• Un score minimum est requis pour valider." />
+                                        <Button fx:id="startQuizButton" onAction="#onStartQuiz" text="Demarrer la session" styleClass="quiz-primary-cta" maxWidth="1.7976931348623157E308" />
+                                    </children>
+                                </VBox>
+
+                                <StackPane fx:id="questionSectionWrap" visible="false" managed="false" styleClass="quiz-alert-shell">
+                                    <children>
+                                        <Region fx:id="quizWarningOverlay" managed="false" mouseTransparent="true" styleClass="quiz-warning-overlay" opacity="0.0" />
+                                        <VBox fx:id="questionSection" spacing="14.0" styleClass="quiz-question-panel">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="quiz-question-topbar">
+                                                    <children>
+                                                        <Label fx:id="questionNavLabel" styleClass="quiz-question-counter" text="Question 1 sur 1" />
+                                                        <Label fx:id="answeredCounterLabel" styleClass="section-pill" text="0 / 0 repondues" />
+                                                        <ProgressBar fx:id="questionProgressBar" progress="0.2" prefWidth="190.0" styleClass="quiz-progress-track" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label styleClass="quiz-language-badge" text="Navigation" />
+                                                        <StackPane fx:id="timerBadgeContainer" styleClass="quiz-timer-badge-shell">
+                                                            <children>
+                                                                <Label fx:id="timerBadgeLabel" styleClass="quiz-timer-badge,timer-badge" text="--:--" />
+                                                            </children>
+                                                        </StackPane>
+                                                    </children>
+                                                </HBox>
+
+                                                <Label fx:id="liveScoreLabel" styleClass="section-pill" text="Score: 0 / 0" />
+
+                                                <VBox spacing="12.0" styleClass="question-block">
+                                                    <children>
+                                                        <Label fx:id="questionTextLabel" styleClass="question-title" wrapText="true" text="Question" />
+                                                        <Label fx:id="questionFeedbackLabel" styleClass="course-empty-subtitle" text="" />
+                                                        <VBox fx:id="answersContainer" spacing="10.0" />
+                                                    </children>
+                                                </VBox>
+
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                                <Button fx:id="prevButton" onAction="#onPrevQuestion" styleClass="management-btn" text="Question precedente" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                <Button fx:id="nextButton" onAction="#onNextQuestion" styleClass="management-btn" text="Question suivante" />
+                                                                <Button fx:id="finishButton" onAction="#onFinishQuiz" styleClass="management-btn" text="Soumettre mes reponses" />
+                                                    </children>
+                                                </HBox>
+
+                                                <VBox spacing="8.0" styleClass="quiz-quick-nav-wrap">
+                                                    <children>
+                                                        <Label styleClass="quiz-quick-nav-title" text="Navigation rapide" />
+                                                        <HBox fx:id="quickNavContainer" spacing="8.0" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </StackPane>
+
+                                <VBox fx:id="resultSection" spacing="12.0" styleClass="quiz-result-card" visible="false" managed="false">
+                                    <children>
+                                        <Label fx:id="resultTitleLabel" styleClass="assessment-title" text="Resultat" />
+                                        <Label fx:id="resultSummaryLabel" styleClass="course-card-description" text="" />
+                                        <Label fx:id="resultScoreLabel" styleClass="result-score-badge" text="0 / 0" />
+                                        <Label fx:id="aiFeedbackLabel" styleClass="ai-feedback-box" text="" visible="false" managed="false" wrapText="true" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <Button fx:id="downloadCertButton" onAction="#onDownloadCertificate" styleClass="management-btn" text="Télécharger le certificat" visible="false" managed="false" />
+                                                <Button fx:id="retryButton" onAction="#onRetry" styleClass="management-btn" text="Recommencer la session" />
+                                                <Button onAction="#onCloseWindow" styleClass="management-btn" text="Quitter" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="24.0" left="22.0" right="22.0" top="22.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

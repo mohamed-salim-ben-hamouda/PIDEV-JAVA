@@ -1,0 +1,861 @@
+package com.pidev.Controllers.client;
+
+import com.pidev.Services.AnswerService;
+import com.pidev.Services.ChapterService;
+import com.pidev.Services.QuizStatisticsService;
+import com.pidev.Services.QuestionService;
+import com.pidev.Services.QuizService;
+import com.pidev.models.Answer;
+import com.pidev.models.Chapter;
+import com.pidev.models.Course;
+import com.pidev.models.Question;
+import com.pidev.models.QuizAttemptDetail;
+import com.pidev.models.Quiz;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.FileChooser;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.net.URL;
+import java.net.URI;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+public class CourseDetailController {
+    @FXML private Label courseTitleLabel;
+    @FXML private Label courseMetaLabel;
+    @FXML private Button openCoursePdfButton;
+    @FXML private Label chapterCompletionLabel;
+    @FXML private Label quizTitleLabel;
+    @FXML private Label quizMetaLabel;
+    @FXML private Label quizHintLabel;
+    @FXML private Label quizStateBadge;
+    @FXML private VBox chapterContainer;
+    @FXML private Button startQuizButton;
+    @FXML private VBox quizSection;
+    @FXML private Label quizProgressLabel;
+    @FXML private Label quizScoreLabel;
+    @FXML private Label questionNavLabel;
+    @FXML private VBox questionCardContainer;
+    @FXML private Button prevQuestionButton;
+    @FXML private Button nextQuestionButton;
+    @FXML private Button finishQuizButton;
+    @FXML private VBox resultCard;
+    @FXML private Label resultTitleLabel;
+    @FXML private Label resultScoreBadge;
+    @FXML private Label resultSummaryLabel;
+    @FXML private Label attemptInfoLabel;
+    @FXML private VBox resultDetailsBox;
+    @FXML private Button backButton;
+
+    private final ChapterService chapterService = new ChapterService();
+    private final QuizService quizService = new QuizService();
+    private final QuestionService questionService = new QuestionService();
+    private final AnswerService answerService = new AnswerService();
+    private final QuizStatisticsService quizStatisticsService = new QuizStatisticsService();
+
+    private final Map<Integer, Integer> selectedAnswerByQuestionId = new HashMap<>();
+    private final Map<Integer, QuizAttemptState> attemptsByQuizId = new HashMap<>();
+
+    private List<Chapter> chapters = new ArrayList<>();
+    private final Map<Integer, Quiz> quizByChapterId = new LinkedHashMap<>();
+    private List<Question> questions = new ArrayList<>();
+    private List<Answer> answers = new ArrayList<>();
+
+    private Chapter selectedChapter;
+    private Quiz quiz;
+    private Course course;
+    private int currentQuestionIndex;
+    private com.pidev.models.User currentUser; // utilisateur connecté
+
+    @FXML
+    public void initialize() {
+        showQuizSection(false);
+        resultCard.setVisible(false);
+        resultCard.setManaged(false);
+
+        chapterCompletionLabel.setText("0 / 0 chapitres valides");
+        questionNavLabel.setText("Question 0 sur 0");
+        quizProgressLabel.setText("0 / 0");
+        quizMetaLabel.setText("Aucun quiz selectionne");
+        quizHintLabel.setText("Selectionnez un chapitre pour commencer.");
+        quizStateBadge.setText("EN ATTENTE");
+        quizStateBadge.getStyleClass().setAll("status-badge", "status-pending");
+
+        prevQuestionButton.setDisable(true);
+        nextQuestionButton.setDisable(true);
+        finishQuizButton.setDisable(true);
+        quizScoreLabel.setText("Score: 0 / 0");
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+        courseTitleLabel.setText(course != null && course.getTitle() != null ? course.getTitle() : "Cours");
+        if (course != null) {
+            courseMetaLabel.setText("Niveau: " + nullSafe(course.getDifficulty(), "N/A")
+                    + " | Duree: " + course.getDuration() + " min"
+                    + " | Score validation: " + Math.round(course.getValidationScore()) + "%");
+        } else {
+            courseMetaLabel.setText("Niveau: - | Duree: - | Score validation: -");
+        }
+
+        String pdfRef = course != null ? course.getContent() : null;
+        if (pdfRef != null && !pdfRef.isBlank()) {
+            openCoursePdfButton.setText("Telecharger le PDF du cours");
+            openCoursePdfButton.setDisable(false);
+        } else {
+            openCoursePdfButton.setText("PDF du cours indisponible");
+            openCoursePdfButton.setDisable(true);
+        }
+        loadCourseStructure();
+    }
+
+    public void setCurrentUser(com.pidev.models.User user) {
+        this.currentUser = user;
+    }
+
+    @FXML
+    private void onOpenCoursePdf() {
+        if (course == null || course.getContent() == null || course.getContent().isBlank()) {
+            showError("PDF", "Aucun PDF n'est renseigne pour ce cours.");
+            return;
+        }
+
+        try {
+            String pdfRef = course.getContent().trim();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Telecharger le PDF du cours");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
+            fileChooser.setInitialFileName(buildPdfFileName());
+
+            File targetFile = fileChooser.showSaveDialog(backButton.getScene() != null ? backButton.getScene().getWindow() : null);
+            if (targetFile == null) {
+                return;
+            }
+
+            if (pdfRef.startsWith("http://") || pdfRef.startsWith("https://")) {
+                try (InputStream inputStream = new URL(pdfRef).openStream()) {
+                    Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } else {
+                File pdfFile = new File(pdfRef);
+                if (!pdfFile.exists()) {
+                    showError("PDF", "Fichier introuvable: " + pdfRef);
+                    return;
+                }
+                Files.copy(pdfFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            showInfo("PDF", "PDF telecharge vers: " + targetFile.getAbsolutePath());
+        } catch (Exception e) {
+            showError("PDF", "Impossible de telecharger le PDF du cours.");
+        }
+    }
+
+    @FXML
+    private void onBack() {
+        Scene scene = backButton.getScene();
+        if (scene != null) {
+            Object marker = scene.getRoot() != null ? scene.getRoot().getUserData() : null;
+            Window window = scene.getWindow();
+            if ("course-detail-window".equals(marker) && window != null) {
+                window.hide();
+                return;
+            }
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
+            Parent root = loader.load();
+            BaseController controller = loader.getController();
+            controller.loadCourses();
+
+            if (scene != null) {
+                scene.setRoot(root);
+            }
+        } catch (IOException e) {
+            showError("Navigation", "Impossible de revenir a la liste des cours.");
+        }
+    }
+
+    @FXML
+    private void onStartQuiz() {
+        if (!canOpenSelectedQuiz()) {
+            return;
+        }
+        openSelectedQuizWindow();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
+            Parent root = loader.load();
+            BaseController controller = loader.getController();
+            controller.loadCourses();
+            
+            Scene scene = backButton.getScene();
+            if (scene != null) {
+                scene.setRoot(root);
+            }
+        } catch (IOException e) {
+            showError("Navigation", "Impossible de revenir a la liste des cours.");
+        }
+    }
+
+    @FXML
+    private void onFinishQuiz() {
+        if (quiz == null || questions.isEmpty()) {
+            return;
+        }
+
+        int unanswered = questions.size() - selectedAnswerByQuestionId.size();
+        if (unanswered > 0) {
+            Alert confirm = new Alert(AlertType.CONFIRMATION);
+            confirm.setTitle("Soumettre le quiz");
+            confirm.setHeaderText("Questions non repondues: " + unanswered);
+            confirm.setContentText("Voulez-vous terminer le quiz ? Les questions non repondues seront considerees incorrectes.");
+            if (confirm.showAndWait().isEmpty() || confirm.getResult().getButtonData().isCancelButton()) {
+                return;
+            }
+        }
+
+        QuizComputation computation = computeQuizResult();
+        int threshold = Math.round(quiz.getPassingScore() <= 0 ? 70f : quiz.getPassingScore());
+        boolean passed = computation.percentage >= threshold;
+
+        QuizAttemptState previous = attemptsByQuizId.get(quiz.getId());
+        int currentAttempt = previous == null ? 1 : previous.attemptNumber + 1;
+
+        try {
+            currentAttempt = quizStatisticsService.saveQuizAttempt(quiz.getId(), null, computation.percentage);
+        } catch (SQLException e) {
+            showWarning("Sauvegarde quiz", "Tentative non enregistree en base: " + e.getMessage());
+        }
+
+        attemptsByQuizId.put(quiz.getId(), new QuizAttemptState(currentAttempt, computation.percentage, passed));
+
+        applyResultState(computation, threshold, currentAttempt, passed);
+        updateChapterProgressLabel();
+        renderChapterCards();
+        updateQuizHeader();
+
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Resultat du quiz");
+        alert.setHeaderText(passed ? "Quiz valide" : "Quiz non valide");
+        alert.setContentText("Score: " + computation.earnedPoints + " / " + computation.totalPoints
+                + " (" + computation.percentage + "%). Seuil requis: " + threshold + "%.");
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void onPrevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderCurrentQuestion();
+        }
+    }
+
+    @FXML
+    private void onNextQuestion() {
+        if (currentQuestionIndex < questions.size() - 1) {
+            currentQuestionIndex++;
+            renderCurrentQuestion();
+        }
+    }
+
+    private void loadCourseStructure() {
+        selectedAnswerByQuestionId.clear();
+        quiz = null;
+        selectedChapter = null;
+        chapters = new ArrayList<>();
+        quizByChapterId.clear();
+        questions = new ArrayList<>();
+        answers = new ArrayList<>();
+
+        showQuizSection(false);
+        resultCard.setVisible(false);
+        resultCard.setManaged(false);
+        questionCardContainer.getChildren().clear();
+
+        try {
+            List<Chapter> allChapters = chapterService.findAll();
+            List<Quiz> quizzes = quizService.findAll();
+
+            if (course != null) {
+                chapters = allChapters.stream()
+                        .filter(chapter -> chapter.getCourse() != null && Objects.equals(chapter.getCourse().getId(), course.getId()))
+                        .sorted(Comparator.comparingInt(Chapter::getChapterOrder))
+                        .toList();
+
+                List<Quiz> quizzesForCourse = quizzes.stream()
+                        .filter(item -> item.getCourse() != null && Objects.equals(item.getCourse().getId(), course.getId()))
+                        .toList();
+
+                restoreAttemptHistory(quizzesForCourse);
+
+                for (Chapter chapter : chapters) {
+                    Quiz linkedQuiz = quizzesForCourse.stream()
+                            .filter(item -> item.getChapter() != null && Objects.equals(item.getChapter().getId(), chapter.getId()))
+                            .findFirst()
+                            .orElse(null);
+                    if (linkedQuiz != null) {
+                        quizByChapterId.put(chapter.getId(), linkedQuiz);
+                    }
+                }
+
+                if (quizByChapterId.isEmpty() && !quizzesForCourse.isEmpty()) {
+                    quiz = quizzesForCourse.get(0);
+                } else if (!chapters.isEmpty()) {
+                    for (Chapter chapter : chapters) {
+                        Quiz chapterQuiz = quizByChapterId.get(chapter.getId());
+                        if (chapterQuiz != null) {
+                            selectedChapter = chapter;
+                            quiz = chapterQuiz;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            renderChapterCards();
+            updateChapterProgressLabel();
+
+            if (quiz == null) {
+                quizTitleLabel.setText("Aucun quiz disponible pour ce cours.");
+                quizMetaLabel.setText("Le cours n'a pas encore de quiz associe.");
+                quizHintLabel.setText("Ajoutez des quiz en backoffice pour activer cette section.");
+                quizStateBadge.setText("SANS QUIZ");
+                quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+                startQuizButton.setDisable(true);
+                return;
+            }
+
+            updateQuizHeader();
+            startQuizButton.setDisable(false);
+        } catch (SQLException e) {
+            quizTitleLabel.setText("Impossible de charger le quiz.");
+            quizMetaLabel.setText("Erreur de chargement.");
+            quizHintLabel.setText("Verifiez la connexion a la base de donnees.");
+            quizStateBadge.setText("ERREUR");
+            quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+            startQuizButton.setDisable(true);
+            chapterContainer.getChildren().setAll(buildInlineHint("Impossible de charger les chapitres du cours."));
+        }
+    }
+
+    private void renderCurrentQuestion() {
+        if (questions.isEmpty()) {
+            questionCardContainer.getChildren().setAll(new Label("Aucune question pour ce quiz."));
+            quizProgressLabel.setText("0 / 0");
+            questionNavLabel.setText("Question 0 sur 0");
+            quizScoreLabel.setText("Score: 0 / 0");
+            prevQuestionButton.setDisable(true);
+            nextQuestionButton.setDisable(true);
+            finishQuizButton.setDisable(true);
+            return;
+        }
+
+        Question question = questions.get(currentQuestionIndex);
+        quizProgressLabel.setText((currentQuestionIndex + 1) + " / " + questions.size());
+        questionNavLabel.setText("Question " + (currentQuestionIndex + 1) + " sur " + questions.size());
+
+        VBox questionCard = new VBox(12);
+        questionCard.getStyleClass().add("question-block");
+
+        Label questionLabel = new Label(question.getContent() == null ? "Sans contenu" : question.getContent());
+        questionLabel.getStyleClass().add("question-title");
+        questionLabel.setWrapText(true);
+        questionCard.getChildren().add(questionLabel);
+
+        VBox answersBox = new VBox(10);
+        List<Answer> questionAnswers = answers.stream()
+                .filter(answer -> answer.getQuestion() != null && Objects.equals(answer.getQuestion().getId(), question.getId()))
+                .toList();
+
+        if (questionAnswers.isEmpty()) {
+            answersBox.getChildren().add(new Label("Aucune reponse configuree."));
+        } else {
+            Integer selectedAnswerId = selectedAnswerByQuestionId.get(question.getId());
+            for (Answer answer : questionAnswers) {
+                Button answerButton = new Button(answer.getContent() == null ? "Sans contenu" : answer.getContent());
+                answerButton.getStyleClass().add("quiz-answer-option");
+                answerButton.setMaxWidth(Double.MAX_VALUE);
+
+                if (selectedAnswerId != null && Objects.equals(selectedAnswerId, answer.getId())) {
+                    answerButton.getStyleClass().add("selected");
+                }
+
+                answerButton.setOnAction(event -> {
+                    selectedAnswerByQuestionId.put(question.getId(), answer.getId());
+                    updateScoreLabel();
+                    renderCurrentQuestion();
+                });
+                answersBox.getChildren().add(answerButton);
+            }
+        }
+
+        questionCard.getChildren().add(answersBox);
+        questionCardContainer.getChildren().setAll(questionCard);
+        prevQuestionButton.setDisable(currentQuestionIndex == 0);
+        nextQuestionButton.setDisable(currentQuestionIndex >= questions.size() - 1);
+        finishQuizButton.setDisable(false);
+    }
+
+    private void updateScoreLabel() {
+        quizScoreLabel.setText("Score: " + computeScore() + " / " + questions.size());
+    }
+
+    private int computeScore() {
+        int score = 0;
+        for (Question question : questions) {
+            Integer selectedAnswerId = selectedAnswerByQuestionId.get(question.getId());
+            if (selectedAnswerId == null) {
+                continue;
+            }
+            boolean good = answers.stream()
+                    .anyMatch(answer -> answer.getQuestion() != null
+                            && Objects.equals(answer.getQuestion().getId(), question.getId())
+                            && answer.isCorrect()
+                            && Objects.equals(answer.getId(), selectedAnswerId));
+            if (good) {
+                score++;
+            }
+        }
+        return score;
+    }
+
+    private QuizComputation computeQuizResult() {
+        int totalPoints = 0;
+        int earnedPoints = 0;
+        for (Question question : questions) {
+            int questionPoints = Math.max(1, Math.round(question.getPoint()));
+            totalPoints += questionPoints;
+
+            Integer selectedAnswerId = selectedAnswerByQuestionId.get(question.getId());
+            boolean isCorrect = selectedAnswerId != null && answers.stream()
+                    .anyMatch(answer -> answer.getQuestion() != null
+                            && Objects.equals(answer.getQuestion().getId(), question.getId())
+                            && answer.isCorrect()
+                            && Objects.equals(answer.getId(), selectedAnswerId));
+
+            if (isCorrect) {
+                earnedPoints += questionPoints;
+            }
+        }
+
+        int percentage = totalPoints == 0 ? 0 : Math.round((earnedPoints * 100f) / totalPoints);
+        return new QuizComputation(totalPoints, earnedPoints, percentage);
+    }
+
+    private void applyResultState(QuizComputation computation, int threshold, int attemptNumber, boolean passed) {
+        resultCard.setVisible(true);
+        resultCard.setManaged(true);
+
+        resultTitleLabel.setText(passed ? "Quiz valide" : "Quiz non valide");
+        resultSummaryLabel.setText(passed
+                ? "Excellent travail. Le chapitre est marque comme complete."
+                : "Vous pouvez recommencer pour atteindre le score minimal.");
+        resultScoreBadge.setText(computation.percentage + "%");
+        resultScoreBadge.getStyleClass().setAll("result-score-badge", passed ? "success" : "fail");
+
+        attemptInfoLabel.setText("Tentative " + attemptNumber + " | Seuil: " + threshold + "% | Points: "
+                + computation.earnedPoints + " / " + computation.totalPoints);
+
+        renderResultDetails();
+    }
+
+    private void renderResultDetails() {
+        resultDetailsBox.getChildren().clear();
+
+        for (Question question : questions) {
+            VBox line = new VBox(6);
+            line.getStyleClass().add("result-line");
+
+            HBox header = new HBox(8);
+            header.setAlignment(Pos.CENTER_LEFT);
+            Label qLabel = new Label(question.getContent() == null ? "Question" : question.getContent());
+            qLabel.getStyleClass().add("result-question");
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            Integer selectedAnswerId = selectedAnswerByQuestionId.get(question.getId());
+            boolean good = selectedAnswerId != null && answers.stream()
+                    .anyMatch(answer -> answer.getQuestion() != null
+                            && Objects.equals(answer.getQuestion().getId(), question.getId())
+                            && answer.isCorrect()
+                            && Objects.equals(answer.getId(), selectedAnswerId));
+
+            Label state = new Label(good ? "Correct" : "Incorrect");
+            state.getStyleClass().setAll("mini-pill", good ? "mini-success" : "mini-danger");
+
+            header.getChildren().addAll(qLabel, spacer, state);
+
+            String selectedAnswerText = answers.stream()
+                    .filter(answer -> Objects.equals(answer.getId(), selectedAnswerId))
+                    .map(Answer::getContent)
+                    .findFirst()
+                    .orElse("Non repondu");
+            Label selectedLabel = new Label("Votre reponse: " + selectedAnswerText);
+            selectedLabel.getStyleClass().add("result-subline");
+
+                line.getChildren().addAll(header, selectedLabel);
+            resultDetailsBox.getChildren().add(line);
+        }
+    }
+
+    private void renderChapterCards() {
+        chapterContainer.getChildren().clear();
+
+        if (chapters == null || chapters.isEmpty()) {
+            chapterContainer.getChildren().add(buildInlineHint("Aucun chapitre configure pour ce cours."));
+            return;
+        }
+
+        for (Chapter chapter : chapters) {
+            chapterContainer.getChildren().add(buildChapterCard(chapter));
+        }
+    }
+
+    private VBox buildChapterCard(Chapter chapter) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("chapter-item-card");
+        card.setPadding(new Insets(14));
+
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label order = new Label(String.valueOf(chapter.getChapterOrder()));
+        order.getStyleClass().add("chapter-order-pill");
+
+        VBox textWrap = new VBox(4);
+        Label title = new Label(chapter.getTitle() == null ? "Chapitre" : chapter.getTitle());
+        title.getStyleClass().add("chapter-item-title");
+        Label excerpt = new Label(truncate(chapter.getContent(), 120));
+        excerpt.getStyleClass().add("chapter-item-excerpt");
+        excerpt.setWrapText(true);
+        textWrap.getChildren().addAll(title, excerpt);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Quiz chapterQuiz = quizByChapterId.get(chapter.getId());
+        Label badge = new Label();
+        if (chapterQuiz == null) {
+            badge.setText("Sans quiz");
+            badge.getStyleClass().setAll("mini-pill", "mini-neutral");
+        } else {
+            QuizAttemptState state = attemptsByQuizId.get(chapterQuiz.getId());
+            if (state != null && state.passed) {
+                badge.setText(state.scorePercent + "% - Valide");
+                badge.getStyleClass().setAll("mini-pill", "mini-success");
+            } else if (state != null) {
+                badge.setText("A refaire " + state.scorePercent + "%");
+                badge.getStyleClass().setAll("mini-pill", "mini-danger");
+            } else {
+                badge.setText("A faire");
+                badge.getStyleClass().setAll("mini-pill", "mini-warning");
+            }
+        }
+
+        header.getChildren().addAll(order, textWrap, spacer, badge);
+
+        if (chapterQuiz != null) {
+            Button openQuiz = new Button("Ouvrir session quiz");
+            openQuiz.getStyleClass().setAll("courses-action-btn", "secondary");
+            boolean attemptsRemaining = hasAttemptsRemaining(chapterQuiz);
+            openQuiz.setDisable(!attemptsRemaining);
+            if (!attemptsRemaining) {
+                openQuiz.setText("Tentatives epuisees");
+            }
+            openQuiz.setOnAction(event -> {
+                selectedChapter = chapter;
+                quiz = chapterQuiz;
+                updateQuizHeader();
+                openSelectedQuizWindow();
+            });
+            card.getChildren().addAll(header, openQuiz);
+        } else {
+            card.getChildren().add(header);
+        }
+
+        return card;
+    }
+
+    private Label buildInlineHint(String text) {
+        Label hint = new Label(text);
+        hint.getStyleClass().add("course-empty-subtitle");
+        return hint;
+    }
+
+    private void updateQuizHeader() {
+        quizTitleLabel.setText("Quiz: " + (quiz.getTitle() == null ? "Sans titre" : quiz.getTitle()));
+
+        int questionCount = countQuizQuestions(quiz.getId());
+        int attempts = quiz.getMaxAttempts() <= 0 ? 3 : quiz.getMaxAttempts();
+        int passing = Math.round(quiz.getPassingScore() <= 0 ? 70f : quiz.getPassingScore());
+        quizMetaLabel.setText(questionCount + " questions | " + attempts + " tentatives max | score requis " + passing + "%");
+
+        String baseHint = selectedChapter != null && selectedChapter.getTitle() != null
+                ? "Chapitre: " + selectedChapter.getTitle()
+                : "Quiz global du cours";
+        quizHintLabel.setText(baseHint);
+
+        QuizAttemptState state = attemptsByQuizId.get(quiz.getId());
+        boolean attemptsRemaining = hasAttemptsRemaining(quiz);
+        startQuizButton.setDisable(!attemptsRemaining);
+        if (state == null) {
+            if (attemptsRemaining) {
+                quizStateBadge.setText("NOUVEAU");
+                quizStateBadge.getStyleClass().setAll("status-badge", "status-pending");
+            } else {
+                quizStateBadge.setText("LIMITE ATTEINTE");
+                quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+                quizHintLabel.setText(baseHint + " | Limite de tentatives atteinte");
+            }
+            return;
+        }
+        if (state.passed) {
+            quizStateBadge.setText(state.scorePercent + "% - VALIDE");
+            quizStateBadge.getStyleClass().setAll("status-badge", "status-success");
+        } else if (attemptsRemaining) {
+            quizStateBadge.setText("A REFAIRE " + state.scorePercent + "%");
+            quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+        } else {
+            quizStateBadge.setText("LIMITE ATTEINTE");
+            quizStateBadge.getStyleClass().setAll("status-badge", "status-danger");
+            quizHintLabel.setText(baseHint + " | Limite de tentatives atteinte");
+        }
+    }
+
+    private int countQuizQuestions(Integer quizId) {
+        if (quizId == null) {
+            return 0;
+        }
+        if (questions != null && !questions.isEmpty() && questions.get(0).getQuiz() != null
+                && Objects.equals(questions.get(0).getQuiz().getId(), quizId)) {
+            return questions.size();
+        }
+        try {
+            return (int) questionService.findAll().stream()
+                    .filter(item -> item.getQuiz() != null && Objects.equals(item.getQuiz().getId(), quizId))
+                    .count();
+        } catch (SQLException e) {
+            return 0;
+        }
+    }
+
+    private void updateChapterProgressLabel() {
+        if (chapters == null || chapters.isEmpty()) {
+            chapterCompletionLabel.setText("0 / 0 chapitres valides");
+            return;
+        }
+
+        int quizChapters = 0;
+        int completed = 0;
+        for (Chapter chapter : chapters) {
+            Quiz chapterQuiz = quizByChapterId.get(chapter.getId());
+            if (chapterQuiz == null) {
+                continue;
+            }
+            quizChapters++;
+            QuizAttemptState state = attemptsByQuizId.get(chapterQuiz.getId());
+            if (state != null && state.passed) {
+                completed++;
+            }
+        }
+        chapterCompletionLabel.setText(completed + " / " + quizChapters + " chapitres valides");
+    }
+
+    private void restoreAttemptHistory(List<Quiz> quizzesForCourse) {
+        if (quizzesForCourse == null || quizzesForCourse.isEmpty()) {
+            return;
+        }
+
+        for (Quiz courseQuiz : quizzesForCourse) {
+            if (courseQuiz.getId() == null) {
+                continue;
+            }
+
+            try {
+                List<QuizAttemptDetail> attempts = quizStatisticsService.findAttemptsForStudentQuiz(
+                        courseQuiz.getId(),
+                        courseQuiz.getPassingScore(),
+                        null
+                );
+                int attemptsUsed = attempts.stream()
+                        .mapToInt(QuizAttemptDetail::getAttemptNumber)
+                        .max()
+                        .orElse(0);
+
+                // Chercher la tentative réussie
+                QuizAttemptDetail passedAttempt = attempts.stream()
+                        .filter(QuizAttemptDetail::isPassed)
+                        .max(Comparator.comparingInt(QuizAttemptDetail::getAttemptNumber))
+                        .orElse(null);
+
+                QuizAttemptDetail latestAttempt = attempts.stream()
+                        .max(Comparator.comparingInt(QuizAttemptDetail::getAttemptNumber))
+                        .orElse(null);
+
+                if (passedAttempt != null) {
+                    attemptsByQuizId.put(courseQuiz.getId(), new QuizAttemptState(
+                            attemptsUsed,
+                            (int) Math.round(passedAttempt.getScore()),
+                            true
+                    ));
+                } else if (latestAttempt != null) {
+                    // Si aucune réussite, prendre le meilleur score
+                    QuizAttemptDetail bestAttempt = latestAttempt;
+                    
+                    if (bestAttempt != null) {
+                        attemptsByQuizId.put(courseQuiz.getId(), new QuizAttemptState(
+                                attemptsUsed,
+                                (int) Math.round(bestAttempt.getScore()),
+                                false
+                        ));
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Unable to restore quiz history for quiz " + courseQuiz.getId() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private String buildPdfFileName() {
+        String baseName = course != null && course.getTitle() != null && !course.getTitle().isBlank()
+                ? course.getTitle().trim()
+                : "cours";
+        baseName = baseName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        if (!baseName.toLowerCase().endsWith(".pdf")) {
+            baseName += ".pdf";
+        }
+        return baseName;
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(AlertType.INFORMATION, message, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.isBlank()) {
+            return "Aucun contenu detaille.";
+        }
+        String normalized = value.replace('\n', ' ').trim();
+        if (normalized.length() <= maxLength) {
+            return normalized;
+        }
+        return normalized.substring(0, Math.max(0, maxLength - 3)) + "...";
+    }
+
+    private String nullSafe(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private void showQuizSection(boolean visible) {
+        quizSection.setVisible(visible);
+        quizSection.setManaged(visible);
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(AlertType.ERROR, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private void openSelectedQuizWindow() {
+        if (quiz == null) {
+            showWarning("Quiz", "Aucun quiz disponible pour ce chapitre.");
+            return;
+        }
+        if (!canOpenSelectedQuiz()) {
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/QuizSessionView.fxml"));
+            Parent root = loader.load();
+            QuizSessionController controller = loader.getController();
+
+            controller.setQuizContext(quiz, selectedChapter != null ? selectedChapter.getTitle() : "Quiz du cours");
+            controller.setCurrentUser(currentUser);  // ← LIGNE AJOUTÉE
+
+            Stage stage = new Stage();
+            stage.setTitle("Session Quiz - " + (quiz.getTitle() == null ? "Quiz" : quiz.getTitle()));
+            stage.setScene(new Scene(root, 1080, 820));
+            stage.setMinWidth(980);
+            stage.setMinHeight(760);
+            if (backButton.getScene() != null && backButton.getScene().getWindow() != null) {
+                stage.initOwner(backButton.getScene().getWindow());
+            }
+            stage.centerOnScreen();
+            stage.show();
+        } catch (IOException e) {
+            showError("Quiz", "Impossible d'ouvrir la fenetre du quiz.");
+        }
+    }
+
+    private void showWarning(String title, String message) {
+        Alert alert = new Alert(AlertType.WARNING, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private boolean canOpenSelectedQuiz() {
+        if (quiz == null) {
+            return false;
+        }
+        if (hasAttemptsRemaining(quiz)) {
+            return true;
+        }
+        int maxAttempts = resolveMaxAttempts(quiz);
+        showWarning("Tentatives epuisees", "Vous avez atteint la limite de " + maxAttempts + " tentative(s) pour ce quiz.");
+        return false;
+    }
+
+    private boolean hasAttemptsRemaining(Quiz targetQuiz) {
+        if (targetQuiz == null) {
+            return false;
+        }
+        QuizAttemptState state = attemptsByQuizId.get(targetQuiz.getId());
+        return state == null || state.attemptNumber < resolveMaxAttempts(targetQuiz);
+    }
+
+    private int resolveMaxAttempts(Quiz targetQuiz) {
+        return targetQuiz != null && targetQuiz.getMaxAttempts() > 0 ? targetQuiz.getMaxAttempts() : 3;
+    }
+
+    private record QuizAttemptState(int attemptNumber, int scorePercent, boolean passed) {
+    }
+
+    private record QuizComputation(int totalPoints, int earnedPoints, int percentage) {
+    }
+}
