@@ -29,7 +29,7 @@ public class User {
     public User(Integer id) {
         this.id = id;
     }
-    
+
     public User(String nom, String prenom, String email, String passwd, LocalDate date_naissance, Role role) {
         this.nom = nom;
         this.prenom = prenom;

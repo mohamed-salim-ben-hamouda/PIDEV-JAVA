@@ -207,7 +207,10 @@
     -fx-background-radius: 12;
 }
 
-.button.action-btn-primary:hover {
+.button.action-btn-primary:hover,
+.button.action-btn-primary:focused,
+.button.action-btn-primary:armed,
+.button.action-btn-primary:pressed {
     -fx-background-color: #2d5ca8;
 }
 
@@ -262,6 +265,13 @@
     -fx-text-fill: #94a3b8;
     -fx-font-size: 13px;
     -fx-font-style: italic;
+}
+
+.button.action-btn-outline {
+    -fx-background-color: #eaf2ff;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-text-fill: #3d68b2;
 }
 
 .action-icon {

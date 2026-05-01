@@ -31,14 +31,15 @@
             <Label styleClass="section-subtitle" text="EXPLOREZ" />
             <Label styleClass="section-title" text="Nos Modules" />
             <FlowPane alignment="CENTER" hgap="25.0" vgap="25.0">
-                <VBox styleClass="module-card" onMouseClicked="#openProfile" style="-fx-cursor: hand;"><Label style="-fx-font-size: 35;" text="&#x1f464;" /><Label styleClass="member-name" text="Profile" /></VBox>
-                <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="&#x1f4da;" /><Label styleClass="member-name" text="Courses" /></VBox>
-                <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="&#x1f3c6;" /><Label styleClass="member-name" text="Challenges" /></VBox>
-                <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="&#x1f4c4;" /><Label styleClass="member-name" text="Internship" /></VBox>
+                <VBox fx:id="profileModule" onMouseClicked="#openProfile" styleClass="module-card" style="-fx-cursor: hand;"><Label style="-fx-font-size: 35;" text="👤" /><Label styleClass="member-name" text="Profile" /></VBox>
+                <VBox fx:id="coursesModule" onMouseClicked="#navigateToModule" styleClass="module-card"><Label style="-fx-font-size: 35;" text="📚" /><Label styleClass="member-name" text="Courses" /></VBox>
+                <VBox fx:id="challengesModule" onMouseClicked="#navigateToModule" styleClass="module-card"><Label style="-fx-font-size: 35;" text="🏆" /><Label styleClass="member-name" text="Challenges" /></VBox>
+                <VBox fx:id="jobsModule" onMouseClicked="#navigateToModule" styleClass="module-card"><Label style="-fx-font-size: 35;" text="💼" /><Label styleClass="member-name" text="Jobs" /></VBox>
             </FlowPane>
             <FlowPane alignment="CENTER" hgap="25.0" vgap="25.0">
-                <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="&#x1f465;" /><Label styleClass="member-name" text="Groups" /></VBox>
-                <VBox styleClass="module-card"><Label style="-fx-font-size: 35;" text="&#x1f3c1;" /><Label styleClass="member-name" text="Hackathon" /></VBox>
+                <VBox fx:id="cvModule" onMouseClicked="#navigateToModule" styleClass="module-card"><Label style="-fx-font-size: 35;" text="📄" /><Label styleClass="member-name" text="CV" /></VBox>
+                <VBox fx:id="groupsModule" onMouseClicked="#navigateToModule" styleClass="module-card"><Label style="-fx-font-size: 35;" text="👥" /><Label styleClass="member-name" text="Groups" /></VBox>
+                <VBox fx:id="hackathonModule" onMouseClicked="#navigateToModule" styleClass="module-card"><Label style="-fx-font-size: 35;" text="🏁" /><Label styleClass="member-name" text="Hackathon" /></VBox>
             </FlowPane>
         </VBox>
 

@@ -84,6 +84,16 @@ public class BaseController implements Initializable {
     }
 
     @FXML
+    public void loadOffers() {
+        loadView("BackofficeOfferManagement");
+    }
+
+    @FXML
+    public void loadCVs() {
+        loadView("BackofficeCVManagement");
+    }
+
+    @FXML
     public void loadHome() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/base.fxml"));
@@ -107,7 +117,7 @@ public class BaseController implements Initializable {
             Parent view = FXMLLoader.load(getClass().getResource(path));
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
-            System.err.println("Could not load view: " + viewName);
+            System.err.println("Could not load admin view: " + viewName);
             e.printStackTrace();
         }
     }

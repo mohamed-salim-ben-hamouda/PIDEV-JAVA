@@ -8,7 +8,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import com.pidev.utils.DataSource;
 import com.pidev.utils.hackthon.ReminderScheduler;
+import java.io.IOException;
 import java.sql.Connection;
+
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {

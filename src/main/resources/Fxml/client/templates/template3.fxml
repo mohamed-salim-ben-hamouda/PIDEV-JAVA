@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+
+<VBox prefWidth="800.0" spacing="30.0" styleClass="cv-container" stylesheets="@../../../styles/templates/template3.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="60.0" left="60.0" right="60.0" top="60.0" />
+    </padding>
+    <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="20.0">
+            <children>
+                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="nameLabel" id="nameLabel" styleClass="name-text" text="AMINE BEN SLIMANE" />
+                        <Label fx:id="titleLabel" id="titleLabel" styleClass="title-text" text="DÉVELOPPEUR FULLSTACK SENIOR" />
+                    </children>
+                </VBox>
+                <VBox alignment="TOP_RIGHT" spacing="5.0">
+                    <children>
+                        <Label fx:id="emailLabel" id="emailLabel" styleClass="contact-text" text="amine.ben.slimane@skillsdoor.net" />
+                        <Label fx:id="phoneLabel" id="phoneLabel" styleClass="contact-text" text="+216 22 429 174" />
+                        <Label fx:id="locationLabel" id="locationLabel" styleClass="contact-text" text="Ariana, Tunisie" />
+                        <Label fx:id="linkedinLabel" id="linkedinLabel" styleClass="contact-text" text="linkedin.com/in/..." />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <Separator />
+
+        <VBox spacing="10.0">
+            <children>
+                <Label styleClass="section-header" text="Profil" />
+                <Label fx:id="summaryLabel" id="summaryLabel" styleClass="body-text" wrapText="true" text="Résumé..." />
+            </children>
+        </VBox>
+
+        <VBox spacing="10.0">
+            <children>
+                <Label styleClass="section-header" text="Expérience professionnelle" />
+                <VBox fx:id="experienceBox" id="experienceBox" spacing="20.0" />
+            </children>
+        </VBox>
+
+        <VBox spacing="10.0">
+            <children>
+                <Label styleClass="section-header" text="Éducation" />
+                <VBox fx:id="educationBox" id="educationBox" spacing="20.0" />
+            </children>
+        </VBox>
+
+        <VBox spacing="10.0">
+            <children>
+                <Label styleClass="section-header" text="Certifications" />
+                <VBox fx:id="certificationsBox" id="certificationsBox" spacing="10.0" />
+            </children>
+        </VBox>
+
+        <HBox spacing="40.0">
+            <children>
+                <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="section-header" text="Compétences" />
+                        <VBox fx:id="skillsBox" id="skillsBox" spacing="8.0" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="10.0" prefWidth="200.0">
+                    <children>
+                        <Label styleClass="section-header" text="Langues" />
+                        <VBox fx:id="languagesBox" id="languagesBox" spacing="5.0" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>

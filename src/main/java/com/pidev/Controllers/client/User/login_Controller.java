@@ -50,7 +50,7 @@ public class login_Controller implements Initializable {
     @FXML private Label regEmailError;
     @FXML private Label regPasswordError;
     @FXML private Label regCaptchaError;
-    
+
     @FXML private ImageView captchaImageView;
     @FXML private TextField regCaptcha;
 
@@ -128,7 +128,7 @@ public class login_Controller implements Initializable {
 
             btnNew.getStyleClass().setAll("toggle-btn", "active");
             btnExisting.getStyleClass().setAll("toggle-btn", "inactive");
-            
+
             // Generate initial CAPTCHA when switching to register form
             refreshCaptcha();
         } else {
@@ -146,7 +146,7 @@ public class login_Controller implements Initializable {
     private void handleLogin(ActionEvent event) {
         hideAllErrors();
         boolean isValid = true;
-        
+
         String email = loginEmail.getText().trim();
         String password = loginPassword.getText();
 
@@ -187,10 +187,10 @@ public class login_Controller implements Initializable {
             prefs.remove("savedEmail");
             prefs.remove("savedPassword");
         }
-        
+
         SessionManager.getInstance().setUser(user);
         userService.setConnectedStatus(user.getId(), true); // Mark as online
-        
+
         if (user.getRole() == User.Role.ADMIN) {
             switchScene("/Fxml/admin/base_back.fxml", "Admin Dashboard");
         } else {
@@ -202,7 +202,7 @@ public class login_Controller implements Initializable {
     private void handleRegister(ActionEvent event) {
         hideAllErrors();
         boolean isValid = true;
-        
+
         String type = regAccountType.getValue();
         String name = regName.getText().trim();
         String email = regEmail.getText().trim();
@@ -213,7 +213,7 @@ public class login_Controller implements Initializable {
             showError(regAccountTypeError, "Veuillez sélectionner un type de compte.");
             isValid = false;
         }
-        
+
         if (name.isEmpty()) {
             showError(regNameError, "Le nom est requis.");
             isValid = false;
@@ -221,7 +221,7 @@ public class login_Controller implements Initializable {
             showError(regNameError, "Le nom ne doit contenir que des lettres.");
             isValid = false;
         }
-        
+
         if (email.isEmpty()) {
             showError(regEmailError, "L'email est requis.");
             isValid = false;
@@ -229,7 +229,7 @@ public class login_Controller implements Initializable {
             showError(regEmailError, "Format email invalide.");
             isValid = false;
         }
-        
+
         if (password.isEmpty()) {
             showError(regPasswordError, "Le mot de passe est requis.");
             isValid = false;
@@ -237,7 +237,7 @@ public class login_Controller implements Initializable {
             showError(regPasswordError, "Le mot de passe doit faire au moins 6 caractères.");
             isValid = false;
         }
-        
+
         if (captchaInput.isEmpty()) {
             showError(regCaptchaError, "Veuillez résoudre le CAPTCHA.");
             isValid = false;
@@ -359,7 +359,7 @@ public class login_Controller implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-            
+
             // If it's the client base, we need to load home as default
             if (fxmlPath.equals("/Fxml/client/base.fxml")) {
                 com.pidev.Controllers.client.BaseController controller = loader.getController();
@@ -400,7 +400,7 @@ public class login_Controller implements Initializable {
         };
 
         updateLabel.run(); // Update immediately
-        
+
         banTimeline = new javafx.animation.Timeline(new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
             updateLabel.run();
         }));
@@ -412,23 +412,23 @@ public class login_Controller implements Initializable {
     private void handleFaceIdLogin(ActionEvent event) {
         com.pidev.Services.FaceRecognitionService faceService = new com.pidev.Services.FaceRecognitionService();
         faceService.loadModel();
-        
+
         javafx.stage.Stage stage = new javafx.stage.Stage();
         stage.setTitle("Connexion par Face ID");
-        
+
         VBox root = new VBox(10);
         root.setAlignment(javafx.geometry.Pos.CENTER);
         root.setStyle("-fx-padding: 20; -fx-background-color: white;");
-        
+
         Label infoLabel = new Label("Recherche de visage...");
         javafx.scene.image.ImageView cameraView = new javafx.scene.image.ImageView();
         cameraView.setFitWidth(400);
         cameraView.setFitHeight(300);
-        
+
         root.getChildren().addAll(infoLabel, cameraView);
         stage.setScene(new javafx.scene.Scene(root, 450, 400));
         stage.show();
-        
+
         new Thread(() -> {
             org.bytedeco.opencv.opencv_videoio.VideoCapture capture = null;
             try {
@@ -437,27 +437,27 @@ public class login_Controller implements Initializable {
                     System.err.println("Erreur: Impossible d'ouvrir la webcam.");
                     return;
                 }
-                
+
                 boolean loggedIn = false;
                 int consecutiveMatches = 0;
                 int lastMatchedUser = -1;
                 org.bytedeco.opencv.opencv_core.Mat frame = new org.bytedeco.opencv.opencv_core.Mat();
-                
+
                 while (!loggedIn && stage.isShowing() && capture != null && capture.isOpened()) {
                     if (!capture.read(frame) || frame.empty()) continue;
-                    
+
                     org.bytedeco.opencv.opencv_core.Mat grayMat = new org.bytedeco.opencv.opencv_core.Mat();
                     org.bytedeco.opencv.global.opencv_imgproc.cvtColor(frame, grayMat, org.bytedeco.opencv.global.opencv_imgproc.COLOR_BGR2GRAY);
-                    
+
                     org.bytedeco.opencv.opencv_core.Rect[] faces = faceService.detectFaces(grayMat);
                     if (faces.length > 0) {
                         org.bytedeco.opencv.opencv_core.Rect face = faces[0];
                         org.bytedeco.opencv.opencv_core.Mat faceROI = new org.bytedeco.opencv.opencv_core.Mat(grayMat, face);
                         org.bytedeco.opencv.opencv_core.Mat resizedFace = new org.bytedeco.opencv.opencv_core.Mat();
                         org.bytedeco.opencv.global.opencv_imgproc.resize(faceROI, resizedFace, new org.bytedeco.opencv.opencv_core.Size(200, 200));
-                        
+
                         int recognizedUserId = faceService.recognize(resizedFace);
-                        
+
                         if (recognizedUserId != -1) {
                             if (recognizedUserId == lastMatchedUser) {
                                 consecutiveMatches++;
@@ -470,7 +470,7 @@ public class login_Controller implements Initializable {
                             if (consecutiveMatches >= 5) {
                                 loggedIn = true;
                                 User user = userService.getById(recognizedUserId);
-                                
+
                                 if (user != null) {
                                     final org.bytedeco.opencv.opencv_videoio.VideoCapture finalCapture = capture;
                                     Platform.runLater(() -> {
@@ -492,12 +492,12 @@ public class login_Controller implements Initializable {
                     } else {
                         Platform.runLater(() -> infoLabel.setText("Aucun visage détecté."));
                     }
-                    
+
                     javafx.scene.image.Image fxImage = matToImage(frame);
                     if (fxImage != null) {
                         Platform.runLater(() -> cameraView.setImage(fxImage));
                     }
-                    
+
                     Thread.sleep(100);
                 }
             } catch (Exception ex) {
@@ -507,7 +507,7 @@ public class login_Controller implements Initializable {
             }
         }).start();
     }
-    
+
     private void stopCapture(org.bytedeco.opencv.opencv_videoio.VideoCapture capture) {
         try {
             if (capture != null) {
@@ -515,7 +515,7 @@ public class login_Controller implements Initializable {
             }
         } catch (Exception e) {}
     }
-    
+
     private javafx.scene.image.Image matToImage(org.bytedeco.opencv.opencv_core.Mat mat) {
         try {
             org.bytedeco.javacpp.BytePointer bytePointer = new org.bytedeco.javacpp.BytePointer();

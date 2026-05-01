@@ -36,4 +36,8 @@ build/
 .vscode/
 
 ### Mac OS ###
+<<<<<<< HEAD
 .DS_Store.env
+=======
+.DS_Store
+>>>>>>> gestion_cv

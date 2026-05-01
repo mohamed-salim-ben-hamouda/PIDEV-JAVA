@@ -149,32 +149,27 @@
                         <Label styleClass="management-text" text="Manage courses, chapters, quizzes, questions and answers" />
                         <FlowPane hgap="14.0" prefWrapLength="1100.0" vgap="14.0">
                             <children>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-primary" text="Courses">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-primary" text="Courses">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-book" styleClass="action-icon primary-action-icon" />
                                     </graphic>
                                 </Button>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Chapters">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-outline" text="Chapters">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-bookmark" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Quizzes">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-outline" text="Quizzes">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-question-circle" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Questions">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-outline" text="Questions">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-question-circle" styleClass="action-icon outline-action-icon" />
                                     </graphic>
                                 </Button>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Answers">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-outline" text="Answers">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-check-double" styleClass="action-icon outline-action-icon" />
                                     </graphic>
@@ -195,14 +190,12 @@
                         <Label styleClass="management-text" text="Manage student groups and posts" />
                         <HBox spacing="14.0">
                             <children>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-primary" text="Manage Groups">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-primary" text="Manage Groups">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-users" styleClass="action-icon primary-action-icon" />
                                     </graphic>
                                 </Button>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-outline" text="Manage Posts">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-outline" text="Manage Posts">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-comments" styleClass="action-icon outline-action-icon" />
                                     </graphic>
@@ -224,8 +217,7 @@
                         <Label styleClass="management-text" text="Manage challenges and submissions" />
                         <HBox spacing="14.0">
                             <children>
-                                <Button mnemonicParsing="false" style="-fx-background-color: #eaf2ff; -fx-background-radius: 18; -fx-background-insets: 0; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 18; -fx-text-fill: #3d68b2; -fx-font-size: 15px; -fx-font-weight: 700; -fx-padding: 14 20 14 20;"
-                                        styleClass="action-btn action-btn-primary" text="Add Challenge">
+                                <Button mnemonicParsing="false" styleClass="action-btn action-btn-primary" text="Add Challenge">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-trophy" styleClass="action-icon primary-action-icon" />
                                     </graphic>
@@ -236,6 +228,9 @@
                     </children>
                 </VBox>
             </children>
+            <padding>
+                <Insets bottom="36.0" left="36.0" right="36.0" top="12.0" />
+            </padding>
         </VBox>
     </content>
 </ScrollPane>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ProgressIndicator?>
+
+<VBox prefWidth="850.0" spacing="0.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 20; -fx-overflow: hidden;" stylesheets="@../../styles/home.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.AtsAnalysisController">
+    <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: linear-gradient(to right, #1e293b, #334155); -fx-padding: 25 30;">
+            <children>
+                <Label style="-fx-text-fill: white; -fx-font-size: 22; -fx-font-weight: 900;" text="📊 Vérificateur de Compatibilité ATS" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#handleClose" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 50; -fx-min-width: 35; -fx-min-height: 35;" text="✕" />
+            </children>
+        </HBox>
+
+        <StackPane VBox.vgrow="ALWAYS">
+            <children>
+                <!-- Input Form -->
+                <VBox fx:id="inputForm" spacing="25.0" style="-fx-padding: 30;">
+                    <children>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label style="-fx-text-fill: #1e293b; -fx-font-size: 18; -fx-font-weight: bold;" text="Analyse Comparative" />
+                                <Label style="-fx-text-fill: #64748b; -fx-font-size: 14;" text="Collez les détails du poste ci-dessous pour mesurer l'adéquation de votre CV." wrapText="true" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0">
+                            <children>
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569; -fx-font-size: 13;" text="TITRE DU POSTE VISÉ" />
+                                <TextField fx:id="jobTitleField" promptText="ex: Développeur Java Senior / Architecte Cloud" styleClass="cv-form-field" style="-fx-font-size: 15; -fx-padding: 12;" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <children>
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569; -fx-font-size: 13;" text="DESCRIPTION DÉTAILLÉE DE L'OFFRE" />
+                                <TextArea fx:id="jobDescriptionArea" prefHeight="480.0" promptText="Collez ici l'intégralité de l'annonce..." styleClass="cv-form-field" style="-fx-font-size: 14; -fx-line-spacing: 3; -fx-background-color: white; -fx-border-color: #cbd5e1; -fx-border-radius: 12; -fx-background-radius: 12;" wrapText="true" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="20.0">
+                            <children>
+                                <Button onAction="#handleClose" styleClass="cv-secondary-btn" text="Annuler" />
+                                <Button onAction="#handleAnalyze" styleClass="ai-btn" text="🚀 Lancer l'Analyse" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- Loading Overlay -->
+                <VBox fx:id="loadingOverlay" alignment="CENTER" spacing="20.0" style="-fx-background-color: rgba(255,255,255,0.9);" visible="false">
+                    <children>
+                        <ProgressIndicator prefHeight="60.0" prefWidth="60.0" />
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Analyse de votre CV en cours..." />
+                        <Label style="-fx-text-fill: #64748b;" text="L'IA compare votre profil avec les exigences du poste." />
+                    </children>
+                </VBox>
+
+                <!-- Results View -->
+                <VBox fx:id="resultsView" spacing="20.0" style="-fx-padding: 30;" visible="false">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <Button onAction="#handleNewAnalysis" styleClass="cv-secondary-btn" text="← Nouvelle Vérification" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="resultJobTitleLabel" style="-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 16;" text="Analyse pour : Titre du poste" />
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="10.0" style="-fx-background-color: #f8fafc; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Score ATS Global" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="scoreLabel" style="-fx-font-size: 24; -fx-font-weight: 900; -fx-text-fill: #6366f1;" text="0%" />
+                                    </children>
+                                </HBox>
+                                <ProgressBar fx:id="scoreProgressBar" maxWidth="Infinity" prefHeight="15.0" progress="0.0" styleClass="cv-progress-bar" />
+                            </children>
+                        </VBox>
+
+                        <ScrollPane fitToWidth="true" styleClass="transparent-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <VBox spacing="10.0" style="-fx-background-color: #f0fdf4; -fx-padding: 15; -fx-background-radius: 10;">
+                                            <children>
+                                                <Label style="-fx-font-weight: bold; -fx-text-fill: #166534;" text="✔ Compétences Matchées" />
+                                                <VBox fx:id="matchedSkillsBox" spacing="5.0" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" style="-fx-background-color: #fef2f2; -fx-padding: 15; -fx-background-radius: 10;">
+                                            <children>
+                                                <Label style="-fx-font-weight: bold; -fx-text-fill: #991b1b;" text="❌ Compétences Manquantes" />
+                                                <VBox fx:id="missingSkillsBox" spacing="5.0" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #e2e8f0;">
+                                            <children>
+                                                <Label style="-fx-font-weight: bold; -fx-text-fill: #1e293b;" text="💪 Points Forts" />
+                                                <VBox fx:id="strengthsBox" spacing="5.0" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #e2e8f0;">
+                                            <children>
+                                                <Label style="-fx-font-weight: bold; -fx-text-fill: #1e293b;" text="⚠️ Points Faibles" />
+                                                <VBox fx:id="weaknessesBox" spacing="5.0" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="10.0" style="-fx-background-color: #eff6ff; -fx-padding: 15; -fx-background-radius: 10;">
+                                            <children>
+                                                <Label style="-fx-font-weight: bold; -fx-text-fill: #1e40af;" text="💡 Suggestions d'Amélioration" />
+                                                <VBox fx:id="suggestionsBox" spacing="5.0" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </children>
+</VBox>

@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.Node;
@@ -17,12 +18,11 @@ import com.pidev.utils.SessionManager;
 import com.pidev.Services.UserService;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.StackPane;
 
 public class HomeController {
 
     @FXML
-    private MenuButton challengesMenu; 
+    private MenuButton challengesMenu; // Linked to the button in image_a509af.png
 
 
     @FXML
@@ -59,7 +59,7 @@ public class HomeController {
             alert.show();
             return;
         }
-        
+
         try {
             Parent view = FXMLLoader.load(getClass().getResource("/Fxml/client/User/profile.fxml"));
             Node source = (Node) event.getSource();
@@ -75,18 +75,61 @@ public class HomeController {
 
     @FXML
     private void navigateToModule(MouseEvent event) {
-        String fxmlFile = "";
         Node source = (Node) event.getSource();
+        String fxmlFile = "";
 
-        // Determine which button was clicked based on its ID or Text
-        if (source.getId().contains("challenges")) {
-            fxmlFile = "/com/skillbridge/views/challenges.fxml"; //
-        } else if (source.getId().contains("courses")) {
-            fxmlFile = "/com/skillbridge/views/courses.fxml";
+        if (source.getId() == null) return;
+
+        switch (source.getId()) {
+            case "coursesModule":
+                fxmlFile = "CoursesView";
+                break;
+            case "challengesModule":
+                fxmlFile = "Challenge";
+                break;
+            case "jobsModule":
+                fxmlFile = "OfferList";
+                break;
+            case "cvModule":
+                fxmlFile = "MyCVView";
+                break;
+            case "groupsModule":
+                fxmlFile = "GroupsView";
+                break;
+            case "hackathonModule":
+                fxmlFile = "HackathonView";
+                break;
+            default:
+                // Fallback for older IDs if any
+                if (source.getId().contains("challenges")) {
+                    fxmlFile = "Challenge";
+                } else if (source.getId().contains("courses")) {
+                    fxmlFile = "CoursesView";
+                }
+                break;
         }
 
         if (!fxmlFile.isEmpty()) {
-            switchScene(event, fxmlFile);
+            loadViewInContentArea(event, fxmlFile);
+        }
+    }
+
+    private void loadViewInContentArea(MouseEvent event, String fxmlName) {
+        try {
+            Parent view = FXMLLoader.load(getClass().getResource("/Fxml/client/" + fxmlName + ".fxml"));
+            // Find the contentArea StackPane from the scene
+            Scene scene = ((Node) event.getSource()).getScene();
+            StackPane contentArea = (StackPane) scene.lookup("#contentArea");
+
+            if (contentArea != null) {
+                contentArea.getChildren().setAll(view);
+            } else {
+                // If we can't find contentArea, try to switch the whole scene (fallback)
+                scene.setRoot(view);
+            }
+        } catch (IOException e) {
+            System.err.println("Error: Could not load " + fxmlName + ". Check the path.");
+            e.printStackTrace();
         }
     }
 

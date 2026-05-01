@@ -7,7 +7,6 @@ import java.sql.SQLException;
 public class DataSource {
 
     private static DataSource instance;
-
     private Connection connection;
 
     private final String USER = EnvConfig.get("DB_USER", "root");
@@ -16,11 +15,19 @@ public class DataSource {
 
     private DataSource() {
         try {
-            //etablisement de connection
+            Class.forName("com.mysql.cj.jdbc.Driver"); // IMPORTANT
+
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Connection established successfully.");
+
+            if (connection != null && !connection.isClosed()) {
+                System.out.println("✅ Database connection SUCCESS");
+            }
+
+        } catch (ClassNotFoundException e) {
+            System.err.println("❌ MySQL Driver not found");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println("❌ DB CONNECTION FAILED: " + e.getMessage());
+            connection = null;
         }
     }
 

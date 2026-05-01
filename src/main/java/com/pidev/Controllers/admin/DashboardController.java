@@ -24,7 +24,7 @@ public class DashboardController implements Initializable {
         System.out.println("Debug: Dashboard - Requesting stats from UserService...");
         int totalUsers = userService.getTotalUsersCount();
         int connectedUsers = userService.getConnectedUsersCount();
-        
+
         System.out.println("Debug: Dashboard - Total: " + totalUsers + ", Connected: " + connectedUsers);
 
         userCountLabel.setText(String.valueOf(totalUsers));

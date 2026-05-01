@@ -10,10 +10,10 @@
 }
 
 .sidebar-logo-box {
-    -fx-background-color: transparent;
+    -fx-background-color: linear-gradient(to bottom, #ffffff 0%, #f8fbff 100%);
     -fx-border-color: transparent transparent #dce6f2 transparent;
     -fx-border-width: 0 0 1 0;
-    -fx-padding: 15 10 15 10;
+    -fx-padding: 22 14 22 14;
 }
 
 .sidebar-scroll,
@@ -32,9 +32,9 @@
 
 .menu-section {
     -fx-text-fill: #9aa7ba;
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
-    -fx-padding: 8 10 2 12;
+    -fx-padding: 10 10 2 16;
 }
 
 .button.menu-item {
@@ -244,4 +244,75 @@
 .scroll-bar .decrement-arrow {
     -fx-background-color: #7f97b8;
     -fx-padding: 0.22em;
+}
+
+/* TableView Styling */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 0;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-padding: 0 0 5 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 45px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #64748b;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 50px;
+}
+
+.table-view .table-row-cell:odd {
+    -fx-background-color: #fcfdfe;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #0f172a;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: #94a3b8;
+}
+
+.action-btn-view {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 5 12;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.action-btn-delete {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 5 12;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
 }

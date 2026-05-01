@@ -148,7 +148,7 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
-        
+
         <!-- JavaCV for Face Recognition -->
         <dependency>
             <groupId>org.bytedeco</groupId>
