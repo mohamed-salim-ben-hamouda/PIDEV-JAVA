@@ -18,7 +18,7 @@ import java.time.Duration;
  *
  * Groq expose une API compatible OpenAI très rapide :
  *   POST https://api.groq.com/openai/v1/chat/completions
- *   Authorization: Bearer gsk_...
+ *   Authorization: Bearer <API_KEY>
  */
 public class GrokQuizService {
 
@@ -43,7 +43,7 @@ public class GrokQuizService {
      * Extrait le texte du PDF, l'envoie à Grok et retourne un JSON de questions.
      *
      * @param pdfFile     Fichier PDF du cours
-     * @param apiKey      Clé API Grok (commence par gsk_...)
+     * @param apiKey      Clé API Groq
      * @param nbQuestions Nombre de questions à générer
      * @return String JSON : tableau de questions QCM
      */

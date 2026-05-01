@@ -136,9 +136,9 @@
                                         <Label fx:id="aiFeedbackLabel" styleClass="ai-feedback-box" text="" visible="false" managed="false" wrapText="true" />
                                         <HBox spacing="10.0">
                                             <children>
-                                                <Button fx:id="downloadCertButton" onAction="#onDownloadCertificate" styleClass="courses-action-btn primary" text="Télécharger le certificat" visible="false" managed="false" />
-                                                <Button fx:id="retryButton" onAction="#onRetry" styleClass="courses-action-btn primary" text="Recommencer la session" />
-                                                <Button onAction="#onCloseWindow" styleClass="courses-action-btn secondary" text="Quitter" />
+                                                <Button fx:id="downloadCertButton" onAction="#onDownloadCertificate" styleClass="management-btn" text="Télécharger le certificat" visible="false" managed="false" />
+                                                <Button fx:id="retryButton" onAction="#onRetry" styleClass="management-btn" text="Recommencer la session" />
+                                                <Button onAction="#onCloseWindow" styleClass="management-btn" text="Quitter" />
                                             </children>
                                         </HBox>
                                     </children>

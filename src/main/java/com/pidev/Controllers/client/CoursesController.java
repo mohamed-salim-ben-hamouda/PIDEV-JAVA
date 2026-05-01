@@ -245,86 +245,97 @@ public class CoursesController {
             CourseAdvancedBusinessService.CourseCompleteness completeness,
             CourseAdvancedBusinessService.CourseSuggestion suggestion
     ) {
-        VBox card = new VBox(14);
+        VBox card = new VBox();
         card.getStyleClass().add("course-card");
-        card.setPrefWidth(330);
-        card.setMaxWidth(330);
+        if ("LOCKED".equals(status)) card.getStyleClass().add("locked");
+        card.setPrefWidth(340);
+        card.setMaxWidth(340);
 
+        // Header with Icon
         StackPane header = new StackPane();
         header.getStyleClass().add("course-card-header");
-        header.setMinHeight(150);
-        header.setPrefHeight(150);
+        header.setMinHeight(140);
+        header.setPrefHeight(140);
 
-        FontIcon icon = new FontIcon("fas-book");
+        FontIcon icon = new FontIcon("fas-book-open");
         icon.getStyleClass().add("course-card-icon");
-        icon.setIconSize(34);
+        icon.setIconSize(40);
         header.getChildren().add(icon);
 
-        Label title = new Label(nullSafe(course.getTitle(), "Sans titre"));
-        title.getStyleClass().add("course-card-title");
-        title.setWrapText(true);
+        // Content Wrapper
+        VBox content = new VBox(12);
+        content.setPadding(new Insets(18, 20, 18, 20));
+        content.getStyleClass().add("course-card-content");
 
-        Label description = new Label(truncate(course.getDescription(), 110));
-        description.getStyleClass().add("course-card-description");
-        description.setWrapText(true);
-
-        HBox infoRow = new HBox(12);
-        infoRow.setAlignment(Pos.CENTER_LEFT);
-        infoRow.getChildren().addAll(
-                pill(course.getDuration() + " min", "course-pill duration-pill"),
+        // Badges Row
+        HBox badgesRow = new HBox(8);
+        badgesRow.setAlignment(Pos.CENTER_LEFT);
+        badgesRow.getChildren().addAll(
                 pill(nullSafe(course.getDifficulty(), "N/A"), "course-pill difficulty-pill"),
                 pill(statusLabel(status), statusPillClass(status))
         );
         if (recommended) {
-            infoRow.getChildren().add(pill("Recommande", "course-pill active-pill"));
-        }
-        if (suggestion != null) {
-            infoRow.getChildren().add(pill(suggestion.badge(), "course-pill duration-pill"));
+            badgesRow.getChildren().add(pill("⭐ Recommandé", "course-pill recommended-pill"));
         }
 
-        VBox progressBox = new VBox(6);
-        Label progressLabel = new Label("Score de validation");
-        progressLabel.getStyleClass().add("course-progress-label");
-        ProgressBar progressBar = new ProgressBar(Math.max(0, Math.min(1, course.getValidationScore() / 100f)));
-        progressBar.getStyleClass().add("course-progress-bar");
-        Label progressValue = new Label(Math.round(course.getValidationScore()) + "%");
-        progressValue.getStyleClass().add("course-progress-value");
-        HBox progressHeader = new HBox();
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        progressHeader.getChildren().addAll(progressLabel, spacer, progressValue);
-        progressBox.getChildren().addAll(progressHeader, progressBar);
+        // Title
+        Label title = new Label(nullSafe(course.getTitle(), "Sans titre"));
+        title.getStyleClass().add("course-card-title");
+        title.setWrapText(true);
+        title.setMinHeight(50); // Ensure consistency
 
-        HBox footer = new HBox(10);
+        // Description
+        Label description = new Label(truncate(course.getDescription(), 95));
+        description.getStyleClass().add("course-card-description");
+        description.setWrapText(true);
+
+        // Progress Section (only if relevant)
+        VBox progressSection = new VBox(8);
+        if (!"LOCKED".equals(status)) {
+            HBox progressHeader = new HBox();
+            Label progressLabel = new Label("Progression");
+            progressLabel.getStyleClass().add("course-progress-label");
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            Label progressValue = new Label(Math.round(course.getValidationScore()) + "%");
+            progressValue.getStyleClass().add("course-progress-value");
+            progressHeader.getChildren().addAll(progressLabel, spacer, progressValue);
+
+            ProgressBar progressBar = new ProgressBar(Math.max(0, Math.min(1, course.getValidationScore() / 100f)));
+            progressBar.getStyleClass().add("course-progress-bar");
+            progressBar.setMaxWidth(Double.MAX_VALUE);
+            
+            progressSection.getChildren().addAll(progressHeader, progressBar);
+        }
+
+        // Footer Meta Info
+        HBox footer = new HBox(15);
+        footer.getStyleClass().add("course-card-footer");
         footer.setAlignment(Pos.CENTER_LEFT);
-        Label durationIcon = new Label("⏱");
-        durationIcon.getStyleClass().add("course-meta-icon");
-        Label durationText = new Label(course.getDuration() + " minutes");
-        durationText.getStyleClass().add("course-meta-text");
-        Label sectionsIcon = new Label("▤");
-        sectionsIcon.getStyleClass().add("course-meta-icon");
-        Label sectionsText = new Label(course.getSectionsToReview() == null ? "0 sections" : course.getSectionsToReview().size() + " sections");
-        sectionsText.getStyleClass().add("course-meta-text");
-        footer.getChildren().addAll(durationIcon, durationText, sectionsIcon, sectionsText);
+        
+        HBox durBox = new HBox(5, new FontIcon("fas-clock"), new Label(course.getDuration() + "m"));
+        durBox.getStyleClass().add("meta-info-item");
+        
+        HBox secBox = new HBox(5, new FontIcon("fas-layer-group"), new Label(course.getSectionsToReview() == null ? "0" : course.getSectionsToReview().size() + ""));
+        secBox.getStyleClass().add("meta-info-item");
 
+        footer.getChildren().addAll(durBox, secBox);
+        
         if (completeness != null) {
-            Label qualityText = new Label("Qualite: " + completeness.completenessScore() + "%");
-            qualityText.getStyleClass().add("course-meta-text");
-            footer.getChildren().add(qualityText);
-        }
-        if (suggestion != null && suggestion.reason() != null && !suggestion.reason().isBlank()) {
-            Label reasonText = new Label("Conseil: " + truncate(suggestion.reason(), 60));
-            reasonText.getStyleClass().add("course-meta-text");
-            footer.getChildren().add(reasonText);
+            HBox qualBox = new HBox(5, new FontIcon("fas-check-circle"), new Label(completeness.completenessScore() + "%"));
+            qualBox.getStyleClass().add("meta-info-item");
+            footer.getChildren().add(qualBox);
         }
 
-        Button consultButton = new Button(actionLabel(status));
-        consultButton.getStyleClass().addAll("courses-action-btn", "primary");
-        consultButton.setMaxWidth(Double.MAX_VALUE);
-        consultButton.setOnAction(event -> openCourseDetail(course));
+        // Action Button
+        Button actionButton = new Button(actionLabel(status));
+        actionButton.getStyleClass().addAll("courses-action-btn", "primary");
+        actionButton.setMaxWidth(Double.MAX_VALUE);
+        actionButton.setOnAction(event -> openCourseDetail(course));
 
-        VBox.setMargin(consultButton, new Insets(0, 18, 0, 18));
-        card.getChildren().addAll(header, title, description, infoRow, progressBox, footer, consultButton);
+        content.getChildren().addAll(badgesRow, title, description, progressSection, footer, actionButton);
+        card.getChildren().addAll(header, content);
+        
         return card;
     }
 

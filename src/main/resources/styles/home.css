@@ -385,132 +385,155 @@
     -fx-padding: 8 0 0 0;
 }
 
+/* --- Refined Course Cards (Premium Design) --- */
 .course-card {
     -fx-background-color: white;
-    -fx-background-radius: 22px;
-    -fx-padding: 0 0 18 0;
-    -fx-border-color: #e3e9f6;
-    -fx-border-width: 1;
-    -fx-border-radius: 22px;
-    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.09), 20, 0, 0, 7);
+    -fx-background-radius: 28px;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 28px;
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.08), 25, 0, 0, 8);
+    -fx-cursor: hand;
 }
 
 .course-card.locked {
-    -fx-opacity: 0.96;
+    -fx-opacity: 0.85;
 }
 
 .course-card:hover {
-    -fx-translate-y: -4;
-    -fx-border-color: #b9caf0;
-    -fx-effect: dropshadow(three-pass-box, rgba(87, 108, 242, 0.18), 24, 0, 0, 10);
+    -fx-translate-y: -8;
+    -fx-border-color: #e2e8f0;
+    -fx-effect: dropshadow(three-pass-box, rgba(79, 70, 229, 0.15), 35, 0, 0, 12);
 }
 
 .course-card-header {
-    -fx-background-radius: 22px 22px 0 0;
-    -fx-background-color: linear-gradient(to right, #667eea 0%, #764ba2 100%);
+    -fx-background-radius: 28px 28px 0 0;
+    -fx-background-color: linear-gradient(to bottom right, #4f46e5, #7c3aed);
     -fx-alignment: CENTER;
+    -fx-padding: 20;
 }
 
 .course-card-icon {
     -fx-icon-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
 }
 
 .course-card-title {
-    -fx-text-fill: #0f172a;
-    -fx-font-size: 18px;
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 19px;
     -fx-font-weight: 800;
-    -fx-padding: 0 18 0 18;
+    -fx-line-spacing: 2px;
 }
 
 .course-card-description {
-    -fx-text-fill: #667085;
-    -fx-font-size: 13px;
-    -fx-line-spacing: 3px;
-    -fx-padding: 0 18 0 18;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13.5px;
+    -fx-line-spacing: 4px;
 }
 
+/* Modern Pills */
 .course-pill {
-    -fx-background-radius: 999px;
-    -fx-padding: 6 10;
+    -fx-background-radius: 10px;
+    -fx-padding: 6 12;
     -fx-font-size: 11px;
-    -fx-font-weight: 700;
+    -fx-font-weight: 800;
+    -fx-text-transform: uppercase;
 }
 
 .duration-pill {
-    -fx-background-color: #e8f1ff;
-    -fx-text-fill: #4e7dd8;
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #475569;
 }
 
 .difficulty-pill {
-    -fx-background-color: #f1ecff;
-    -fx-text-fill: #6d5ad8;
+    -fx-background-color: #eef2ff;
+    -fx-text-fill: #4f46e5;
 }
 
 .active-pill {
-    -fx-background-color: #d1fae5;
-    -fx-text-fill: #065f46;
+    -fx-background-color: #f0fdf4;
+    -fx-text-fill: #16a34a;
+}
+
+.recommended-pill {
+    -fx-background-color: #fffbeb;
+    -fx-text-fill: #d97706;
 }
 
 .inactive-pill {
-    -fx-background-color: #fef3c7;
-    -fx-text-fill: #92400e;
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #dc2626;
 }
 
+/* Progress Section */
 .course-progress-label {
-    -fx-text-fill: #7d869a;
+    -fx-text-fill: #94a3b8;
     -fx-font-size: 12px;
     -fx-font-weight: 700;
 }
 
 .course-progress-value {
-    -fx-text-fill: #6b7ce6;
-    -fx-font-size: 12px;
+    -fx-text-fill: #4f46e5;
+    -fx-font-size: 13px;
     -fx-font-weight: 800;
 }
 
 .course-progress-bar {
-    -fx-pref-height: 10px;
+    -fx-pref-height: 7px;
+    -fx-min-height: 7px;
+    -fx-max-height: 7px;
 }
 
 .course-progress-bar .track {
-    -fx-background-color: #ebeff8;
-    -fx-background-radius: 999;
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 10;
 }
 
 .course-progress-bar .bar {
-    -fx-background-color: linear-gradient(to right, #667eea 0%, #764ba2 100%);
-    -fx-background-radius: 999;
+    -fx-background-color: linear-gradient(to right, #4f46e5, #8b5cf6);
+    -fx-background-radius: 10;
 }
 
-.course-meta-icon {
-    -fx-text-fill: #8a94a8;
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
+/* Footer & Meta */
+.course-card-footer {
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 0 0 0;
 }
 
-.course-meta-text {
-    -fx-text-fill: #7b8599;
+.meta-info-item {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.meta-info-item .ikonli-font-icon {
+    -fx-icon-color: #94a3b8;
+    -fx-icon-size: 13;
+}
+
+.meta-info-item .label {
+    -fx-text-fill: #64748b;
     -fx-font-size: 12px;
+    -fx-font-weight: 600;
 }
 
 .course-empty-state {
-    -fx-background-color: rgba(255, 255, 255, 0.8);
-    -fx-background-radius: 24px;
-    -fx-padding: 28;
-    -fx-border-color: #dbe2f0;
-    -fx-border-radius: 24px;
-    -fx-border-width: 1;
+    -fx-background-color: white;
+    -fx-background-radius: 28px;
+    -fx-padding: 40;
+    -fx-border-color: #f1f5f9;
+    -fx-border-radius: 28px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 15, 0, 0, 5);
 }
 
 .course-empty-title {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: 800;
-    -fx-text-fill: #0f172a;
+    -fx-text-fill: #1e293b;
 }
 
 .course-empty-subtitle {
-    -fx-font-size: 13px;
-    -fx-text-fill: #7a8496;
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748b;
 }
 
 .assessment-row {
@@ -612,6 +635,43 @@
 .answer-line {
     -fx-text-fill: #334155;
     -fx-font-size: 14px;
+}
+
+/* ===================================================
+   QUIZ TIMER DANGER & FLASHING STYLES (10s remaining)
+   =================================================== */
+
+/* Overlay d'alerte rouge clignotant (le clignotement est géré par le contrôleur Java) */
+.quiz-warning-overlay {
+    -fx-background-color: linear-gradient(to bottom, rgba(239, 68, 68, 0.25), transparent);
+    -fx-border-color: #EF4444;
+    -fx-border-width: 4px;
+    -fx-border-radius: 12px;
+    -fx-mouse-transparent: true;
+}
+
+/* Panel entier quand le temps presse */
+.quiz-question-panel-danger {
+    -fx-border-color: #EF4444;
+    -fx-border-width: 2.5px;
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.35), 15, 0, 0, 0);
+}
+
+/* Badge du timer en état critique */
+.timer-badge-danger {
+    -fx-background-color: #FEE2E2;
+    -fx-background-radius: 999;
+}
+
+.timer-badge-danger .timer-badge {
+    -fx-text-fill: #B91C1C;
+    -fx-font-weight: 900;
+}
+
+.timer-badge-danger .quiz-timer-badge {
+    -fx-text-fill: #B91C1C;
+    -fx-font-weight: 900;
 }
 
 .courses-detail-topbar {

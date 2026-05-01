@@ -17,20 +17,25 @@ public class SupervisorMailService {
     private static final String SENDER_PASSWORD = "ucax blgx bfia yvqs";
 
     /**
-     * Envoie une alerte au superviseur concernant un etudiant a risque.
+     * Envoie une alerte de soutien directement a l'etudiant concerne.
      */
-    public void sendRiskAlert(StudentRiskInsight insight, String supervisorEmail) {
-        if (insight == null || supervisorEmail == null || supervisorEmail.isBlank()) {
-            System.err.println("Donnees manquantes pour l'envoi de l'alerte.");
+    public void sendRiskAlert(StudentRiskInsight insight, String studentEmail) {
+        // Si studentEmail est null, on essaie de le recuperer via l'insight
+        String recipient = (studentEmail != null && !studentEmail.isBlank()) 
+                           ? studentEmail 
+                           : (insight != null && insight.getStudent() != null ? insight.getStudent().getEmail() : null);
+
+        if (insight == null || recipient == null || recipient.isBlank()) {
+            System.err.println("Donnees manquantes pour l'envoi de l'alerte a l'etudiant.");
             return;
         }
 
-        System.out.println("Preparation de l'envoi de l'email a : " + supervisorEmail);
+        System.out.println("Preparation de l'envoi de l'email de soutien a : " + recipient);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com"); // Serveur SMTP par defaut (Gmail)
+        props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
 
         Session session = Session.getInstance(props,
@@ -44,22 +49,35 @@ public class SupervisorMailService {
         try {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(SENDER_EMAIL));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(supervisorEmail));
-            message.setSubject("Alerte de risque - " + insight.getStudent().getDisplayName());
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+            message.setSubject("Skill Bridge - Un petit coup de pouce pour vos quiz ?");
 
-            String content = "Bonjour Superviseur,\n\n"
-                    + "L'etudiant " + insight.getStudent().getDisplayName() + " presente un risque : " + insight.getRiskLevel() + ".\n"
-                    + "Moyenne : " + String.format("%.1f%%", insight.getAverageScore()) + " | Tentatives : " + insight.getAttempts() + "\n"
-                    + "Diagnostic : " + insight.getReason() + "\n\n"
-                    + "Veuillez prendre les actions necessaires.\n";
+            String studentName = insight.getStudent().getDisplayName();
+            String content = "Bonjour " + studentName + ",\n\n"
+                    + "Nous avons remarque que vous rencontrez quelques difficultes sur vos derniers quiz (Score moyen : " 
+                    + String.format("%.1f%%", insight.getAverageScore()) + ").\n\n"
+                    + "Ne vous decouragez pas ! Voici un petit diagnostic pour vous aider :\n"
+                    + "> " + insight.getReason() + "\n\n"
+                    + "Conseils de l'equipe pedagogique :\n";
+            
+            if (insight.getRecommendedActions() != null && !insight.getRecommendedActions().isEmpty()) {
+                for (String action : insight.getRecommendedActions()) {
+                    content += "- " + action + "\n";
+                }
+            } else {
+                content += "- Prenez le temps de relire les chapitres cles.\n- N'hesitez pas a poser des questions sur le forum.\n";
+            }
+
+            content += "\nContinuez vos efforts, la reussite est au bout du chemin !\n\n"
+                    + "L'equipe Skill Bridge";
 
             message.setText(content);
 
             Transport.send(message);
-            System.out.println("Email envoye avec succes a " + supervisorEmail + " !");
+            System.out.println("Email de soutien envoye avec succes a " + recipient + " !");
 
         } catch (MessagingException e) {
-            System.err.println("Erreur lors de l'envoi de l'email : " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi de l'email a l'etudiant : " + e.getMessage());
             e.printStackTrace();
         }
     }

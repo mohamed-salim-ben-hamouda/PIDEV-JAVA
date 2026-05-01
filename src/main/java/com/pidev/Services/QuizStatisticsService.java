@@ -19,11 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuizStatisticsService {
-    private final Connection connection;
     private final QuizService quizService = new QuizService();
 
     public QuizStatisticsService() {
-        this.connection = DataSource.getInstance().getConnection();
     }
 
     public List<QuizStatisticsSummary> findQuizSummaries() throws SQLException {
@@ -240,10 +238,11 @@ public class QuizStatisticsService {
     }
 
     private Connection requireConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
+        Connection conn = DataSource.getInstance().getConnection();
+        if (conn == null || conn.isClosed()) {
             throw new SQLException("Database connection is not available. Check DataSource URL/user/password and MySQL server.");
         }
-        return connection;
+        return conn;
     }
 
     private double roundOneDecimal(double value) {

@@ -187,7 +187,11 @@ public class QuizSessionController {
 
     private void checkIfAlreadyPassed() {
         try {
-            List<com.pidev.models.QuizAttemptDetail> history = quizStatisticsService.findAttemptsForStudentQuiz(quiz.getId(), quiz.getPassingScore(), null);
+            // RÉCUPÉRATION DU STUDENT_ID DEPUIS LA SESSION
+            com.pidev.models.User sessionUser = com.pidev.utils.UserSession.getCurrentUser();
+            Integer studentId = (sessionUser != null) ? sessionUser.getId() : null;
+
+            List<com.pidev.models.QuizAttemptDetail> history = quizStatisticsService.findAttemptsForStudentQuiz(quiz.getId(), quiz.getPassingScore(), studentId);
             Optional<com.pidev.models.QuizAttemptDetail> bestPass = history.stream()
                 .filter(com.pidev.models.QuizAttemptDetail::isPassed)
                 .max(Comparator.comparingDouble(com.pidev.models.QuizAttemptDetail::getScore));
@@ -296,9 +300,21 @@ public class QuizSessionController {
         int attemptNumber = attemptsUsed + 1;
 
         try {
-            attemptNumber = quizStatisticsService.saveQuizAttempt(quiz.getId(), null, percent);
+            // RÉCUPÉRATION DU STUDENT_ID DEPUIS LA SESSION
+            Integer studentId = (currentUser != null) ? currentUser.getId() : null;
+            if (studentId == null) {
+                com.pidev.models.User sessionUser = com.pidev.utils.UserSession.getCurrentUser();
+                if (sessionUser != null) {
+                    studentId = sessionUser.getId();
+                    this.currentUser = sessionUser;
+                }
+            }
+            
+            // On passe enfin le vrai studentId (au lieu de null)
+            attemptNumber = quizStatisticsService.saveQuizAttempt(quiz.getId(), studentId, percent);
         } catch (SQLException e) {
             showError("Sauvegarde quiz", "Tentative non enregistree en base: " + e.getMessage());
+            e.printStackTrace();
         }
         attemptsUsed = Math.max(attemptsUsed, attemptNumber);
         attemptLabel.setText(formatAttemptLabel());
@@ -388,7 +404,10 @@ public class QuizSessionController {
             // Si le score actuel est 0 (ex: on vient d'ouvrir un quiz déjà réussi), 
             // on cherche le meilleur score dans l'historique.
             if (percent == 0) {
-                List<com.pidev.models.QuizAttemptDetail> history = quizStatisticsService.findAttemptsForStudentQuiz(quiz.getId(), quiz.getPassingScore(), null);
+                com.pidev.models.User sessionUser = com.pidev.utils.UserSession.getCurrentUser();
+                Integer studentId = (sessionUser != null) ? sessionUser.getId() : null;
+                
+                List<com.pidev.models.QuizAttemptDetail> history = quizStatisticsService.findAttemptsForStudentQuiz(quiz.getId(), quiz.getPassingScore(), studentId);
                 percent = history.stream()
                     .filter(com.pidev.models.QuizAttemptDetail::isPassed)
                     .mapToInt(a -> (int)Math.round(a.getScore()))
@@ -435,7 +454,9 @@ public class QuizSessionController {
             return 0;
         }
         try {
-            return quizStatisticsService.countStudentAttemptsForQuiz(quiz.getId(), null);
+            com.pidev.models.User sessionUser = com.pidev.utils.UserSession.getCurrentUser();
+            Integer studentId = (sessionUser != null) ? sessionUser.getId() : null;
+            return quizStatisticsService.countStudentAttemptsForQuiz(quiz.getId(), studentId);
         } catch (SQLException e) {
             return 0;
         }
@@ -751,6 +772,7 @@ public class QuizSessionController {
             this.questions = new ArrayList<>();
             this.answers = new ArrayList<>();
             showError("Quiz", "Impossible de charger les questions du quiz.");
+            e.printStackTrace();
         }
 
         questionCountLabel.setText(String.valueOf(questions.size()));
@@ -1004,7 +1026,7 @@ public class QuizSessionController {
             user = com.pidev.utils.UserSession.getCurrentUser();
         }
 
-        if (user == null) return "Étudiant";
+        if (user == null) return "";
 
         // Essayer prénom + nom
         String prenom = user.getPrenom();
@@ -1028,7 +1050,7 @@ public class QuizSessionController {
         String email = user.getEmail();
         if (email != null && !email.isBlank() && !"null".equalsIgnoreCase(email)) return email.trim();
 
-        return "Étudiant";
+        return "";
     }
 }
 

@@ -1,5 +1,6 @@
 package com.pidev.Services;
 
+import com.pidev.utils.EnvLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,7 +27,7 @@ public class TranslationService {
 
     private static final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
     private static final String GROQ_MODEL   = "llama-3.3-70b-versatile";
-    private static final String API_KEY      = System.getenv("GROQ_API_KEY");
+    private static final String API_KEY      = EnvLoader.get("GROQ_API_KEY");
 
     private static final int TIMEOUT_SECONDS = 60;
     private static final int BATCH_SIZE      = 80;
@@ -109,6 +110,10 @@ public class TranslationService {
     // ------------------------------------------------------------------
 
     private List<String> callGroq(List<String> texts, String targetLang) {
+        if (API_KEY == null || API_KEY.isBlank()) {
+            throw new IllegalStateException("La variable d'environnement GROQ_API_KEY est vide. Configurez une clé Groq valide dans .env ou dans Windows.");
+        }
+
         // Langue SOURCE = toujours l'opposé de la cible
         // Le quiz est en FR → si targetLang="en" : FR→EN
         //                   → si targetLang="fr" : EN→FR (retour)
@@ -155,6 +160,10 @@ public class TranslationService {
 
             if (response.statusCode() == 200) {
                 return parseResponse(response.body(), texts);
+            }
+
+            if (response.statusCode() == 401 || response.statusCode() == 403) {
+                throw new IllegalStateException("Clé Groq invalide ou expirée (HTTP " + response.statusCode() + "). Générez une nouvelle clé et mettez à jour GROQ_API_KEY.");
             }
 
             if (response.statusCode() == 429) {

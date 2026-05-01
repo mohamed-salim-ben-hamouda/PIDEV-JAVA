@@ -59,13 +59,12 @@ public class CertificateGeneratorService {
 
         document.open();
 
-        // Polices
-        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 42, Color.decode("#1f3b73"));
-        Font subTitleFont = FontFactory.getFont(FontFactory.HELVETICA, 18, Color.GRAY);
-        Font nameFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 40, Color.decode("#996515")); // Or plus sombre pour contraste
-        Font textFont = FontFactory.getFont(FontFactory.HELVETICA, 20, Color.BLACK);
-        Font courseFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 24, Color.BLACK);
-        Font footerFont = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 14, Color.DARK_GRAY);
+        // Polices aggrandies et colorées
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 54, Color.decode("#1e3a8a")); // Bleu Royal Profond
+        Font subTitleFont = FontFactory.getFont(FontFactory.HELVETICA, 24, Color.decode("#64748b")); // Gris Ardoise
+        Font textFont = FontFactory.getFont(FontFactory.HELVETICA, 26, Color.decode("#334155")); // Ardoise Sombre
+        Font courseFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 36, Color.decode("#7c3aed")); // Violet Royal
+        Font footerFont = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 18, Color.decode("#94a3b8")); // Gris Doux
 
         // Contenu (Réduit les espacements pour tenir sur une page)
         Paragraph header = new Paragraph("CERTIFICAT DE REUSSITE", titleFont);
@@ -78,26 +77,15 @@ public class CertificateGeneratorService {
         subHeader.setSpacingAfter(30);
         document.add(subHeader);
 
-        Paragraph pTo = new Paragraph("Ce certificat est fièrement décerné à :", textFont);
-        pTo.setAlignment(Element.ALIGN_CENTER);
-        document.add(pTo);
-
-        // Nom de l'étudiant
-        String displayName = (studentName == null || studentName.trim().isEmpty()) ? "Étudiant" : studentName;
-        Paragraph pName = new Paragraph(displayName, nameFont);
-        pName.setAlignment(Element.ALIGN_CENTER);
-        pName.setSpacingBefore(15);
-        pName.setSpacingAfter(20);
-        document.add(pName);
-
-        Paragraph pSuccess = new Paragraph("Pour avoir validé avec succès le cours :", textFont);
+        Paragraph pSuccess = new Paragraph("Attestation de validation avec succès du cours :", textFont);
         pSuccess.setAlignment(Element.ALIGN_CENTER);
+        pSuccess.setSpacingBefore(40);
         document.add(pSuccess);
 
         Paragraph pCourse = new Paragraph(courseName, courseFont);
         pCourse.setAlignment(Element.ALIGN_CENTER);
-        pCourse.setSpacingBefore(5);
-        pCourse.setSpacingAfter(20);
+        pCourse.setSpacingBefore(10);
+        pCourse.setSpacingAfter(30);
         document.add(pCourse);
 
         Paragraph pScore = new Paragraph("Score obtenu : " + score + "%", textFont);
@@ -105,8 +93,9 @@ public class CertificateGeneratorService {
         document.add(pScore);
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Paragraph pDate = new Paragraph("\nDate de délivrance : " + sdf.format(new Date()), footerFont);
+        Paragraph pDate = new Paragraph("\nDate de validation : " + sdf.format(new Date()), footerFont);
         pDate.setAlignment(Element.ALIGN_CENTER);
+        pDate.setSpacingBefore(20);
         document.add(pDate);
 
         document.close();

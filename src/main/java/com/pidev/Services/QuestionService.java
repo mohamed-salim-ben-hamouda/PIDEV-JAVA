@@ -11,10 +11,8 @@ import java.util.Set;
 
 public class QuestionService {
     private static final Set<String> ALLOWED_SORTS = Set.of("id", "content", "type", "point");
-    private final Connection connection;
 
     public QuestionService() {
-        this.connection = DataSource.getInstance().getConnection();
     }
 
     public List<Question> findAll() throws SQLException {
@@ -96,10 +94,11 @@ public class QuestionService {
     }
 
     private Connection requireConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
+        Connection conn = DataSource.getInstance().getConnection();
+        if (conn == null || conn.isClosed()) {
             throw new SQLException("Database connection is not available. Check DataSource URL/user/password and MySQL server.");
         }
-        return connection;
+        return conn;
     }
 
     private void bindQuestion(PreparedStatement statement, Question question, boolean withId) throws SQLException {

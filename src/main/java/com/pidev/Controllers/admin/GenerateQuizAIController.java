@@ -1,6 +1,7 @@
 package com.pidev.Controllers.admin;
 
 import com.pidev.Services.GrokQuizService;
+import com.pidev.utils.EnvLoader;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -11,8 +12,7 @@ import java.io.File;
 
 public class GenerateQuizAIController {
 
-    // Clé API Grok (xAI) — intégrée en dur et cachée de l'interface
-    private static final String GROK_API_KEY = System.getenv("GROQ_API_KEY");
+    private static final String GROQ_API_KEY = EnvLoader.get("GROQ_API_KEY");
 
     @FXML
     private Spinner<Integer> numQuestionsSpinner;
@@ -62,6 +62,13 @@ public class GenerateQuizAIController {
     public void onGenerate() {
         int numQuestions = numQuestionsSpinner.getValue();
 
+        if (GROQ_API_KEY == null || GROQ_API_KEY.isBlank()) {
+            showAlert(Alert.AlertType.ERROR, "Clé API manquante",
+                    "La variable d'environnement GROQ_API_KEY est vide.\n"
+                            + "Ajoutez une clé Groq valide dans .env ou dans vos variables Windows, puis redémarrez l'application.");
+            return;
+        }
+
         if (selectedPdfFile == null) {
             showAlert(Alert.AlertType.WARNING, "Attention",
                     "Veuillez d'abord sélectionner un fichier PDF contenant le cours.");
@@ -75,7 +82,7 @@ public class GenerateQuizAIController {
         Task<String> generateTask = new Task<>() {
             @Override
             protected String call() throws Exception {
-                return grokService.generateQuiz(selectedPdfFile, GROK_API_KEY, numQuestions);
+                return grokService.generateQuiz(selectedPdfFile, GROQ_API_KEY, numQuestions);
             }
         };
 
