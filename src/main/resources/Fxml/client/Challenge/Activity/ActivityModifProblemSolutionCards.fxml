@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="8" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityModifProblemSolutionCardsController"
-      style="-fx-padding: 25; -fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-border-width: 1;">
+<VBox spacing="16.0"
+      styleClass="challenge-card"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityModifProblemSolutionCardsController">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+    </padding>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <VBox spacing="2" minWidth="150" maxWidth="200">
-            <Label text="Problem Statement:" style="-fx-font-weight: bold; -fx-font-size: 10; -fx-text-fill: #0369a1;"/>
-        </VBox>
-        <TextArea fx:id="probModif" prefHeight="40" promptText="Edit Problem..." wrapText="true" HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <VBox spacing="8.0">
+        <Label styleClass="input-label" text="Problem Statement" />
+        <TextArea fx:id="probModif"
+                  prefHeight="96.0"
+                  promptText="Edit problem..."
+                  styleClass="modern-input"
+                  wrapText="true" />
+    </VBox>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <VBox spacing="2" minWidth="150" maxWidth="200">
-            <Label text="Solution:" style="-fx-font-weight: bold; -fx-font-size: 10; -fx-text-fill: #0369a1;"/>
-        </VBox>
-        <TextArea fx:id="solModif" prefHeight="40" promptText="Edit Solution..." wrapText="true" HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <VBox spacing="8.0">
+        <Label styleClass="input-label" text="Solution" />
+        <TextArea fx:id="solModif"
+                  prefHeight="96.0"
+                  promptText="Edit solution..."
+                  styleClass="modern-input"
+                  wrapText="true" />
+    </VBox>
 
     <HBox alignment="CENTER_RIGHT">
-        <Button  fx:id="ModifProbSol" onAction="#onUpdatePS" text="Update"
-                style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10;"/>
+        <children>
+            <Button fx:id="ModifProbSol"
+                    onAction="#onUpdatePS"
+                    styleClass="primary-btn"
+                    text="Update" />
+        </children>
     </HBox>
 </VBox>

@@ -1,40 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-<?import java.net.URL?>
 
-<VBox spacing="10" xmlns:fx="http://javafx.com/fxml/1"
-      style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12; -fx-border-color: #e2e8f0;"
-        fx:controller="com.pidev.Controllers.client.Challenge.Activity.ModifyActivityController">
-    <stylesheets>
-        <URL value="@../../../../styles/challenge.css" />
-    </stylesheets>
+<VBox spacing="24.0"
+      stylesheets="@../../../../styles/challenge.css"
+      styleClass="main-card"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.ModifyActivityController">
+    <padding>
+        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0" />
+    </padding>
 
-    <VBox fx:id="mainActivityContainer" spacing="10" />
-
-
-    <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-border-width: 1;">
-        <Label text="PROBLEMS &amp; SOLUTIONS" style="-fx-font-size: 9; -fx-font-weight: bold; -fx-text-fill: #6366f1;"/>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="200" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox fx:id="problemsModifContainer" spacing="10" />
-        </ScrollPane>
+    <VBox spacing="10.0">
+        <Label styleClass="section-title" text="Activity Updates" />
+        <Label styleClass="meta-text"
+               text="Review each member contribution, refine problem and solution entries, and update the final submission file."
+               wrapText="true" />
     </VBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #eff6ff; -fx-padding: 10; -fx-background-radius: 8; -fx-border-color: #dbeafe;">
-        <Label text="📄" style="-fx-font-size: 18;"/>
+    <VBox fx:id="mainActivityContainer" spacing="18.0" />
 
-        <VBox HBox.hgrow="ALWAYS" spacing="2">
-            <Label text="SUBMISSION FILE" style="-fx-font-size: 9; -fx-font-weight: bold; -fx-text-fill: #1e40af;"/>
-            <Button fx:id="currentFileBtn" text="old submission.pdf" onAction="#openPdfSubmission"
-                    styleClass="file-link-btn" />
-        </VBox>
+    <VBox spacing="14.0" styleClass="main-card">
+        <padding>
+            <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+        </padding>
+        <children>
+            <VBox spacing="6.0">
+                <Label styleClass="section-title" text="Problems &amp; Solutions" />
+                <Label styleClass="meta-text"
+                       text="Keep the problem history and validated solutions aligned with the latest activity progress."
+                       wrapText="true" />
+            </VBox>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="240.0" styleClass="transparent-scroll">
+                <content>
+                    <VBox fx:id="problemsModifContainer" spacing="18.0" />
+                </content>
+            </ScrollPane>
+        </children>
+    </VBox>
 
-        <HBox spacing="8" alignment="CENTER_RIGHT">
-            <Button fx:id="newFileBtn" text="Choose New File" onAction="#onChooseFile"
-                    styleClass="file-link-btn"/>
-            <Button text="Update" onAction="#onUpdateFile"
-                    style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10; -fx-background-radius: 5;"/>
-        </HBox>
-    </HBox>
+    <VBox spacing="14.0" styleClass="main-card">
+        <padding>
+            <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+        </padding>
+        <children>
+            <VBox spacing="6.0">
+                <Label styleClass="section-title" text="Submission File" />
+                <Label styleClass="meta-text"
+                       text="Open the current submission, choose a replacement PDF if needed, then save the update."
+                       wrapText="true" />
+            </VBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="inner-section-container">
+                <children>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8.0">
+                        <Label styleClass="input-label" text="Current file" />
+                        <Button fx:id="currentFileBtn"
+                                onAction="#openPdfSubmission"
+                                styleClass="file-link-btn"
+                                text="old submission.pdf" />
+                    </VBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                        <children>
+                            <Button fx:id="newFileBtn"
+                                    onAction="#onChooseFile"
+                                    styleClass="action-btn-outline"
+                                    text="Choose New File" />
+                            <Button onAction="#onUpdateFile"
+                                    styleClass="primary-btn"
+                                    text="Update" />
+                        </children>
+                    </HBox>
+                </children>
+            </HBox>
+        </children>
+    </VBox>
 </VBox>

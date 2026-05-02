@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" xmlns:fx="http://javafx.com/fxml/1"
-      style="-fx-padding: 25; -fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-border-width: 1;"
+<VBox spacing="16.0"
+      styleClass="challenge-card"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pidev.Controllers.client.Challenge.Activity.MembersActivityModifCardsController">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+    </padding>
 
-    <HBox alignment="CENTER_LEFT" spacing="10">
-        <VBox HBox.hgrow="ALWAYS">
-            <Label fx:id="userName" text="User: " style="-fx-font-weight: 800; -fx-font-size: 13;"/>
-        </VBox>
-        <Button fx:id="EditBtn" onAction="#onUpdateMA" text="Update Activity"
-                style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10;"/>
+    <HBox alignment="CENTER_LEFT" spacing="12.0">
+        <children>
+            <VBox HBox.hgrow="ALWAYS" spacing="4.0">
+                <Label styleClass="meta-text" text="Member activity" />
+                <Label fx:id="userName" styleClass="challenge-title" text="User:" style="-fx-font-size: 20px;" />
+            </VBox>
+            <Button fx:id="EditBtn"
+                    onAction="#onUpdateMA"
+                    styleClass="primary-btn"
+                    text="Update Activity" />
+        </children>
     </HBox>
 
-    <HBox spacing="10" alignment="TOP_LEFT">
-        <VBox spacing="2" minWidth="150" maxWidth="200">
-            <Label text="ACTIVITY DESCRIPTION"
-                   style="-fx-font-size: 9; -fx-font-weight: bold; -fx-text-fill: #6366f1;"/>
-        </VBox>
-        <TextArea fx:id="activityDescModifier" prefHeight="40" promptText="Modify..." wrapText="true"
-                  HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <VBox spacing="8.0">
+        <Label styleClass="input-label" text="Activity Description" />
+        <TextArea fx:id="activityDescModifier"
+                  prefHeight="100.0"
+                  promptText="Modify the activity description..."
+                  styleClass="modern-input"
+                  wrapText="true" />
+    </VBox>
 </VBox>
