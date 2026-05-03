@@ -9,9 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class PostService {
 
@@ -36,6 +39,20 @@ public class PostService {
             }
         }
         return posts;
+    }
+
+    public List<Post> findAllForFeedRanked() throws SQLException {
+        LocalDateTime now = LocalDateTime.now();
+        List<Post> posts = findAllNewestFirst();
+        Comparator<Post> feedComparator = Comparator
+                .comparing((Post post) -> isStaleWithoutReactions(post, now))
+                .thenComparing(Comparator.comparingDouble((Post post) -> trendingScore(post, now)).reversed())
+                .thenComparing(Post::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()));
+
+        return posts.stream()
+                .filter(Objects::nonNull)
+                .sorted(feedComparator)
+                .toList();
     }
 
     public void createPost(Post post) throws SQLException {
@@ -108,6 +125,8 @@ public class PostService {
     }
 
     public void deletePost(int id) throws SQLException {
+        deleteFromTableByPostId("post_comments", id);
+        deleteFromTableByPostId("post_reactions", id);
         String sql = "DELETE FROM `" + tableName + "` WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -151,6 +170,35 @@ public class PostService {
         return value == null || value.trim().isEmpty();
     }
 
+    private double trendingScore(Post post, LocalDateTime now) {
+        int reactions = Math.max(0, post.getLikesCounter());
+        LocalDateTime createdAt = post.getCreatedAt();
+        long ageMinutes = createdAt == null ? 0 : Math.max(0, Duration.between(createdAt, now).toMinutes());
+
+        if (reactions == 0 && ageMinutes > 30) {
+            // Keep stale zero-reaction posts visible, but force them to the bottom.
+            return -1_000_000.0 - ageMinutes;
+        }
+
+        double reactionBoost = reactions * 18.0;
+        double freshnessBoost = Math.max(0, 180 - ageMinutes);
+        double earlyBonus = ageMinutes <= 30 ? 25.0 : 0.0;
+        double decayPenalty = ageMinutes * 0.35;
+
+        return reactionBoost + freshnessBoost + earlyBonus - decayPenalty;
+    }
+
+    private boolean isStaleWithoutReactions(Post post, LocalDateTime now) {
+        if (post == null) {
+            return true;
+        }
+
+        int reactions = Math.max(0, post.getLikesCounter());
+        LocalDateTime createdAt = post.getCreatedAt();
+        long ageMinutes = createdAt == null ? 0 : Math.max(0, Duration.between(createdAt, now).toMinutes());
+        return reactions == 0 && ageMinutes > 30;
+    }
+
     private String resolveTableName() {
         if (tableUsable("post")) {
             return "post";
@@ -185,6 +233,41 @@ public class PostService {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.executeQuery();
             return true;
+        } catch (SQLException ignored) {
+            return false;
+        }
+    }
+
+    private void deleteFromTableByPostId(String targetTable, int postId) throws SQLException {
+        if (!tableExists(targetTable)) {
+            return;
+        }
+
+        String postColumn = "post_id";
+        if (!columnExists(targetTable, "post_id")) {
+            if (columnExists(targetTable, "post_id_id")) {
+                postColumn = "post_id_id";
+            } else if (columnExists(targetTable, "post")) {
+                postColumn = "post";
+            } else {
+                return;
+            }
+        }
+
+        String sql = "DELETE FROM `" + targetTable + "` WHERE " + postColumn + " = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, postId);
+            ps.executeUpdate();
+        }
+    }
+
+    private boolean columnExists(String table, String column) {
+        String sql = "SHOW COLUMNS FROM `" + table + "` LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, column);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException ignored) {
             return false;
         }

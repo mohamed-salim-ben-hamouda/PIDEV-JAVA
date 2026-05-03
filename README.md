@@ -122,6 +122,15 @@ $env:PERSPECTIVE_DEBUG="1"
 .\mvnw.cmd clean javafx:run
 ```
 
+## News API (Latest News Sidebar)
+
+The feed sidebar "Latest News" now uses NewsAPI (`top-headlines`).
+
+- Code default key is set in:
+`src/main/java/com/pidev/Services/NewsApiService.java`
+- Optional override with environment variable:
+`NEWS_API_KEY`
+
 ## How To Run
 
 ### IntelliJ IDEA

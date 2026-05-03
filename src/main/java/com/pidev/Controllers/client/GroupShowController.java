@@ -2,17 +2,22 @@ package com.pidev.Controllers.client;
 
 import com.pidev.Services.PostService;
 import com.pidev.Services.FightModerationService;
+import com.pidev.Services.PostCommentService;
 import com.pidev.Services.PostReactionService;
 import com.pidev.Services.PerspectiveModerationService;
+import com.pidev.Services.UserService;
 import com.pidev.models.Membership;
 import com.pidev.models.Post;
+import com.pidev.models.PostComment;
 import com.pidev.models.ReactionType;
+import com.pidev.models.User;
 import com.pidev.utils.CurrentUserContext;
 import com.pidev.utils.GroupViewContext;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -22,19 +27,24 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.StringJoiner;
+import java.util.HashMap;
 
 public class GroupShowController implements Initializable {
     private static final int MAX_TITLE_LENGTH = 80;
@@ -80,7 +90,10 @@ public class GroupShowController implements Initializable {
     private final PostService postService = new PostService();
     private final FightModerationService fightModerationService = new FightModerationService();
     private final PostReactionService postReactionService = new PostReactionService();
+    private final PostCommentService postCommentService = new PostCommentService();
     private final PerspectiveModerationService perspectiveModerationService = new PerspectiveModerationService();
+    private final UserService userService = new UserService();
+    private final Map<Integer, String> userDisplayNameCache = new HashMap<>();
 
     private Integer groupId;
     private GroupController.GroupDetailsData currentData;
@@ -334,7 +347,7 @@ public class GroupShowController implements Initializable {
             HBox row = new HBox(10);
             row.getStyleClass().add("member-row");
 
-            Label userLabel = new Label("User #" + membership.getUserId());
+            Label userLabel = new Label(resolveUserDisplayName(membership.getUserId()));
             userLabel.getStyleClass().add("member-name");
 
             Label roleLabel = new Label(membership.getRole());
@@ -384,7 +397,7 @@ public class GroupShowController implements Initializable {
             VBox card = new VBox(8);
             card.getStyleClass().add("post-card");
 
-            Label author = new Label("Author #" + post.getAuthorId());
+            Label author = new Label(resolveUserDisplayName(post.getAuthorId()));
             author.getStyleClass().add("post-author");
 
             Label title = new Label(post.getTitre() == null ? "(No title)" : post.getTitre());
@@ -398,9 +411,13 @@ public class GroupShowController implements Initializable {
             meta.getStyleClass().add("post-meta");
 
             Label reactionsSummary = new Label(reactionSummaryText(post));
-            reactionsSummary.getStyleClass().add("post-meta");
+            reactionsSummary.getStyleClass().add("social-count-label");
+            Label commentsSummary = new Label(commentSummaryText(post));
+            commentsSummary.getStyleClass().add("social-count-label");
+            HBox socialStats = buildSocialStatsRow(reactionsSummary, commentsSummary);
+            Region divider = createPostDivider();
 
-            card.getChildren().addAll(author, title, desc, meta, reactionsSummary);
+            card.getChildren().addAll(author, title, desc, meta);
 
             if (post.getAttachedFile() != null && !post.getAttachedFile().isBlank()) {
                 Image image = loadImage(post.getAttachedFile());
@@ -418,19 +435,48 @@ public class GroupShowController implements Initializable {
             }
 
             HBox reactionActions = new HBox(8);
+            reactionActions.getStyleClass().add("reaction-bar");
             MenuButton reactButton = new MenuButton("React");
-            reactButton.getStyleClass().add("primary-action");
+            reactButton.getStyleClass().addAll("action-btn", "reaction-chip");
+            reactButton.setGraphic(createReactionIcon(ReactionType.LIKE, 18));
             for (ReactionType type : ReactionType.values()) {
-                MenuItem item = new MenuItem(type.emoji() + " " + type.label());
+                MenuItem item = new MenuItem(type.label());
+                item.setGraphic(createReactionIcon(type, 18));
                 item.setOnAction(e -> handleReact(post, type));
                 reactButton.getItems().add(item);
             }
+            reactButton.setOnMouseClicked(evt -> {
+                if (evt.getButton() == MouseButton.PRIMARY && evt.getClickCount() == 2) {
+                    handleClearReaction(post);
+                    evt.consume();
+                }
+            });
 
-            Button clearReactionBtn = new Button("Clear Reaction");
-            clearReactionBtn.getStyleClass().add("secondary-action");
-            clearReactionBtn.setOnAction(e -> handleClearReaction(post));
-            reactionActions.getChildren().addAll(reactButton, clearReactionBtn);
-            card.getChildren().add(reactionActions);
+            TextField commentField = new TextField();
+            commentField.setPromptText("Write a comment...");
+            commentField.getStyleClass().add("comment-input");
+            commentField.setPrefWidth(220);
+            HBox.setHgrow(commentField, javafx.scene.layout.Priority.ALWAYS);
+            commentField.setVisible(false);
+            commentField.setManaged(false);
+            commentField.setOnAction(evt -> handleAddComment(post, commentField));
+
+            Button commentButton = new Button("Comment");
+            commentButton.getStyleClass().addAll("action-btn", "comment-btn");
+            commentButton.setText("");
+            commentButton.setGraphic(createPostLowerBarIcon("comment.png", 16));
+            commentButton.setOnAction(evt -> {
+                if (!commentField.isVisible()) {
+                    commentField.setVisible(true);
+                    commentField.setManaged(true);
+                    commentField.requestFocus();
+                    return;
+                }
+                handleAddComment(post, commentField);
+            });
+
+            reactionActions.getChildren().addAll(reactButton, commentField, commentButton);
+            card.getChildren().addAll(socialStats, divider, reactionActions, buildCommentsBox(post));
 
             postsContainer.getChildren().add(card);
         }
@@ -481,6 +527,27 @@ public class GroupShowController implements Initializable {
         return value == null ? "" : value.trim();
     }
 
+    private String resolveUserDisplayName(Integer userId) {
+        if (userId == null || userId <= 0) {
+            return "Member";
+        }
+        String cached = userDisplayNameCache.get(userId);
+        if (cached != null && !cached.isBlank()) {
+            return cached;
+        }
+        try {
+            User user = userService.findById(userId);
+            String displayName = user == null ? "Member" : clean(user.getDisplayName());
+            if (displayName.isBlank()) {
+                displayName = "Member";
+            }
+            userDisplayNameCache.put(userId, displayName);
+            return displayName;
+        } catch (SQLException ignored) {
+            return "Member";
+        }
+    }
+
     private void handleReact(Post post, ReactionType type) {
         if (!CurrentUserContext.isLoggedIn()) {
             setFeedback("Please sign in first to react.", true);
@@ -509,29 +576,196 @@ public class GroupShowController implements Initializable {
         }
     }
 
-    private String reactionSummaryText(Post post) {
+    private void handleAddComment(Post post, TextField inputField) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to comment.", true);
+            return;
+        }
+        if (post == null || inputField == null) {
+            return;
+        }
+
+        String comment = clean(inputField.getText());
+        if (comment.isEmpty()) {
+            setFeedback("Comment cannot be empty.", true);
+            return;
+        }
+
         try {
-            int currentUserId = CurrentUserContext.getCurrentUserId();
-            var counts = postReactionService.countByPost(post.getId());
-            ReactionType mine = currentUserId > 0 ? postReactionService.findUserReaction(post.getId(), currentUserId) : null;
-
-            StringJoiner joiner = new StringJoiner("   ");
-            int total = 0;
-            for (ReactionType type : ReactionType.values()) {
-                int count = counts.getOrDefault(type, 0);
-                total += count;
-                if (count > 0) {
-                    joiner.add(type.emoji() + " " + count);
-                }
-            }
-
-            String summary = total == 0 ? "No reactions yet." : ("Reactions: " + joiner);
-            if (mine != null) {
-                summary += "  |  You reacted: " + mine.emoji() + " " + mine.label();
-            }
-            return summary;
+            postCommentService.addComment(post.getId(), CurrentUserContext.getCurrentUserId(), comment);
+            inputField.clear();
+            inputField.setVisible(false);
+            inputField.setManaged(false);
+            setFeedback("Comment added.", false);
+            reload(memberSearchField.getText());
         } catch (SQLException e) {
-            return "Reactions unavailable: " + e.getMessage();
+            setFeedback("Could not add comment: " + e.getMessage(), true);
+        }
+    }
+
+    private String reactionSummaryText(Post post) {
+        int total = Math.max(0, post.getLikesCounter());
+        return total == 1 ? "1 reaction" : total + " reactions";
+    }
+
+    private String commentSummaryText(Post post) {
+        try {
+            int total = postCommentService.countByPost(post.getId());
+            return total == 1 ? "1 comment" : total + " comments";
+        } catch (SQLException e) {
+            return "Comments unavailable: " + e.getMessage();
+        }
+    }
+
+    private VBox buildCommentsBox(Post post) {
+        VBox box = new VBox(6);
+        box.getStyleClass().add("comments-box");
+
+        try {
+            List<PostComment> comments = postCommentService.findRecentByPost(post.getId(), 3);
+            if (comments.isEmpty()) {
+                Label empty = new Label("Be the first to comment.");
+                empty.getStyleClass().add("post-meta");
+                box.getChildren().add(empty);
+                return box;
+            }
+
+            for (PostComment comment : comments) {
+                String displayName = resolveUserDisplayName(comment.getUserId());
+                HBox item = new HBox(8);
+                item.getStyleClass().add("comment-item");
+
+                Label avatar = new Label(initialsFor(displayName));
+                avatar.getStyleClass().add("comment-avatar");
+
+                VBox bubble = new VBox(3);
+                bubble.getStyleClass().add("comment-bubble");
+                HBox.setHgrow(bubble, javafx.scene.layout.Priority.ALWAYS);
+
+                Label author = new Label(displayName);
+                author.getStyleClass().add("comment-author");
+
+                Label body = new Label(clean(comment.getContent()));
+                body.setWrapText(true);
+                body.getStyleClass().add("comment-body");
+
+                bubble.getChildren().addAll(author, body);
+                item.getChildren().addAll(avatar, bubble);
+                box.getChildren().add(item);
+            }
+        } catch (SQLException e) {
+            Label error = new Label("Could not load comments: " + e.getMessage());
+            error.getStyleClass().add("post-meta");
+            box.getChildren().add(error);
+        }
+
+        return box;
+    }
+
+    private HBox buildSocialStatsRow(Label reactionsSummary, Label commentsSummary) {
+        HBox row = new HBox(10);
+        row.getStyleClass().add("social-stats-row");
+
+        HBox left = new HBox(4);
+        left.getStyleClass().add("social-counts");
+
+        Node likeIcon = createReactionIcon(ReactionType.LIKE, 13);
+        Node loveIcon = createReactionIcon(ReactionType.LOVE, 13);
+        if (likeIcon != null) {
+            left.getChildren().add(likeIcon);
+        }
+        if (loveIcon != null) {
+            left.getChildren().add(loveIcon);
+        }
+        left.getChildren().add(reactionsSummary);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        row.getChildren().addAll(left, spacer, commentsSummary);
+        return row;
+    }
+
+    private Region createPostDivider() {
+        Region divider = new Region();
+        divider.getStyleClass().add("post-divider");
+        return divider;
+    }
+
+    private String initialsFor(String displayName) {
+        String cleanName = clean(displayName);
+        if (cleanName.isEmpty()) {
+            return "M";
+        }
+
+        String[] parts = cleanName.split("\\s+");
+        StringBuilder initials = new StringBuilder();
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
+            }
+            if (initials.length() == 2) {
+                break;
+            }
+        }
+        return initials.isEmpty() ? "M" : initials.toString();
+    }
+
+    private Node createReactionIcon(ReactionType type, double size) {
+        Image icon = loadReactionImage(type);
+        if (icon == null) {
+            return null;
+        }
+
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+        imageView.setPreserveRatio(true);
+        return imageView;
+    }
+
+    private Image loadReactionImage(ReactionType type) {
+        if (type == null) {
+            return null;
+        }
+
+        String resourcePath = "/images/reactions/" + type.iconFile();
+        try (InputStream stream = getClass().getResourceAsStream(resourcePath)) {
+            if (stream == null) {
+                return null;
+            }
+            return new Image(stream);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private Node createPostLowerBarIcon(String iconFile, double size) {
+        Image icon = loadPostLowerBarImage(iconFile);
+        if (icon == null) {
+            return null;
+        }
+
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+        imageView.setPreserveRatio(true);
+        return imageView;
+    }
+
+    private Image loadPostLowerBarImage(String iconFile) {
+        if (iconFile == null || iconFile.isBlank()) {
+            return null;
+        }
+
+        String resourcePath = "/images/post lower bar/" + iconFile;
+        try (InputStream stream = getClass().getResourceAsStream(resourcePath)) {
+            if (stream == null) {
+                return null;
+            }
+            return new Image(stream);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

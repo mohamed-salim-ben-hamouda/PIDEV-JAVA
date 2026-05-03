@@ -125,7 +125,7 @@ public class GroupController {
 
     private List<Post> listPublicPosts(String sort) throws SQLException {
         List<Post> posts = new ArrayList<>();
-        for (Post post : postService.findAllNewestFirst()) {
+        for (Post post : postService.findAllForFeedRanked()) {
             if ("public".equalsIgnoreCase(post.getVisibility())) {
                 posts.add(post);
             }
@@ -137,9 +137,6 @@ public class GroupController {
         } else if ("oldest".equals(normalized)) {
             posts.sort(Comparator.comparing(Post::getCreatedAt,
                     Comparator.nullsLast(Comparator.naturalOrder())));
-        } else {
-            posts.sort(Comparator.comparing(Post::getCreatedAt,
-                    Comparator.nullsLast(Comparator.reverseOrder())));
         }
 
         return posts;
@@ -147,7 +144,7 @@ public class GroupController {
 
     private List<Post> listPostsForGroup(int groupId) throws SQLException {
         List<Post> posts = new ArrayList<>();
-        for (Post post : postService.findAllNewestFirst()) {
+        for (Post post : postService.findAllForFeedRanked()) {
             if (post.getGroupId() != null && post.getGroupId() == groupId) {
                 posts.add(post);
             }

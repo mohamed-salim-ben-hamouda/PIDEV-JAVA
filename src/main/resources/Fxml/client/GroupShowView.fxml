@@ -5,6 +5,8 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
@@ -44,74 +46,90 @@
                     </children>
                 </VBox>
 
-                <HBox spacing="16.0">
-                    <children>
-                        <VBox spacing="12.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <VBox fx:id="postComposerCard" spacing="10.0" styleClass="sidebar-card">
+                <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="modern-tabs">
+                    <tabs>
+                        <Tab text="Discussion">
+                            <content>
+                                <VBox spacing="12.0" styleClass="tab-wrap">
                                     <children>
-                                        <Label styleClass="card-title" text="Create Group Post" />
-                                        <TextField fx:id="postTitleField" promptText="Post title" />
-                                        <TextArea fx:id="postDescriptionArea" prefRowCount="3" promptText="Share with your group..." wrapText="true" />
-                                        <HBox spacing="8.0">
+                                        <VBox fx:id="postComposerCard" spacing="10.0" styleClass="sidebar-card">
                                             <children>
-                                                <ComboBox fx:id="postVisibilityCombo" prefWidth="180.0" promptText="Visibility" />
-                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label styleClass="card-title" text="Create Group Post" />
+                                                <TextField fx:id="postTitleField" promptText="Post title" />
+                                                <TextArea fx:id="postDescriptionArea" prefRowCount="4" promptText="Share with your group..." wrapText="true" />
+                                                <HBox spacing="8.0">
+                                                    <children>
+                                                        <ComboBox fx:id="postVisibilityCombo" prefWidth="180.0" promptText="Visibility" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox spacing="8.0">
+                                                    <children>
+                                                        <TextField fx:id="postAttachmentField" promptText="Image path/url (optional)" HBox.hgrow="ALWAYS" />
+                                                        <Button onAction="#handleBrowseGroupPostAttachment" styleClass="secondary-action" text="Browse..." />
+                                                    </children>
+                                                </HBox>
+                                                <Button onAction="#handleSubmitGroupPost" styleClass="primary-action" text="Publish in Group" />
                                             </children>
-                                        </HBox>
-                                        <HBox spacing="8.0">
-                                            <children>
-                                                <TextField fx:id="postAttachmentField" promptText="Image path/url (optional)" HBox.hgrow="ALWAYS" />
-                                                <Button onAction="#handleBrowseGroupPostAttachment" styleClass="secondary-action" text="Browse..." />
-                                            </children>
-                                        </HBox>
-                                        <Button onAction="#handleSubmitGroupPost" styleClass="primary-action" text="Publish in Group" />
+                                        </VBox>
+                                        <Label styleClass="card-title" text="Discussion" />
+                                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="520.0" VBox.vgrow="ALWAYS">
+                                            <content>
+                                                <VBox fx:id="postsContainer" spacing="10.0" />
+                                            </content>
+                                        </ScrollPane>
                                     </children>
                                 </VBox>
-
-                                <Label styleClass="card-title" text="Discussion" />
-                                <VBox fx:id="postsContainer" spacing="10.0" />
-                            </children>
-                        </VBox>
-
-                        <VBox spacing="12.0" prefWidth="340.0">
-                            <children>
-                                <VBox spacing="10.0" styleClass="sidebar-card">
+                            </content>
+                        </Tab>
+                        <Tab text="Members">
+                            <content>
+                                <VBox spacing="12.0" prefWidth="520.0" styleClass="tab-wrap">
                                     <children>
-                                        <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                        <VBox spacing="10.0" styleClass="sidebar-card">
                                             <children>
-                                                <Label styleClass="card-title" text="Members" />
-                                                <Label fx:id="membersCountLabel" styleClass="member-count" text="0" />
+                                                <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label styleClass="card-title" text="Members" />
+                                                        <Label fx:id="membersCountLabel" styleClass="member-count" text="0" />
+                                                    </children>
+                                                </HBox>
+                                                <VBox fx:id="membersContainer" spacing="6.0" />
                                             </children>
-                                        </HBox>
-                                        <VBox fx:id="membersContainer" spacing="6.0" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="8.0" styleClass="sidebar-card">
-                                    <children>
-                                        <Label styleClass="card-title" text="Invite New Members" />
-                                        <HBox spacing="8.0">
+                                        </VBox>
+                                        <VBox spacing="8.0" styleClass="sidebar-card">
                                             <children>
-                                                <TextField fx:id="memberSearchField" promptText="Search by name..." HBox.hgrow="ALWAYS" />
-                                                <Button onAction="#handleSearchMembers" text="Search" />
+                                                <Label styleClass="card-title" text="Invite New Members" />
+                                                <HBox spacing="8.0">
+                                                    <children>
+                                                        <TextField fx:id="memberSearchField" promptText="Search by name..." HBox.hgrow="ALWAYS" />
+                                                        <Button onAction="#handleSearchMembers" text="Search" />
+                                                    </children>
+                                                </HBox>
+                                                <Button onAction="#handleOpenAddMemberView" styleClass="secondary-action" text="Open Invite Page" />
+                                                <VBox fx:id="searchResultsContainer" spacing="6.0" />
                                             </children>
-                                        </HBox>
-                                        <Button onAction="#handleOpenAddMemberView" styleClass="secondary-action" text="Open Invite Page" />
-                                        <VBox fx:id="searchResultsContainer" spacing="6.0" />
+                                        </VBox>
                                     </children>
                                 </VBox>
-
-                                <VBox spacing="8.0" styleClass="sidebar-card">
+                            </content>
+                        </Tab>
+                        <Tab text="About">
+                            <content>
+                                <VBox spacing="8.0" styleClass="tab-wrap">
                                     <children>
-                                        <Label styleClass="card-title" text="About Group" />
-                                        <Label fx:id="aboutGroupLabel" wrapText="true" text="About text" />
+                                        <VBox spacing="8.0" styleClass="sidebar-card">
+                                            <children>
+                                                <Label styleClass="card-title" text="About Group" />
+                                                <Label fx:id="aboutGroupLabel" wrapText="true" text="About text" />
+                                            </children>
+                                        </VBox>
                                     </children>
                                 </VBox>
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
             </children>
             <padding>
                 <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />

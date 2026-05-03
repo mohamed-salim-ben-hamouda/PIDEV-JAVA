@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class PerspectiveModerationService {
     private static final String BASE_URL = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze";
-    private static final String DEFAULT_API_KEY = "PASTE_YOUR_PERSPECTIVE_API_KEY_HERE";
+    private static final String DEFAULT_API_KEY = "AIzaSyC4zoetT8tM2psFQ0Zx-WrHi8xX1kVQOPU";
     private static final String[] DEFAULT_ATTRIBUTES = new String[]{
             "TOXICITY",
             "SEVERE_TOXICITY",

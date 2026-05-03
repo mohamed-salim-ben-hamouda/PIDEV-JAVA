@@ -2,24 +2,33 @@ package com.pidev.Controllers.client;
 
 import com.pidev.Services.GroupService;
 import com.pidev.Services.MembershipService;
+import com.pidev.Services.NewsApiService;
+import com.pidev.Services.PostCommentService;
 import com.pidev.Services.PostService;
 import com.pidev.Services.FightModerationService;
 import com.pidev.Services.PostReactionService;
 import com.pidev.Services.PerspectiveModerationService;
+import com.pidev.Services.UserService;
 import com.pidev.models.Group;
 import com.pidev.models.Membership;
+import com.pidev.models.PostComment;
 import com.pidev.models.Post;
 import com.pidev.models.ReactionType;
+import com.pidev.models.User;
 import com.pidev.utils.CurrentUserContext;
 import com.pidev.utils.GroupViewContext;
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -27,12 +36,19 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
+import javafx.geometry.Side;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.awt.Desktop;
+import java.net.URI;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -74,17 +90,28 @@ public class FeedController implements Initializable {
     private VBox postsContainer;
     @FXML
     private VBox myGroupsContainer;
+    @FXML
+    private VBox newsContainer;
+    @FXML
+    private VBox recommendedGroupsContainer;
+    @FXML
+    private Button toggleRecommendedButton;
 
     private final PostService postService = new PostService();
     private final GroupService groupService = new GroupService();
     private final MembershipService membershipService = new MembershipService();
+    private final NewsApiService newsApiService = new NewsApiService();
     private final FightModerationService fightModerationService = new FightModerationService();
     private final PostReactionService postReactionService = new PostReactionService();
+    private final PostCommentService postCommentService = new PostCommentService();
     private final PerspectiveModerationService perspectiveModerationService = new PerspectiveModerationService();
+    private final UserService userService = new UserService();
 
     private Post editingPost;
     private final Map<Integer, Group> groupsById = new HashMap<>();
+    private final Map<Integer, String> userDisplayNameCache = new HashMap<>();
     private final Set<Integer> myGroupIds = new HashSet<>();
+    private boolean recommendedVisible = true;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -101,6 +128,7 @@ public class FeedController implements Initializable {
         cancelEditButton.setManaged(false);
 
         refreshData();
+        loadLatestNews();
     }
 
     @FXML
@@ -229,7 +257,7 @@ public class FeedController implements Initializable {
     private void handleOpenGroupDetails() {
         Integer selectedGroupId = parseInteger(groupDetailsIdField == null ? null : groupDetailsIdField.getText());
         if (selectedGroupId == null || selectedGroupId <= 0) {
-            setFeedback("Enter a valid group ID to open details.", true);
+            setFeedback("Enter a valid group to open details.", true);
             return;
         }
 
@@ -241,9 +269,70 @@ public class FeedController implements Initializable {
     private void refreshData() {
         try {
             loadMyGroups();
+            loadRecommendedGroups();
             loadPosts();
         } catch (Exception e) {
             setFeedback("Could not load feed data: " + e.getMessage(), true);
+        }
+    }
+
+    @FXML
+    private void handleToggleRecommendedGroups() {
+        recommendedVisible = !recommendedVisible;
+        if (recommendedGroupsContainer != null) {
+            recommendedGroupsContainer.setVisible(recommendedVisible);
+            recommendedGroupsContainer.setManaged(recommendedVisible);
+        }
+        if (toggleRecommendedButton != null) {
+            toggleRecommendedButton.setText(recommendedVisible ? "Hide" : "Show");
+        }
+    }
+
+    private void loadLatestNews() {
+        if (newsContainer == null) {
+            return;
+        }
+
+        newsContainer.getChildren().clear();
+        Label loading = new Label("Loading latest headlines...");
+        loading.getStyleClass().add("post-meta");
+        newsContainer.getChildren().add(loading);
+
+        Thread worker = new Thread(() -> {
+            try {
+                List<NewsApiService.Headline> headlines = newsApiService.fetchTopHeadlinesWithLinks(5);
+                Platform.runLater(() -> renderNews(headlines));
+            } catch (Exception e) {
+                Platform.runLater(() -> renderNewsFallback(e.getMessage()));
+            }
+        }, "news-api-loader");
+        worker.setDaemon(true);
+        worker.start();
+    }
+
+    private void renderNews(List<NewsApiService.Headline> headlines) {
+        newsContainer.getChildren().clear();
+        for (NewsApiService.Headline headline : headlines) {
+            Label item = new Label(headline.title());
+            item.setWrapText(true);
+            item.getStyleClass().add("news-item");
+            item.setOnMouseClicked(evt -> openExternalLink(headline.url()));
+            newsContainer.getChildren().add(item);
+        }
+    }
+
+    private void renderNewsFallback(String error) {
+        newsContainer.getChildren().clear();
+        Label unavailable = new Label("Latest news unavailable right now.");
+        unavailable.getStyleClass().add("news-item");
+        unavailable.setWrapText(true);
+        newsContainer.getChildren().add(unavailable);
+
+        if (error != null && !error.isBlank()) {
+            Label details = new Label("Reason: " + error);
+            details.getStyleClass().add("post-meta");
+            details.setWrapText(true);
+            newsContainer.getChildren().add(details);
         }
     }
 
@@ -280,7 +369,7 @@ public class FeedController implements Initializable {
 
         myGroupsContainer.getChildren().clear();
         for (Group group : unique.values()) {
-            Button btn = new Button(group.getName() + " (#" + group.getId() + ")");
+            Button btn = new Button(group.getName());
             btn.getStyleClass().add("group-link");
             btn.setMaxWidth(Double.MAX_VALUE);
 
@@ -304,9 +393,47 @@ public class FeedController implements Initializable {
         }
     }
 
+    private void loadRecommendedGroups() throws Exception {
+        if (recommendedGroupsContainer == null) {
+            return;
+        }
+
+        recommendedGroupsContainer.getChildren().clear();
+        List<Group> all = groupService.findAll();
+        int shown = 0;
+        for (Group group : all) {
+            if (group == null || group.getId() == null) {
+                continue;
+            }
+            if (myGroupIds.contains(group.getId())) {
+                continue;
+            }
+
+            Button btn = new Button(group.getName());
+            btn.getStyleClass().add("group-link");
+            btn.setMaxWidth(Double.MAX_VALUE);
+            btn.setOnAction(e -> {
+                GroupViewContext.setSelectedGroupId(group.getId());
+                GroupViewContext.clearEditingGroupId();
+                navigateTo("/Fxml/client/GroupShowView.fxml");
+            });
+            recommendedGroupsContainer.getChildren().add(btn);
+            shown++;
+            if (shown >= 8) {
+                break;
+            }
+        }
+
+        if (shown == 0) {
+            Label empty = new Label("No recommendations right now.");
+            empty.getStyleClass().add("post-meta");
+            recommendedGroupsContainer.getChildren().add(empty);
+        }
+    }
+
     private void loadPosts() {
         try {
-            List<Post> posts = postService.findAllNewestFirst();
+            List<Post> posts = postService.findAllForFeedRanked();
             List<Post> visiblePosts = posts.stream().filter(this::canUserSeePost).toList();
             renderPosts(visiblePosts);
         } catch (Exception e) {
@@ -354,7 +481,7 @@ public class FeedController implements Initializable {
         }
 
         VBox topText = new VBox(2);
-        Label author = new Label("Author #" + post.getAuthorId());
+        Label author = new Label(resolveUserDisplayName(post.getAuthorId()));
         author.getStyleClass().add("post-author");
         String groupText = group == null ? "Main Feed" : ("Group: " + safe(group.getName()));
         Label groupLabel = new Label(groupText);
@@ -380,30 +507,66 @@ public class FeedController implements Initializable {
         createdAt.getStyleClass().add("post-meta");
 
         Label reactionsSummary = new Label(reactionSummaryText(post));
-        reactionsSummary.getStyleClass().add("post-meta");
+        reactionsSummary.getStyleClass().add("social-count-label");
+
+        Label commentsSummary = new Label(commentSummaryText(post));
+        commentsSummary.getStyleClass().add("social-count-label");
+
+        HBox socialStats = buildSocialStatsRow(reactionsSummary, commentsSummary);
+        Region divider = createPostDivider();
 
         HBox actions = new HBox(10);
-        MenuButton reactMenu = new MenuButton("React");
-        reactMenu.getStyleClass().add("action-btn");
-        for (ReactionType type : ReactionType.values()) {
-            MenuItem item = new MenuItem(type.emoji() + " " + type.label());
-            item.setOnAction(evt -> handleReact(post, type));
-            reactMenu.getItems().add(item);
-        }
+        actions.getStyleClass().add("reaction-bar");
 
-        Button clearReactionBtn = new Button("Clear Reaction");
-        clearReactionBtn.getStyleClass().add("secondary-action");
-        clearReactionBtn.setOnAction(evt -> handleClearReaction(post));
+        Button reactButton = new Button("React");
+        reactButton.getStyleClass().addAll("action-btn", "reaction-chip", "reaction-trigger");
+        reactButton.setGraphic(createReactionIcon(ReactionType.LIKE, 18));
+        ContextMenu reactMenu = buildReactionMenu(post);
+        attachHoverReactionMenu(reactButton, reactMenu);
+        reactButton.setOnMouseClicked(evt -> {
+            if (evt.getButton() == MouseButton.PRIMARY && evt.getClickCount() == 2) {
+                handleClearReaction(post);
+                evt.consume();
+            }
+        });
 
-        Button editBtn = new Button("Edit");
-        editBtn.getStyleClass().add("action-btn");
-        editBtn.setOnAction(evt -> handleEdit(post));
+        TextField commentField = new TextField();
+        commentField.setPromptText("Write a comment...");
+        commentField.getStyleClass().add("comment-input");
+        commentField.setPrefWidth(220);
+        HBox.setHgrow(commentField, javafx.scene.layout.Priority.ALWAYS);
+        commentField.setVisible(false);
+        commentField.setManaged(false);
+        commentField.setOnAction(evt -> handleAddComment(post, commentField));
 
-        Button deleteBtn = new Button("Delete");
-        deleteBtn.getStyleClass().add("danger-btn");
-        deleteBtn.setOnAction(evt -> handleDelete(post));
+        Button commentButton = new Button("Comment");
+        commentButton.getStyleClass().addAll("action-btn", "comment-btn");
+        commentButton.setText("");
+        commentButton.setGraphic(createPostLowerBarIcon("comment.png", 16));
+        commentButton.setOnAction(evt -> {
+            if (!commentField.isVisible()) {
+                commentField.setVisible(true);
+                commentField.setManaged(true);
+                commentField.requestFocus();
+                return;
+            }
+            handleAddComment(post, commentField);
+        });
 
-        actions.getChildren().addAll(reactMenu, clearReactionBtn, editBtn, deleteBtn);
+        MenuButton moreButton = new MenuButton("...");
+        moreButton.getStyleClass().addAll("action-btn", "post-menu-btn");
+        moreButton.setText("");
+        moreButton.setGraphic(createPostLowerBarIcon("threedots.png", 14));
+        MenuItem editItem = new MenuItem("Edit");
+        editItem.setOnAction(evt -> handleEdit(post));
+        MenuItem deleteItem = new MenuItem("Delete");
+        deleteItem.setOnAction(evt -> handleDelete(post));
+        moreButton.getItems().addAll(editItem, deleteItem);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        actions.getChildren().addAll(reactButton, commentField, commentButton, spacer, moreButton);
 
         card.getChildren().addAll(top, meta, title, content);
 
@@ -418,7 +581,8 @@ public class FeedController implements Initializable {
             }
         }
 
-        card.getChildren().addAll(createdAt, reactionsSummary, actions);
+        VBox commentsBox = buildCommentsBox(post);
+        card.getChildren().addAll(createdAt, socialStats, divider, actions, commentsBox);
         return card;
     }
 
@@ -428,7 +592,7 @@ public class FeedController implements Initializable {
             return;
         }
         if (!isOwnedByCurrentUser(post)) {
-            setFeedback("Only user #" + currentUserId() + " can edit during testing.", true);
+            setFeedback("Only the post owner can edit this post.", true);
             return;
         }
 
@@ -443,7 +607,7 @@ public class FeedController implements Initializable {
         statusCombo.setValue(post.getStatus());
         attachedFileField.setText(post.getAttachedFile() == null ? "" : post.getAttachedFile());
 
-        formModeLabel.setText("Edit Public Post #" + post.getId());
+        formModeLabel.setText("Edit Public Post");
         submitButton.setText("Update Post");
         cancelEditButton.setVisible(true);
         cancelEditButton.setManaged(true);
@@ -455,13 +619,13 @@ public class FeedController implements Initializable {
             return;
         }
         if (!isOwnedByCurrentUser(post)) {
-            setFeedback("Only user #" + currentUserId() + " can delete during testing.", true);
+            setFeedback("Only the post owner can delete this post.", true);
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Post");
-        alert.setHeaderText("Delete post #" + post.getId() + "?");
+        alert.setHeaderText("Delete this post?");
         alert.setContentText("This action cannot be undone.");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
@@ -510,6 +674,63 @@ public class FeedController implements Initializable {
         }
     }
 
+    private void handleAddComment(Post post, TextField inputField) {
+        if (!CurrentUserContext.isLoggedIn()) {
+            setFeedback("Please sign in first to comment.", true);
+            return;
+        }
+        if (post == null || inputField == null) {
+            return;
+        }
+
+        String comment = clean(inputField.getText());
+        if (comment.isEmpty()) {
+            setFeedback("Comment cannot be empty.", true);
+            return;
+        }
+
+        try {
+            postCommentService.addComment(post.getId(), currentUserId(), comment);
+            inputField.clear();
+            inputField.setVisible(false);
+            inputField.setManaged(false);
+            setFeedback("Comment added.", false);
+            refreshData();
+        } catch (Exception e) {
+            setFeedback("Could not add comment: " + e.getMessage(), true);
+        }
+    }
+
+    private ContextMenu buildReactionMenu(Post post) {
+        ContextMenu menu = new ContextMenu();
+        for (ReactionType type : ReactionType.values()) {
+            MenuItem item = new MenuItem(type.label());
+            item.setGraphic(createReactionIcon(type, 18));
+            item.setOnAction(evt -> handleReact(post, type));
+            menu.getItems().add(item);
+        }
+        return menu;
+    }
+
+    private void attachHoverReactionMenu(Button trigger, ContextMenu menu) {
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        delay.setOnFinished(evt -> {
+            if (trigger.isHover() && !menu.isShowing()) {
+                menu.show(trigger, Side.TOP, 0, 8);
+            }
+        });
+
+        trigger.setOnMouseEntered(evt -> delay.playFromStart());
+        trigger.setOnMouseExited(evt -> delay.stop());
+        trigger.setOnAction(evt -> {
+            if (menu.isShowing()) {
+                menu.hide();
+            } else {
+                menu.show(trigger, Side.TOP, 0, 8);
+            }
+        });
+    }
+
     private void clearForm() {
         editingPost = null;
         titleField.clear();
@@ -544,6 +765,27 @@ public class FeedController implements Initializable {
         return value == null ? "" : value;
     }
 
+    private String resolveUserDisplayName(Integer userId) {
+        if (userId == null || userId <= 0) {
+            return "Member";
+        }
+        String cached = userDisplayNameCache.get(userId);
+        if (cached != null && !cached.isBlank()) {
+            return cached;
+        }
+        try {
+            User user = userService.findById(userId);
+            String displayName = user == null ? "Member" : safe(user.getDisplayName());
+            if (displayName.isBlank()) {
+                displayName = "Member";
+            }
+            userDisplayNameCache.put(userId, displayName);
+            return displayName;
+        } catch (Exception ignored) {
+            return "Member";
+        }
+    }
+
     private void setFeedback(String message, boolean error) {
         feedbackLabel.setText(message);
         feedbackLabel.getStyleClass().removeAll("error-text", "success-text");
@@ -560,27 +802,171 @@ public class FeedController implements Initializable {
 
     private String reactionSummaryText(Post post) {
         try {
-            int currentUserId = currentUserId();
-            Map<ReactionType, Integer> counts = postReactionService.countByPost(post.getId());
-            ReactionType mine = currentUserId > 0 ? postReactionService.findUserReaction(post.getId(), currentUserId) : null;
-
-            StringJoiner joiner = new StringJoiner("   ");
-            int total = 0;
-            for (ReactionType type : ReactionType.values()) {
-                int count = counts.getOrDefault(type, 0);
-                total += count;
-                if (count > 0) {
-                    joiner.add(type.emoji() + " " + count);
-                }
-            }
-
-            String summary = total == 0 ? "No reactions yet." : ("Reactions: " + joiner);
-            if (mine != null) {
-                summary += "  |  You reacted: " + mine.emoji() + " " + mine.label();
-            }
-            return summary;
+            int total = Math.max(0, post.getLikesCounter());
+            return total == 1 ? "1 reaction" : total + " reactions";
         } catch (Exception e) {
             return "Reactions unavailable: " + e.getMessage();
+        }
+    }
+
+    private String commentSummaryText(Post post) {
+        try {
+            int total = postCommentService.countByPost(post.getId());
+            return total == 1 ? "1 comment" : total + " comments";
+        } catch (Exception e) {
+            return "Comments unavailable: " + e.getMessage();
+        }
+    }
+
+    private VBox buildCommentsBox(Post post) {
+        VBox box = new VBox(6);
+        box.getStyleClass().add("comments-box");
+
+        try {
+            List<PostComment> comments = postCommentService.findRecentByPost(post.getId(), 3);
+            if (comments.isEmpty()) {
+                Label empty = new Label("Be the first to comment.");
+                empty.getStyleClass().add("post-meta");
+                box.getChildren().add(empty);
+                return box;
+            }
+
+            for (PostComment comment : comments) {
+                String displayName = resolveUserDisplayName(comment.getUserId());
+                HBox item = new HBox(8);
+                item.getStyleClass().add("comment-item");
+
+                Label avatar = new Label(initialsFor(displayName));
+                avatar.getStyleClass().add("comment-avatar");
+
+                VBox bubble = new VBox(3);
+                bubble.getStyleClass().add("comment-bubble");
+                HBox.setHgrow(bubble, javafx.scene.layout.Priority.ALWAYS);
+
+                Label author = new Label(displayName);
+                author.getStyleClass().add("comment-author");
+
+                Label body = new Label(safe(comment.getContent()));
+                body.setWrapText(true);
+                body.getStyleClass().add("comment-body");
+
+                bubble.getChildren().addAll(author, body);
+                item.getChildren().addAll(avatar, bubble);
+                box.getChildren().add(item);
+            }
+        } catch (Exception e) {
+            Label error = new Label("Could not load comments: " + e.getMessage());
+            error.getStyleClass().add("post-meta");
+            box.getChildren().add(error);
+        }
+
+        return box;
+    }
+
+    private HBox buildSocialStatsRow(Label reactionsSummary, Label commentsSummary) {
+        HBox row = new HBox(10);
+        row.getStyleClass().add("social-stats-row");
+
+        HBox left = new HBox(4);
+        left.getStyleClass().add("social-counts");
+
+        Node likeIcon = createReactionIcon(ReactionType.LIKE, 13);
+        Node loveIcon = createReactionIcon(ReactionType.LOVE, 13);
+        if (likeIcon != null) {
+            left.getChildren().add(likeIcon);
+        }
+        if (loveIcon != null) {
+            left.getChildren().add(loveIcon);
+        }
+        left.getChildren().add(reactionsSummary);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        row.getChildren().addAll(left, spacer, commentsSummary);
+        return row;
+    }
+
+    private Region createPostDivider() {
+        Region divider = new Region();
+        divider.getStyleClass().add("post-divider");
+        return divider;
+    }
+
+    private String initialsFor(String displayName) {
+        String cleanName = safe(displayName).trim();
+        if (cleanName.isEmpty()) {
+            return "M";
+        }
+
+        String[] parts = cleanName.split("\\s+");
+        StringBuilder initials = new StringBuilder();
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
+            }
+            if (initials.length() == 2) {
+                break;
+            }
+        }
+        return initials.isEmpty() ? "M" : initials.toString();
+    }
+
+    private Node createReactionIcon(ReactionType type, double size) {
+        Image icon = loadReactionImage(type);
+        if (icon == null) {
+            return null;
+        }
+
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+        imageView.setPreserveRatio(true);
+        return imageView;
+    }
+
+    private Image loadReactionImage(ReactionType type) {
+        if (type == null) {
+            return null;
+        }
+
+        String resourcePath = "/images/reactions/" + type.iconFile();
+        try (InputStream stream = getClass().getResourceAsStream(resourcePath)) {
+            if (stream == null) {
+                return null;
+            }
+            return new Image(stream);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private Node createPostLowerBarIcon(String iconFile, double size) {
+        Image icon = loadPostLowerBarImage(iconFile);
+        if (icon == null) {
+            return null;
+        }
+
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(size);
+        imageView.setFitHeight(size);
+        imageView.setPreserveRatio(true);
+        return imageView;
+    }
+
+    private Image loadPostLowerBarImage(String iconFile) {
+        if (iconFile == null || iconFile.isBlank()) {
+            return null;
+        }
+
+        String resourcePath = "/images/post lower bar/" + iconFile;
+        try (InputStream stream = getClass().getResourceAsStream(resourcePath)) {
+            if (stream == null) {
+                return null;
+            }
+            return new Image(stream);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 
@@ -641,4 +1027,21 @@ public class FeedController implements Initializable {
 
         return null;
     }
+
+    private void openExternalLink(String url) {
+        if (url == null || url.isBlank()) {
+            setFeedback("This news item has no link.", true);
+            return;
+        }
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                setFeedback("Cannot open link on this system.", true);
+                return;
+            }
+            Desktop.getDesktop().browse(URI.create(url));
+        } catch (Exception e) {
+            setFeedback("Could not open news link: " + e.getMessage(), true);
+        }
+    }
 }
+

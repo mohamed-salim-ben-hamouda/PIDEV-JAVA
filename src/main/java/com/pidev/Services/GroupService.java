@@ -272,6 +272,8 @@ public class GroupService {
 
         deleteByPostIds("reactions", postIds);
         deleteByPostIds("reaction", postIds);
+        deleteByPostIds("post_reactions", postIds);
+        deleteByPostIds("post_comments", postIds);
         deleteByPostIds("commentaires", postIds);
         deleteByPostIds("commentaire", postIds);
 
