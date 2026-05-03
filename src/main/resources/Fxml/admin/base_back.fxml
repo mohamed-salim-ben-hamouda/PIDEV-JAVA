@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -44,9 +45,23 @@
 
                                 <Label styleClass="menu-section" text="Main" />
                                 <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                                        onAction="#loadDashboard" styleClass="menu-item" text="Dashboard Supervisor">
+                                        onAction="#loadDashboard" styleClass="menu-item" text="Dashboard">
                                     <graphic>
                                         <FontIcon iconLiteral="fas-tachometer-alt" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+
+                                <Label styleClass="menu-section" text="User Management" />
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadUserManagement" styleClass="menu-item" text="Users">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-user" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadArchivedUsers" styleClass="menu-item" text="Archived Users">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-archive" styleClass="menu-icon" />
                                     </graphic>
                                 </Button>
 
@@ -112,6 +127,82 @@
                                     </graphic>
                                 </Button>
 
+
+                                <Label styleClass="menu-section" text="Community" />
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" text="Groups">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-users" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" text="Posts">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-comments" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+
+                                <Label styleClass="menu-section" text="Challenges" />
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" onAction="#loadBackChallenge" text="Challenges">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-trophy" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" onAction="#loadBackActivity" text="Activities">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-tasks" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        styleClass="menu-item" onAction="#loadBackEvaluation" text="Evaluations">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-clipboard-check" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Label styleClass="menu-section" text="Hackathon" />
+
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadHackathons" styleClass="menu-item" text="Hackathons">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-flag-checkered" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadSponsors" styleClass="menu-item" text="Sponsors">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-handshake" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadSponsorHackathons" styleClass="menu-item" text="Assigned Sponsors">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-link" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+
+                                <Label styleClass="menu-section" text="Career Management" />
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadOffers" styleClass="menu-item" text="Offers">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-briefcase" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#loadCVs" styleClass="menu-item" text="CVs">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-file-alt" styleClass="menu-icon" />
+                                    </graphic>
+                                </Button>
+
+                                <Label styleClass="menu-section" text="Session" />
+                                <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                        onAction="#handleLogout" styleClass="menu-item logout-item" text="Logout">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fas-sign-out-alt" styleClass="menu-icon logout-icon" />
+                                    </graphic>
+                                </Button>
                             </children>
                             <padding>
                                 <Insets bottom="32.0" left="16.0" right="16.0" top="22.0" />
@@ -126,19 +217,26 @@
     <center>
         <VBox styleClass="admin-shell" BorderPane.alignment="CENTER">
             <children>
-                <HBox alignment="CENTER_LEFT" styleClass="topbar">
+                <HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="20.0">
                     <children>
-                        <VBox spacing="2.0">
+                        <VBox spacing="2.0" prefWidth="350.0">
                             <children>
-                                <Label styleClass="topbar-title" text="Skill Bridge Supervisor Workspace" />
-                                <Label styleClass="topbar-subtitle" text="Monitor learners from the dashboard and manage pedagogical tools from the workspace menu" />
+                                <Label styleClass="topbar-title" text="Skill Bridge Admin" />
+                                <Label styleClass="topbar-subtitle" text="Manage courses, users, groups, challenges and results" />
                             </children>
                         </VBox>
+
                         <Region HBox.hgrow="ALWAYS" />
-                        <HBox alignment="CENTER" spacing="8.0" styleClass="profile-chip">
+
+                        <HBox alignment="CENTER" spacing="12.0" styleClass="profile-chip" onMouseClicked="#loadProfile" style="-fx-cursor: hand;">
                             <children>
-                                <FontIcon iconLiteral="fas-user-circle" styleClass="profile-icon" />
-                                <Label styleClass="profile-name" text="Supervisor" />
+                                <StackPane styleClass="profile-avatar-mini">
+                                    <children>
+                                        <FontIcon iconLiteral="fas-user" styleClass="profile-icon" />
+                                    </children>
+                                </StackPane>
+                                <Label fx:id="adminNameLabel" styleClass="profile-name" text="Administrateur" />
+                                <FontIcon iconLiteral="fas-chevron-down" style="-fx-icon-size: 10; -fx-icon-color: #8ea0b8;" />
                             </children>
                         </HBox>
                     </children>

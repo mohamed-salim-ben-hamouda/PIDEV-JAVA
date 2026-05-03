@@ -26,6 +26,10 @@ public class UserService implements ICrud<User> {
             System.err.println("Debug: Error checking connection metadata: " + e.getMessage());
         }
     }
+    @Override
+    public List<User> display(){
+        return null;
+    }
 
     @Override
     // ajouter user

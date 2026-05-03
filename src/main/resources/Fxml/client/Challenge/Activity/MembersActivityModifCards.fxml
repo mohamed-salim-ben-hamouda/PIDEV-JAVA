@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="16.0"
+      styleClass="challenge-card"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.MembersActivityModifCardsController">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12.0">
+        <children>
+            <VBox HBox.hgrow="ALWAYS" spacing="4.0">
+                <Label styleClass="meta-text" text="Member activity" />
+                <Label fx:id="userName" styleClass="challenge-title" text="User:" style="-fx-font-size: 20px;" />
+            </VBox>
+            <Button fx:id="EditBtn"
+                    onAction="#onUpdateMA"
+                    styleClass="primary-btn"
+                    text="Update Activity" />
+        </children>
+    </HBox>
+
+    <VBox spacing="8.0">
+        <Label styleClass="input-label" text="Activity Description" />
+        <TextArea fx:id="activityDescModifier"
+                  prefHeight="100.0"
+                  promptText="Modify the activity description..."
+                  styleClass="modern-input"
+                  wrapText="true" />
+    </VBox>
+</VBox>

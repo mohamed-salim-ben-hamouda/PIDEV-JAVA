@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="30" style="-fx-padding: 30;" stylesheets="@../../../../styles/challenge.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityController">
+    <children>
+
+        <VBox fx:id="challengeListContainer" spacing="25.0" pickOnBounds="false" style="-fx-background-color: transparent;">
+            <padding>
+                <Insets bottom="20.0" left="10.0" right="18.0" top="6.0"/>
+            </padding>
+        </VBox>
+        <VBox fx:id="gitHub" spacing="18" styleClass="main-card" style="-fx-padding: 24;">
+            <children>
+                <Label text="Git Hub" styleClass="page-title" style="-fx-font-size: 24px;" />
+                <Label text="Add each member's GitHub username before creating the shared repository."
+                       styleClass="meta-text"
+                       wrapText="true" />
+                <VBox fx:id="membersGitUserName" spacing="14" fillWidth="true" />
+                <HBox alignment="CENTER" style="-fx-padding: 6 0 0 0;">
+                    <children>
+                        <Button onAction="#onCreateRepo" styleClass="primary-btn" text="Create git repository" prefWidth="220" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <Label styleClass="page-title" text="🚀 Votre Avancement" style="-fx-font-size: 24px;" />
+
+        <VBox fx:id="DescriptionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="📝 Description de l'activité" style="-fx-font-size: 18px;" />
+                <TextArea fx:id="activity_desc" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez votre activité..." wrapText="true" />
+                <Label fx:id="activityDescError" text="Description is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
+                <Button onAction="#OnMemberActivity" styleClass="primary-btn" text="Enregistrer Description" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <VBox spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="⚠️ Problème rencontré" style="-fx-font-size: 18px;" />
+                <TextArea fx:id="Problem_grp" styleClass="modern-input" prefHeight="80.0" promptText="Décrivez le problème rencontré..." wrapText="true" />
+                <Label fx:id="problemGrpError" text="The problem is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
+                <Button onAction="#OnProblem" styleClass="primary-btn" text="Enregistrer Problème" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <VBox fx:id="solutionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="💡 Proposez une solution" style="-fx-font-size: 18px;" />
+                <VBox spacing="5">
+                    <Label styleClass="input-label" text="Choisir un problème à résoudre" />
+                    <ComboBox fx:id="problemCombo" styleClass="modern-input" maxWidth="Infinity" promptText="Sélectionnez un problème" />
+                </VBox>
+                <VBox spacing="5">
+                    <Label styleClass="input-label" text="Votre Solution" />
+                    <TextArea fx:id="solution_desc" styleClass="modern-input" prefHeight="80.0" promptText="Expliquez votre approche..." wrapText="true" />
+                    <Label fx:id="solutionDescError" text="The Solution is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
+                </VBox>
+                <Button onAction="#OnSolution" styleClass="primary-btn" text="Enregistrer Solution" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <VBox fx:id="submissionContainer" spacing="15" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="📤 Soumission finale" style="-fx-font-size: 18px;" />
+                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12;">
+                    <children>
+                        <Button onAction="#onChooseFile" styleClass="action-btn-outline" text="Choisir un fichier" />
+                        <Label fx:id="fileNameLabel" styleClass="meta-text" text="Aucun fichier (PDF, ZIP)" />
+                    </children>
+                </HBox>
+                <Label fx:id="fileError" text="The submission File is required" textFill="RED" visible="false" managed="false" style="-fx-font-size: 11px;" />
+                <Button onAction="#onSubmission" styleClass="primary-btn" text="Soumettre le Travail" prefWidth="200" />
+            </children>
+        </VBox>
+
+        <VBox spacing="20" styleClass="main-card" style="-fx-padding: 25;">
+            <children>
+                <Label styleClass="challenge-title" text="📊 Suivi de l'activité" />
+
+                <VBox spacing="10">
+                    <Label styleClass="input-label" text="📋 Historique des étapes" />
+                    <VBox styleClass="card-surface" spacing="0">
+                        <children>
+                            <GridPane styleClass="card-header">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="80.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="20.0" hgrow="NEVER" />
+                                </columnConstraints>
+                                <children>
+                                    <Label GridPane.columnIndex="0" styleClass="card-header-text" text="Description de l'étape" />
+                                    <Label GridPane.columnIndex="1" styleClass="card-header-text" text="Actions" />
+                                </children>
+                            </GridPane>
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="110.0" styleClass="card-scroll">
+                                <content>
+                                    <VBox spacing="0">
+                                        <children>
+                                            <Label fx:id="memberEmptyLabel" styleClass="meta-text" text="Aucun contenu" visible="false" managed="false" />
+                                            <VBox fx:id="memberActivityCards" spacing="0" />
+                                        </children>
+                                    </VBox>
+                                </content>
+                            </ScrollPane>
+                        </children>
+                    </VBox>
+                    <VBox fx:id="editMemberOverlayHost" managed="false" spacing="10" visible="false" />
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label styleClass="input-label" text="⚠️ Problems &amp; Solutions" />
+                    <VBox styleClass="card-surface" spacing="0">
+                        <children>
+                            <GridPane styleClass="card-header">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="42.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="42.0" hgrow="ALWAYS" />
+                                    <ColumnConstraints percentWidth="16.0" hgrow="NEVER" />
+                                </columnConstraints>
+                                <children>
+                                    <Label GridPane.columnIndex="0" styleClass="card-header-text" text="Problème" />
+                                    <Label GridPane.columnIndex="1" styleClass="card-header-text" text="Solution validée" />
+                                    <Label GridPane.columnIndex="2" styleClass="card-header-text" text="Actions" />
+                                </children>
+                            </GridPane>
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="220.0" styleClass="card-scroll">
+                                <content>
+                                    <VBox spacing="0">
+                                        <children>
+                                            <Label fx:id="psEmptyLabel" styleClass="meta-text" text="Aucun contenu" visible="false" managed="false" />
+                                            <VBox fx:id="problemSolutionCards" spacing="0" />
+                                        </children>
+                                    </VBox>
+                                </content>
+                            </ScrollPane>
+                        </children>
+                    </VBox>
+                    <VBox fx:id="editOverlayHost" managed="false" spacing="10" visible="false" />
+                </VBox>
+            </children>
+        </VBox>
+
+    </children>
+</VBox>

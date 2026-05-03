@@ -373,7 +373,7 @@
 .crud-dialog-wrapper .text-field,
 .crud-dialog-wrapper .combo-box-base,
 .crud-dialog-wrapper .text-area {
-    -fx-max-width: 1.7976931348623157E308;
+    -fx-max-width: 1000000;
 }
 
 .crud-text-area {

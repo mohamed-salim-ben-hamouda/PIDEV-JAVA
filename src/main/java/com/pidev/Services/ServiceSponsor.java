@@ -15,7 +15,10 @@ public class ServiceSponsor implements ICrud<Sponsor> {
     public ServiceSponsor() {
         connection = DataSource.getInstance().getConnection();
     }
-
+    @Override
+    public List<Sponsor> display(){
+        return null;
+    }
     @Override
     public boolean add(Sponsor sponsor) {
         String query = "INSERT INTO sponsor (name, description, logo_url, website_url, created_at, creator_id_id) VALUES (?, ?, ?, ?, ?, ?)";

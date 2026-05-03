@@ -16,7 +16,10 @@ public class ServiceSponsorHackathon implements ICrud<SponsorHackathon> {
     public ServiceSponsorHackathon() {
         connection = DataSource.getInstance().getConnection();
     }
-
+    @Override
+    public List<SponsorHackathon> display(){
+        return null;
+    }
     @Override
     public boolean add(SponsorHackathon sh) {
         String query = "INSERT INTO sponsor_hackathon (sponsor_id, hackathon_id, contribution_type, contribution_value) VALUES (?, ?, ?, ?)";

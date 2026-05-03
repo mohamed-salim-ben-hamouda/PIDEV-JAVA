@@ -15,6 +15,7 @@ public class Challenge {
     private String content;
     private User creator;
     private Course course;
+    private int github;
 
     public Challenge() {
         this.createdAt = LocalDateTime.now();
@@ -119,4 +120,6 @@ public class Challenge {
     public void setCourse(Course course) {
         this.course = course;
     }
+    public int getGithub(){ return github; }
+    public void setGithub(int github){ this.github = github; }
 }

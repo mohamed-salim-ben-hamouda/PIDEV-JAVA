@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.utils.IndividualRankingStageController"
+            style="-fx-background-color: transparent; -fx-border-color: transparent;">
+    <stylesheets>
+        <URL value="@../../styles/challenge.css"/>
+    </stylesheets>
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="24"
+              style="-fx-background-color: linear-gradient(to bottom, #f8fafc, #ffffff 45%, #f8fafc);">
+            <padding>
+                <Insets bottom="24.0" left="22.0" right="22.0" top="22.0"/>
+            </padding>
+
+            <children>
+                <VBox alignment="CENTER" spacing="8">
+                    <Label text="Individual Ranking" style="-fx-text-fill: #0f172a; -fx-font-size: 26; -fx-font-weight: 800;"/>
+                    <Label fx:id="challengeTitleLabel" text="Passed students ranked by final score"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 13; -fx-font-weight: 700;"/>
+                </VBox>
+
+                <HBox alignment="BOTTOM_CENTER" spacing="20">
+                    <children>
+                        <VBox alignment="TOP_CENTER" prefHeight="235.0" prefWidth="180.0" spacing="12"
+                              style="-fx-background-color: linear-gradient(to bottom, #242833, #0f1115 55%, #171717); -fx-background-radius: 24; -fx-padding: 0 14 18 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 18, 0, 0, 8);">
+                            <children>
+                                <StackPane alignment="CENTER" prefHeight="36.0">
+                                    <children>
+                                        <Region prefHeight="24.0" prefWidth="130.0"
+                                                style="-fx-background-color: linear-gradient(to bottom, #f8fafc, #cbd5e1); -fx-background-radius: 999; -fx-effect: dropshadow(three-pass-box, rgba(203,213,225,0.35), 14, 0, 0, 5);"/>
+                                    </children>
+                                </StackPane>
+                                <StackPane fx:id="secondAvatarContainer" prefHeight="58.0" prefWidth="58.0"/>
+                                <Label fx:id="secondBadgeLabel" text="2"
+                                       style="-fx-background-color: #e9d5ff; -fx-text-fill: #5b21b6; -fx-background-radius: 999; -fx-padding: 8 12; -fx-font-size: 16; -fx-font-weight: 800;"/>
+                                <Label fx:id="secondNameLabel" maxWidth="150.0" minHeight="42.0" prefHeight="42.0"
+                                       text="--" textAlignment="CENTER" wrapText="true" textOverrun="CLIP"
+                                       style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: 800; -fx-alignment: center;"/>
+                                <Label fx:id="secondScoreLabel" text="--"
+                                       style="-fx-text-fill: #e2e8f0; -fx-font-size: 18; -fx-font-weight: 600;"/>
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="TOP_CENTER" prefHeight="280.0" prefWidth="200.0" spacing="14"
+                              style="-fx-background-color: linear-gradient(to bottom, #242833, #0f1115 55%, #171717); -fx-background-radius: 24; -fx-padding: 0 14 20 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.20), 20, 0, 0, 10);">
+                            <children>
+                                <StackPane alignment="CENTER" prefHeight="42.0">
+                                    <children>
+                                        <Region prefHeight="28.0" prefWidth="150.0"
+                                                style="-fx-background-color: linear-gradient(to bottom, #fde68a, #f59e0b); -fx-background-radius: 999; -fx-effect: dropshadow(three-pass-box, rgba(245,158,11,0.28), 16, 0, 0, 6);"/>
+                                    </children>
+                                </StackPane>
+                                <StackPane fx:id="firstAvatarContainer" prefHeight="68.0" prefWidth="68.0"/>
+                                <Label fx:id="firstBadgeLabel" text="1"
+                                       style="-fx-background-color: #fdba74; -fx-text-fill: #7c2d12; -fx-background-radius: 999; -fx-padding: 8 12; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                                <Label fx:id="firstNameLabel" maxWidth="164.0" minHeight="50.0" prefHeight="50.0"
+                                       text="--" textAlignment="CENTER" wrapText="true" textOverrun="CLIP"
+                                       style="-fx-text-fill: white; -fx-font-size: 17; -fx-font-weight: 800; -fx-alignment: center;"/>
+                                <Label fx:id="firstScoreLabel" text="--"
+                                       style="-fx-text-fill: #f8fafc; -fx-font-size: 20; -fx-font-weight: 600;"/>
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="TOP_CENTER" prefHeight="235.0" prefWidth="180.0" spacing="12"
+                              style="-fx-background-color: linear-gradient(to bottom, #242833, #0f1115 55%, #171717); -fx-background-radius: 24; -fx-padding: 0 14 18 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 18, 0, 0, 8);">
+                            <children>
+                                <StackPane alignment="CENTER" prefHeight="36.0">
+                                    <children>
+                                        <Region prefHeight="24.0" prefWidth="130.0"
+                                                style="-fx-background-color: linear-gradient(to bottom, #fdba74, #d97706); -fx-background-radius: 999; -fx-effect: dropshadow(three-pass-box, rgba(217,119,6,0.30), 14, 0, 0, 5);"/>
+                                    </children>
+                                </StackPane>
+                                <StackPane fx:id="thirdAvatarContainer" prefHeight="58.0" prefWidth="58.0"/>
+                                <Label fx:id="thirdBadgeLabel" text="3"
+                                       style="-fx-background-color: #fdba74; -fx-text-fill: #7c2d12; -fx-background-radius: 999; -fx-padding: 8 12; -fx-font-size: 16; -fx-font-weight: 800;"/>
+                                <Label fx:id="thirdNameLabel" maxWidth="150.0" minHeight="42.0" prefHeight="42.0"
+                                       text="--" textAlignment="CENTER" wrapText="true" textOverrun="CLIP"
+                                       style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: 800; -fx-alignment: center;"/>
+                                <Label fx:id="thirdScoreLabel" text="--"
+                                       style="-fx-text-fill: #e2e8f0; -fx-font-size: 18; -fx-font-weight: 600;"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox alignment="CENTER" spacing="10">
+                    <children>
+                        <Label text="YOUR RANK" style="-fx-text-fill: #64748b; -fx-font-size: 15; -fx-font-weight: 800;"/>
+                        <StackPane prefHeight="74.0" prefWidth="118.0"
+                                   style="-fx-background-color: linear-gradient(to bottom, #1e293b, #0f172a); -fx-background-radius: 999; -fx-effect: dropshadow(three-pass-box, rgba(15,23,42,0.18), 18, 0, 0, 8);">
+                            <children>
+                                <Label fx:id="yourRankValueLabel" text="-- / 0"
+                                       style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: 800;"/>
+                            </children>
+                        </StackPane>
+                        <Label fx:id="yourRankDescriptionLabel" maxWidth="420.0" text="No ranking data yet."
+                               textAlignment="CENTER" wrapText="true"
+                               style="-fx-text-fill: #475569; -fx-font-size: 12; -fx-font-weight: 700;"/>
+                    </children>
+                </VBox>
+
+                <VBox fillWidth="true" maxWidth="620.0" spacing="10">
+                    <children>
+                        <Label text="Passed Students" style="-fx-text-fill: #0f172a; -fx-font-size: 18; -fx-font-weight: 800;"/>
+                        <VBox fx:id="rankingListContainer" spacing="12"/>
+                        <Label fx:id="emptyStateLabel" managed="false" text="No student has passed this challenge yet."
+                               visible="false"
+                               style="-fx-background-color: white; -fx-background-radius: 18; -fx-border-color: #e2e8f0; -fx-border-radius: 18; -fx-padding: 14 18; -fx-text-fill: #64748b; -fx-font-size: 13; -fx-font-weight: 700;"/>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

@@ -1,6 +1,7 @@
 package com.pidev.Services;
 
 import com.pidev.models.Hackathon;
+import com.pidev.models.Participation;
 import com.pidev.models.User;
 import com.pidev.utils.DataSource;
 
@@ -140,5 +141,9 @@ public class ServiceHackathon implements ICrud<Hackathon> {
         h.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         h.setCreator(new User(rs.getInt("creator_id_id")));
         return h;
+    }
+    @Override
+    public List<Hackathon> display(){
+        return null;
     }
 }

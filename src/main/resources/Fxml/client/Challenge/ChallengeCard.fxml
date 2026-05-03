@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.ChallengeCardController"
+      maxWidth="Infinity"
+      stylesheets="@../../../styles/challenge.css"
+      spacing="12.0" styleClass="challenge-card"
+      fx:id="cardRoot">
+
+    <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="challenge-card-header">
+        <Label fx:id="titleCard"
+               maxWidth="Infinity"
+               minWidth="0.0"
+               text="Sample Challenge"
+               textOverrun="ELLIPSIS"
+               styleClass="challenge-title"
+               HBox.hgrow="ALWAYS"/>
+        <HBox spacing="10.0" alignment="CENTER_RIGHT" styleClass="challenge-card-actions">
+            <Button fx:id="groupsBtn" onAction="#onSuccessPrediction" text="success predictions" styleClass="file-link-btn"/>
+            <Button fx:id="participationBtn" text="choose your group" styleClass="action-btn-outline"/>
+            <Button fx:id="deleteBtn" text="Delete" onAction="#OnDelete" styleClass="action-btn-delete"/>
+            <Button fx:id="editBtn" text="Edit" onAction="#handleEdit" styleClass="action-btn-outline"/>
+        </HBox>
+    </HBox>
+
+    <Label fx:id="descriptionCard"
+           maxWidth="Infinity"
+           text="Challenge description here"
+           styleClass="challenge-description"
+           wrapText="true"/>
+    <HBox alignment="CENTER_LEFT">
+        <Button fx:id="fileBtn"
+                maxWidth="340.0"
+                minWidth="0.0"
+                text="View File"
+                textOverrun="ELLIPSIS"
+                styleClass="file-link-btn"
+                onAction="#openPdfChallenge"/>
+    </HBox>
+    <Separator opacity="0.5"/>
+    <FlowPane hgap="14.0" vgap="8.0" styleClass="challenge-meta">
+        <Label fx:id="createdAtCard" text="Created: -" styleClass="meta-text"/>
+        <Label fx:id="targetSkillCard" text="Target Skill: -" styleClass="meta-text"/>
+        <Label fx:id="difficultyCard" text="Difficulty: -" styleClass="meta-text"/>
+    </FlowPane>
+    <VBox fx:id="groupSection" managed="false" visible="false" spacing="10.0"
+          style="-fx-padding: 15 0 0 0; -fx-border-color: #eef2ff; -fx-border-width: 1 0 0 0;">
+        <children>
+            <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="Choisissez un groupe (Leader)"
+                   textFill="#2d3748"/>
+            <FlowPane fx:id="groupsContainer" hgap="15.0" vgap="15.0">
+            </FlowPane>
+        </children>
+    </VBox>
+</VBox>

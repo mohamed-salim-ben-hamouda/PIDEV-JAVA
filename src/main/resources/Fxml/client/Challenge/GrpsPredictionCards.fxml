@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="cardRoot" alignment="TOP_LEFT" fillWidth="true" prefHeight="280.0" prefWidth="310.0" spacing="15.0"
+      style="-fx-background-color: white; -fx-background-radius: 22; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(15,23,42,0.08), 14, 0, 0, 4);"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.GrpsPredictionCardsController">
+    <children>
+        <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308">
+            <children>
+                <VBox spacing="4.0">
+                    <children>
+                        <Label fx:id="groupName" text="skill_bridge"
+                               style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+                        <Label fx:id="groupSubtitle" text="Most promising group"
+                               style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
+                    </children>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <StackPane fx:id="statusBadge" prefHeight="34.0" prefWidth="98.0"
+                           style="-fx-background-color: #dcfce7; -fx-background-radius: 999;">
+                    <children>
+                        <Label fx:id="statusBadgeLabel" text="SUCCESS"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #15803d;"/>
+                    </children>
+                </StackPane>
+            </children>
+        </HBox>
+
+        <VBox maxWidth="1.7976931348623157E308" spacing="8.0">
+            <children>
+                <Label text="Success probability"
+                       style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #64748b;"/>
+                <Label fx:id="successPercentageLabel" text="86.57%"
+                       style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #16a34a;"/>
+            </children>
+        </VBox>
+
+        <VBox maxWidth="1.7976931348623157E308" spacing="7.0">
+            <children>
+                <HBox maxWidth="1.7976931348623157E308">
+                    <children>
+                        <Label text="Fail risk"
+                               style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="failPercentageLabel" text="13.43%"
+                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;"/>
+                    </children>
+                </HBox>
+                <Pane minHeight="8.0" maxHeight="8.0" minWidth="270.0" prefWidth="270.0" maxWidth="270.0"
+                      style="-fx-background-color: #e5e7eb; -fx-background-radius: 999;">
+                    <children>
+                        <Pane fx:id="progressFill" layoutX="0.0" layoutY="0.0"
+                              minHeight="8.0" maxHeight="8.0"
+                              minWidth="234.0" prefWidth="234.0" maxWidth="234.0"
+                              style="-fx-background-color: #22c55e; -fx-background-radius: 999;" />
+                    </children>
+                </Pane>
+            </children>
+        </VBox>
+
+        <VBox fx:id="recommendationBox" maxWidth="1.7976931348623157E308" spacing="6.0"
+              style="-fx-background-color: #f8fafc; -fx-background-radius: 16; -fx-padding: 14;">
+            <children>
+                <Label text="Recommendation"
+                       style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #475569;"/>
+                <Label fx:id="recommendationLabel" text="Strong fit for this challenge. Good candidate to prioritize."
+                       style="-fx-font-size: 12px; -fx-text-fill: #334155; -fx-wrap-text: true;"/>
+            </children>
+        </VBox>
+    </children>
+</VBox>

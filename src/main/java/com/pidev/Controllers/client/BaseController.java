@@ -1,13 +1,20 @@
 package com.pidev.Controllers.client;
 
+import com.pidev.Controllers.client.Challenge.Activity.ActivityController;
+import com.pidev.Controllers.client.Challenge.Activity.ModifyActivityController;
+import com.pidev.Controllers.client.Challenge.Evaluation.EvaluationMainController;
+import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationController;
+import com.pidev.Controllers.client.Challenge.GrpsPredictionController;
+import com.pidev.Services.Challenge.Classes.ServiceActivity;
+import com.pidev.models.*;
 import com.pidev.utils.SessionManager;
 import com.pidev.Services.UserService;
-import com.pidev.models.Notif;
 import com.pidev.Services.NotificationService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Alert;
@@ -24,7 +31,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import com.pidev.models.User;
+
 import java.io.File;
 
 import java.io.IOException;
@@ -44,6 +51,8 @@ public class BaseController implements Initializable {
     private StackPane contentArea;
     @FXML
     private MenuButton challengesMenu;
+    @FXML
+    private MenuButton ChallengesStudent;
     @FXML
     private MenuButton CvMenu;
     @FXML
@@ -74,10 +83,19 @@ public class BaseController implements Initializable {
     private UserService userService = new UserService();
     private final NotificationService notificationService = new NotificationService();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private static BaseController instance;
+    public BaseController() {
+        instance = this;
+    }
 
+    public static BaseController getInstance() {
+        return instance;
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configureHoverMenu(challengesMenu);
+        configureHoverMenu(ChallengesStudent);
+
         configureHoverMenu(CvMenu);
         updateNavbar();
 
@@ -94,48 +112,61 @@ public class BaseController implements Initializable {
         boolean isLogged = SessionManager.getInstance().isLogged();
         User user = SessionManager.getInstance().getUser();
 
-        dashboardLink.setVisible(isAdmin);
-        dashboardLink.setManaged(isAdmin);
+        setVisibleAndManaged(dashboardLink, isAdmin);
+        setVisibleAndManaged(profileLink, isLogged);
+        setVisibleAndManaged(userInfoNav, isLogged);
+        setVisibleAndManaged(notificationIconWrapper, isLogged);
 
-        profileLink.setVisible(isLogged);
-        profileLink.setManaged(isLogged);
-
-        if (userInfoNav != null) {
-            userInfoNav.setVisible(isLogged);
-            userInfoNav.setManaged(isLogged);
-        }
-
-        if (notificationIconWrapper != null) {
-            notificationIconWrapper.setVisible(isLogged);
-            notificationIconWrapper.setManaged(isLogged);
-        }
-
-        // Role-based menu adaptation
-        if (isLogged && user != null) {
-            if (user.getRole() == User.Role.ENTREPRISE) {
-                CvMenu.setText("Gestion Offres");
-                cvMenuItem.setVisible(false);
-                jobsMenuItem.setText("Mes Offres");
-            } else if (user.getRole() == User.Role.STUDENT) {
+        if (CvMenu != null && cvMenuItem != null && jobsMenuItem != null) {
+            if (isLogged && user != null) {
+                if (user.getRole() == User.Role.ENTREPRISE) {
+                    CvMenu.setText("Gestion Offres");
+                    cvMenuItem.setVisible(false);
+                    jobsMenuItem.setText("Mes Offres");
+                    challengesMenu.setVisible(false);
+                    challengesMenu.setManaged(false);
+                    ChallengesStudent.setVisible(false);
+                    ChallengesStudent.setManaged(false);
+                } else if (user.getRole() == User.Role.STUDENT) {
+                    CvMenu.setText("Jobs & CV");
+                    cvMenuItem.setVisible(true);
+                    jobsMenuItem.setText("Jobs");
+                    challengesMenu.setVisible(false);
+                    challengesMenu.setManaged(false);
+                    ChallengesStudent.setVisible(true);
+                    ChallengesStudent.setManaged(true);
+                } else if (user.getRole() == User.Role.SUPERVISEUR) {
+                    CvMenu.setText("Jobs & CV");
+                    cvMenuItem.setVisible(true);
+                    jobsMenuItem.setText("Jobs");
+                    challengesMenu.setVisible(true);
+                    challengesMenu.setManaged(true);
+                    ChallengesStudent.setVisible(false);
+                    ChallengesStudent.setManaged(false);
+                }
+            } else {
+                ChallengesStudent.setVisible(true);
+                ChallengesStudent.setManaged(true);
+                challengesMenu.setVisible(false);
+                challengesMenu.setManaged(false);
                 CvMenu.setText("Jobs & CV");
                 cvMenuItem.setVisible(true);
                 jobsMenuItem.setText("Jobs");
             }
-        } else {
-            // Default or guest state
-            CvMenu.setText("Jobs & CV");
-            cvMenuItem.setVisible(true);
-            jobsMenuItem.setText("Jobs");
         }
 
-        if (isLogged) {
+        if (isLogged && loginBtn != null) {
             loginBtn.setText("Logout");
 
-            if (navUserName != null && user != null) {
-                navUserName.setText(user.getNom() + " " + user.getPrenom());
-                navUserRole.setText(user.getRole() != null ? user.getRole().name() : "");
+            if (user != null) {
+                if (navUserName != null) {
+                    navUserName.setText(user.getNom() + " " + user.getPrenom());
+                }
+                if (navUserRole != null) {
+                    navUserRole.setText(user.getRole() != null ? user.getRole().name() : "");
+                }
 
-                if (user.getPhoto() != null && !user.getPhoto().isEmpty()) {
+                if (navProfileImg != null && user.getPhoto() != null && !user.getPhoto().isEmpty()) {
                     try {
                         String photoPath = user.getPhoto();
                         if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) {
@@ -149,9 +180,17 @@ public class BaseController implements Initializable {
                     } catch (Exception ignored) {}
                 }
             }
-        } else {
+        } else if (loginBtn != null) {
             loginBtn.setText("Sign in");
         }
+    }
+
+    private void setVisibleAndManaged(Node node, boolean visible) {
+        if (node == null) {
+            return;
+        }
+        node.setVisible(visible);
+        node.setManaged(visible);
     }
 
     private void refreshNotifications() {
@@ -281,20 +320,15 @@ public class BaseController implements Initializable {
         });
     }
 
-    private void loadViewFront(String fxmlName) {
+    private Object loadViewFront(String fxmlName) {
         try {
-            java.net.URL resource = getClass().getResource("/Fxml/" + fxmlName + ".fxml");
-            if (resource == null) {
-                System.err.println("Missing FXML view: /Fxml/" + fxmlName + ".fxml");
-                return;
-            }
-
-            Parent view = FXMLLoader.load(resource);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/" + fxmlName + ".fxml"));            Parent view = loader.load();
             contentArea.getChildren().setAll(view);
-
+            return loader.getController();
         } catch (IOException e) {
             System.err.println("Error: Could not load " + fxmlName + ". Check the path.");
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -332,10 +366,7 @@ public class BaseController implements Initializable {
         loadViewFront("client/GroupsView");
     }
 
-    @FXML public void loadChallenge() {
-        if (!checkAuth()) return;
-        loadViewFront("client/Challenge");
-    }
+
 
     @FXML public void loadMyCV() {
         if (!checkAuth()) return;
@@ -374,6 +405,81 @@ public class BaseController implements Initializable {
             switchRoot("client/User/login");
         }
     }
+    @FXML
+    public void loadChallenge() {
+        if (!checkAuth()) return;
+        loadViewFront("client/Challenge/Challenge");
+    }
+    @FXML
+    public void loadEvaluation(){
+        if (!checkAuth()) return;
+        loadViewFront("client/Challenge/Evaluation/SelectToEvaluate");}
+
+    @FXML
+    public void loadActivity() {
+        if (!checkAuth()) return;
+        loadViewFront("client/Challenge/challengeStudent");
+    }
+
+    @FXML
+    public void loadActivityPage(Challenge challenge, int groupId,int activity_id) {
+        if (!checkAuth()) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/Activity/Activity.fxml"));
+            Parent root = loader.load();
+            ActivityController controller = loader.getController();
+
+            controller.initData(challenge, groupId,activity_id);
+            contentArea.getChildren().setAll(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleActivityPages() {
+        if (!checkAuth()) return;
+        ServiceActivity serviceActivity = new ServiceActivity();
+        int user_id = SessionManager.getInstance().getUser().getId();
+        Activity a = serviceActivity.findActivityInprogress(user_id);
+        if (a != null) {
+            loadActivityPage(a.getChallenge(), a.getGroup().getId(),a.getId());
+        } else {
+            loadActivity();
+        }
+
+    }
+
+    @FXML
+    public void loadOldActivities() {
+        if (!checkAuth()) return;
+        loadViewFront("client/Challenge/Activity/SelectOldActivities");
+    }
+    @FXML
+    public void loadPredictions(Challenge c , List<Group> grps){
+        if (!checkAuth()) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/client/Challenge/GrpsPrediction.fxml"));
+            Parent root = loader.load();
+            GrpsPredictionController controller = loader.getController();
+            controller.initData(grps,c);
+            contentArea.getChildren().setAll(root);
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    public EvaluationMainController loadEvaluationMainPage() {
+        return (EvaluationMainController) loadViewFront("client/Challenge/Evaluation/Evaluation");    }
+    @FXML
+    public StudentEvaluationController loadStudentEvaluation(){
+        return (StudentEvaluationController) loadViewFront("client/Challenge/Evaluation/StudentEvaluation");
+    }
+    @FXML
+    public ModifyActivityController loadModifyActivity(){
+        return (ModifyActivityController) loadViewFront("client/Challenge/Activity/ModifyActivity");
+    }
 
     private void handleLogout() {
         User user = SessionManager.getInstance().getUser();
@@ -384,3 +490,5 @@ public class BaseController implements Initializable {
         switchRoot("client/User/login");
     }
 }
+
+

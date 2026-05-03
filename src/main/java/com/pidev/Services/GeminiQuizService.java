@@ -1,5 +1,6 @@
 package com.pidev.Services;
 
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.json.JSONArray;
@@ -45,7 +46,7 @@ public class GeminiQuizService {
     }
 
     public String extractTextFromPdf(File pdfFile) throws IOException {
-        try (PDDocument doc = PDDocument.load(pdfFile)) {
+        try (PDDocument doc = Loader.loadPDF(pdfFile)) {
             return new PDFTextStripper().getText(doc);
         }
     }

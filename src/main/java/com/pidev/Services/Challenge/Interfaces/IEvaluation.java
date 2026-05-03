@@ -1,0 +1,20 @@
+package com.pidev.Services.Challenge.Interfaces;
+
+import com.pidev.models.Activity;
+import com.pidev.models.Evaluation;
+
+import java.util.List;
+
+public interface IEvaluation {
+    void StartEvaluation(Evaluation e, Activity a);
+    boolean isEvaluation(int a);
+    void updateEvaluation(Evaluation e);
+    Evaluation findEvaluation(int a);
+    double SelectGrpScore(int e);
+    void delete(long e);
+    List<Evaluation> displayAll();
+    List<Evaluation> displaySorted(String c);
+    boolean isEvaluationStarted(int a);
+    boolean isEvaluationfinished(int e);
+    void CreatePreFeedback(Evaluation e,int a);
+}

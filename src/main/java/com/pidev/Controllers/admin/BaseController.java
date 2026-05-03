@@ -158,13 +158,45 @@ public class BaseController implements Initializable {
 
     private void loadView(String viewName) {
         try {
-            String path = viewName.contains("/") ? "/Fxml/" + viewName + ".fxml" : "/Fxml/admin/" + viewName + ".fxml";
-            Parent view = FXMLLoader.load(getClass().getResource(path));
+            URL resource = resolveViewResource(viewName);
+            if (resource == null) {
+                throw new IOException("FXML introuvable pour la vue: " + viewName);
+            }
+
+            Parent view = FXMLLoader.load(resource);
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
             System.err.println("Could not load admin view: " + viewName);
             e.printStackTrace();
         }
+    }
+
+    private URL resolveViewResource(String viewName) {
+        String normalized = viewName.endsWith(".fxml") ? viewName : viewName + ".fxml";
+        String path;
+
+        if (normalized.startsWith("/")) {
+            path = normalized;
+        } else if (normalized.startsWith("client/") || normalized.startsWith("admin/")) {
+            path = "/Fxml/" + normalized;
+        } else {
+            path = "/Fxml/admin/" + normalized;
+        }
+
+        return getClass().getResource(path);
+    }
+
+    @FXML
+    public void loadBackChallenge(){
+        loadView("Challenge/ChallengeBackoffice");
+    }
+    @FXML
+    public void loadBackActivity(){
+        loadView("Challenge/Activity/ActivityBackoffice");
+    }
+    @FXML
+    public void loadBackEvaluation(){
+        loadView("Challenge/Evaluation/EvaluationBackoffice");
     }
 
     @FXML

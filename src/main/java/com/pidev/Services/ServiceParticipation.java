@@ -1,5 +1,6 @@
 package com.pidev.Services;
 
+import com.pidev.models.Challenge;
 import com.pidev.models.Hackathon;
 import com.pidev.models.Participation;
 import com.pidev.utils.DataSource;
@@ -156,4 +157,9 @@ public class ServiceParticipation implements ICrud<Participation> {
             return null;
         }
     }
+    @Override
+    public List<Participation> display(){
+        return null;
+    }
+
 }

@@ -31,7 +31,17 @@ public class AIService {
             .create();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
+    private String getApiKeyOrThrow() {
+        if (API_KEY == null || API_KEY.isBlank()) {
+            throw new IllegalStateException(
+                    "GROQ_API_KEY is missing. Add a valid Groq API key in .env or in your system environment variables."
+            );
+        }
+        return API_KEY.trim();
+    }
+
     public Cv generateCvWithAI(String jobTitle, String notes, String language, List<String> sections) throws IOException, InterruptedException {
+        String apiKey = getApiKeyOrThrow();
         String prompt = constructPrompt(jobTitle, notes, language, sections);
 
         JsonObject requestBody = new JsonObject();
@@ -48,7 +58,7 @@ public class AIService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + API_KEY.trim())
+                .header("Authorization", "Bearer " + apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
                 .build();
 
@@ -62,7 +72,8 @@ public class AIService {
     }
 
     public Cv translateCvWithAI(Cv cv, String targetLanguage) throws IOException, InterruptedException {
-        String cvJson = gson.toJson(cv);
+        String apiKey = getApiKeyOrThrow();
+        String cvJson = gson.toJson(buildTranslatableCvPayload(cv));
         String prompt = "Translate the following CV JSON into " + targetLanguage + ".\n" +
                 "STRICT RULES:\n" +
                 "- Return ONLY valid JSON.\n" +
@@ -78,6 +89,10 @@ public class AIService {
         requestBody.addProperty("stream", false);
 
         JsonArray messages = new JsonArray();
+        JsonObject systemMsg = new JsonObject();
+        systemMsg.addProperty("role", "system");
+        systemMsg.addProperty("content", "You are a professional translator. Respond with valid JSON only, without markdown or explanations.");
+        messages.add(systemMsg);
         JsonObject userMsg = new JsonObject();
         userMsg.addProperty("role", "user");
         userMsg.addProperty("content", prompt);
@@ -87,7 +102,7 @@ public class AIService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + API_KEY.trim())
+                .header("Authorization", "Bearer " + apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
                 .build();
 
@@ -98,6 +113,7 @@ public class AIService {
     }
 
     public AtsAnalysis analyzeAtsWithAI(Cv cv, String jobTitle, String jobDescription) throws IOException, InterruptedException {
+        String apiKey = getApiKeyOrThrow();
         String cvJson = gson.toJson(cv);
         String prompt = "Analyze this CV for ATS compatibility against the job description. Return ONLY valid JSON in French.\n\n" +
                 "JOB: " + jobTitle + "\nDESC: " + jobDescription + "\nCV: " + cvJson;
@@ -115,7 +131,7 @@ public class AIService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + API_KEY.trim())
+                .header("Authorization", "Bearer " + apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
                 .build();
 
@@ -128,6 +144,7 @@ public class AIService {
     }
 
     public String generateMotivationLetter(Cv cv, Offer offer, String language) throws IOException, InterruptedException {
+        String apiKey = getApiKeyOrThrow();
         String cvJson = gson.toJson(cv);
         String targetLang = (language == null || language.isEmpty()) ? (cv.getLangue() != null ? cv.getLangue() : "Français") : language;
         String prompt = "Write a professional motivation letter in " + targetLang + ". Return ONLY the letter text.\n\nOFFER: " + offer.getTitle() + "\nCV: " + cvJson;
@@ -145,7 +162,7 @@ public class AIService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + API_KEY.trim())
+                .header("Authorization", "Bearer " + apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
                 .build();
 
@@ -154,6 +171,17 @@ public class AIService {
 
         JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
         return root.getAsJsonArray("choices").get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString();
+    }
+
+    private JsonObject buildTranslatableCvPayload(Cv cv) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("summary", cv != null ? cv.getSummary() : null);
+        payload.add("experiences", gson.toJsonTree(cv != null ? cv.getExperiences() : List.of()));
+        payload.add("educations", gson.toJsonTree(cv != null ? cv.getEducations() : List.of()));
+        payload.add("skills", gson.toJsonTree(cv != null ? cv.getSkills() : List.of()));
+        payload.add("languages", gson.toJsonTree(cv != null ? cv.getLanguages() : List.of()));
+        payload.add("certifications", gson.toJsonTree(cv != null ? cv.getCertifs() : List.of()));
+        return payload;
     }
 
     private String constructPrompt(String jobTitle, String notes, String language, List<String> sections) {

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="16.0"
+      styleClass="challenge-card"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.Challenge.Activity.ActivityModifProblemSolutionCardsController">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+    </padding>
+
+    <VBox spacing="8.0">
+        <Label styleClass="input-label" text="Problem Statement" />
+        <TextArea fx:id="probModif"
+                  prefHeight="96.0"
+                  promptText="Edit problem..."
+                  styleClass="modern-input"
+                  wrapText="true" />
+    </VBox>
+
+    <VBox spacing="8.0">
+        <Label styleClass="input-label" text="Solution" />
+        <TextArea fx:id="solModif"
+                  prefHeight="96.0"
+                  promptText="Edit solution..."
+                  styleClass="modern-input"
+                  wrapText="true" />
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT">
+        <children>
+            <Button fx:id="ModifProbSol"
+                    onAction="#onUpdatePS"
+                    styleClass="primary-btn"
+                    text="Update" />
+        </children>
+    </HBox>
+</VBox>
