@@ -7,6 +7,7 @@ import com.pidev.Controllers.client.Challenge.Evaluation.StudentEvaluationContro
 import com.pidev.Controllers.client.Challenge.GrpsPredictionController;
 import com.pidev.Services.Challenge.Classes.ServiceActivity;
 import com.pidev.models.*;
+import com.pidev.utils.CurrentUserContext;
 import com.pidev.utils.SessionManager;
 import com.pidev.Services.UserService;
 import com.pidev.Services.NotificationService;
@@ -487,6 +488,7 @@ public class BaseController implements Initializable {
             userService.setConnectedStatus(user.getId(), false);
         }
         SessionManager.getInstance().logout();
+        CurrentUserContext.logout();
         switchRoot("client/User/login");
     }
 }

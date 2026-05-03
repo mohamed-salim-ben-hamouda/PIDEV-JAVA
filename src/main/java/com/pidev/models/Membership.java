@@ -4,6 +4,8 @@ package com.pidev.models;
 public class Membership {
 
     private Integer id;
+    private Integer userId;
+    private Integer groupId;
     private User user;          // Reference to the User object
     private Group group;        // Reference to the Group object
     private String role;
@@ -37,6 +39,22 @@ public class Membership {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
     public String getRole() {

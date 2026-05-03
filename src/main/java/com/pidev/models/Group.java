@@ -11,8 +11,9 @@ public class Group {
     private LocalDateTime creationDate;
     private String type ;
     private String level;
+    private Integer leaderId;
     private User leader; // Assuming a User class exists
-    private int maxMembers;
+    private Integer maxMembers;
     private double ratingScore;
     private String icon;
 
@@ -78,11 +79,19 @@ public class Group {
         this.leader = leader;
     }
 
-    public int getMaxMembers() {
+    public Integer getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(Integer leaderId) {
+        this.leaderId = leaderId;
+    }
+
+    public Integer getMaxMembers() {
         return maxMembers;
     }
 
-    public void setMaxMembers(int maxMembers) {
+    public void setMaxMembers(Integer maxMembers) {
         this.maxMembers = maxMembers;
     }
 

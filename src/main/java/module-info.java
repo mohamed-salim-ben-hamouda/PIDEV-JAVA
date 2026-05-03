@@ -16,7 +16,6 @@ module com.pidev.challenge_module {
 
     requires org.apache.commons.lang3;
     requires stripe.java;
-    requires jakarta.mail;
     requires com.google.gson;
     requires java.net.http;
     requires org.apache.poi.poi;

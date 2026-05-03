@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="16.0" stylesheets="@../../styles/group.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pidev.Controllers.client.GroupFormController" styleClass="group-page">
+    <children>
+        <Label fx:id="formTitleLabel" styleClass="card-title" text="Create a New Group" />
+
+        <VBox spacing="10.0" styleClass="form-card">
+            <children>
+                <Label text="Group Name" />
+                <TextField fx:id="nameField" promptText="e.g. Symfony Developers Tunisia" />
+
+                <Label text="Description" />
+                <TextArea fx:id="descriptionField" prefRowCount="4" promptText="What is this group about?" wrapText="true" />
+
+                <HBox spacing="10.0">
+                    <children>
+                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Group Type" />
+                                <ComboBox fx:id="typeCombo" prefWidth="220.0" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Level" />
+                                <ComboBox fx:id="levelCombo" prefWidth="220.0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <Label text="Max Members" />
+                <TextField fx:id="maxMembersField" promptText="e.g. 50" />
+
+                <Label text="Icon URL or Path (Optional)" />
+                <TextField fx:id="iconField" promptText="https://... or assets/..." />
+
+                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                    <children>
+                        <Button fx:id="saveButton" onAction="#handleSaveGroup" styleClass="primary-action" text="Create Group" />
+                        <Button onAction="#handleCancel" styleClass="secondary-action" text="Cancel" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="feedbackLabel" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+    <padding>
+        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0" />
+    </padding>
+</VBox>

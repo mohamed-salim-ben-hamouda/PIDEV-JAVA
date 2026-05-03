@@ -4,6 +4,7 @@ import com.pidev.Services.GoogleOAuthService;
 import com.pidev.Services.UserService;
 import com.pidev.models.GoogleUserInfo;
 import com.pidev.models.User;
+import com.pidev.utils.CurrentUserContext;
 import com.pidev.utils.SessionManager;
 import com.pidev.utils.CaptchaGenerator;
 import javafx.application.Platform;
@@ -189,6 +190,7 @@ public class login_Controller implements Initializable {
         }
 
         SessionManager.getInstance().setUser(user);
+        CurrentUserContext.loginAs(user.getId());
         userService.setConnectedStatus(user.getId(), true); // Mark as online
 
         if (user.getRole() == User.Role.ADMIN) {

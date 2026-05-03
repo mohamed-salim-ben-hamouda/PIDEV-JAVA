@@ -1,20 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <center>
-        <VBox alignment="CENTER" spacing="12.0">
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" stylesheets="@../../styles/feed.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.client.FeedController">
+    <content>
+        <VBox spacing="16.0" styleClass="feed-page">
             <children>
-                <Label style="-fx-font-size: 30px; -fx-font-weight: bold;" text="Groups" />
-                <Label text="This view is ready to be connected to the groups module." />
+                <HBox spacing="18.0">
+                    <children>
+                        <VBox prefWidth="270.0" spacing="12.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="sidebar-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="sidebar-title" text="My Groups" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#handleOpenGroupAdd" styleClass="create-btn" text="+ New" />
+                                            </children>
+                                        </HBox>
+                                        <VBox fx:id="myGroupsContainer" spacing="6.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="14.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="12.0" styleClass="quick-post-card">
+                                    <children>
+                                        <Label fx:id="formModeLabel" styleClass="card-title" text="Create Post" />
+                                        <TextField fx:id="titleField" promptText="Start a post..." />
+                                        <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="Share something with your network..." wrapText="true" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <ComboBox fx:id="visibilityCombo" prefWidth="160.0" promptText="Visibility" />
+                                                <ComboBox fx:id="statusCombo" prefWidth="160.0" promptText="Status" />
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <TextField fx:id="attachedFileField" promptText="Attached image path/url (optional)" HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#handleBrowseAttachment" styleClass="secondary-action" text="Browse..." />
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <TextField fx:id="groupDetailsIdField" promptText="Open group by ID" />
+                                                <Button onAction="#handleOpenGroupDetails" styleClass="secondary-action" text="Open Group" />
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                            <children>
+                                                <Button fx:id="submitButton" onAction="#handleSubmitPost" styleClass="primary-action" text="Post Now" />
+                                                <Button fx:id="cancelEditButton" managed="false" onAction="#handleCancelEdit" styleClass="secondary-action" text="Cancel Edit" visible="false" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="feedbackLabel" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                                <VBox fx:id="postsContainer" spacing="14.0" />
+                            </children>
+                        </VBox>
+
+                        <VBox prefWidth="300.0" spacing="12.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="sidebar-card">
+                                    <children>
+                                        <Label styleClass="sidebar-title" text="Latest News" />
+                                        <VBox fx:id="newsContainer" spacing="8.0" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="10.0" styleClass="sidebar-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="sidebar-title" text="Recommended Groups" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="toggleRecommendedButton" onAction="#handleToggleRecommendedGroups" styleClass="secondary-action" text="Hide" />
+                                            </children>
+                                        </HBox>
+                                        <VBox fx:id="recommendedGroupsContainer" spacing="6.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
             </children>
             <padding>
-                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                <Insets bottom="24.0" left="20.0" right="20.0" top="20.0" />
             </padding>
         </VBox>
-    </center>
-</BorderPane>
+    </content>
+</ScrollPane>

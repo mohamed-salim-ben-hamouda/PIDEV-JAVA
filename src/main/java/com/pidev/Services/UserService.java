@@ -178,6 +178,13 @@ public class UserService implements ICrud<User> {
         return null;
     }
 
+    public User findById(Integer id) {
+        if (id == null) {
+            return null;
+        }
+        return getById(id);
+    }
+
     public User login(String email, String password) {
         String query = "SELECT * FROM user WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))";
         try (PreparedStatement pst = connection.prepareStatement(query)) {

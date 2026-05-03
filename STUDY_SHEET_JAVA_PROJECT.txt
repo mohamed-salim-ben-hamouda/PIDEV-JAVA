@@ -1,0 +1,319 @@
+PIDEV-JAVA STUDY SHEET (Groups / Feed Module)
+==============================================
+
+1) BIG PICTURE: HOW THIS PROJECT IS ORGANIZED
+----------------------------------------------
+This project follows a layered style:
+
+- UI Layer (FXML files):
+  - src/main/resources/Fxml/...
+  - Defines screens and UI elements (TextField, Button, VBox, etc.).
+  - Links to controllers using fx:controller.
+
+- Controller Layer:
+  - src/main/java/com/pidev/Controllers/...
+  - Handles user actions from UI (button clicks, form submit, navigation).
+  - Validates input and prepares data for services.
+  - Updates UI by creating nodes and putting them in containers.
+
+- Service Layer:
+  - src/main/java/com/pidev/Services/...
+  - Contains database logic (SQL queries, CRUD, mapping ResultSet -> model).
+  - Uses JDBC with PreparedStatement and ResultSet.
+
+- Model Layer:
+  - src/main/java/com/pidev/models/...
+  - Plain Java objects (POJOs): Group, Membership, Post, User...
+  - Hold entity data with getters/setters.
+
+- Utility Layer:
+  - src/main/java/com/pidev/utils/...
+  - Shared helpers/context classes (DataSource, CurrentUserContext, GroupViewContext).
+
+
+2) ENTRY POINTS TO START READING
+--------------------------------
+- src/main/java/com/pidev/Main.java
+  - JavaFX app start.
+  - Loads /Fxml/client/base.fxml.
+  - Calls BaseController.loadHome() on startup.
+  - Tests DB connection using DataSource singleton.
+
+- src/main/java/com/pidev/utils/DataSource.java
+  - Core DB connection class.
+  - Singleton pattern:
+    - getInstance() returns one shared DataSource.
+    - getConnection() returns the JDBC Connection.
+  - URL/credentials are hardcoded:
+    - jdbc:mysql://localhost:3306/pidev_backup_fresh
+    - user root / empty password.
+
+Note:
+- There is NO class named MyConnection in this codebase.
+- DataSource is the class that plays that role.
+
+
+3) CONTROLLER VS SERVICE (IMPORTANT EXAM CONCEPT)
+-------------------------------------------------
+Controller responsibilities:
+- Receives events from UI (@FXML methods).
+- Reads/writes UI fields.
+- Basic validation (empty fields, max length, etc.).
+- Calls service methods.
+- Renders UI (adds cards/rows into VBox/HBox).
+- Navigation between pages (FXMLLoader + contentArea replacement).
+
+Service responsibilities:
+- SQL logic only.
+- Builds SQL strings.
+- Executes PreparedStatement.
+- Reads ResultSet.
+- Maps rows to model objects.
+- Handles transactions when needed.
+
+Simple rule:
+- If it touches JavaFX components -> Controller.
+- If it touches SQL/JDBC -> Service.
+
+
+4) MAIN GROUPS/FEED CLASSES TO STUDY
+------------------------------------
+A) Controllers (client):
+
+1. src/main/java/com/pidev/Controllers/client/FeedController.java
+   Purpose:
+   - Main feed page.
+   - Creates/updates/deletes/likes posts.
+   - Loads groups of current user.
+   - Manually renders post cards in VBox.
+
+   Key methods:
+   - initialize(): setup combo boxes and load data.
+   - handleSubmitPost(): create or update a public post.
+   - refreshData(): reload groups and posts.
+   - loadMyGroups(): build "my groups" buttons.
+   - loadPosts(): fetch posts then filter by visibility.
+   - renderPosts(), buildPostCard(): manual UI rendering.
+   - handleEdit(), handleDelete(), handleLike().
+   - navigateTo(): open another FXML inside content area.
+
+2. src/main/java/com/pidev/Controllers/client/GroupShowController.java
+   Purpose:
+   - Detailed page for one group.
+   - Join/leave group.
+   - Show members and posts.
+   - Add/kick members (role-based behavior).
+   - Create group post.
+
+   Key methods:
+   - initialize(): load selected group and defaults.
+   - handleJoinOrLeave().
+   - handleSubmitGroupPost().
+   - reload(search): refresh full page state.
+   - renderHeader(), renderMembers(), renderPosts(), renderSearchResults().
+   - updateComposerAccess(): hide/show post form if not member.
+
+3. src/main/java/com/pidev/Controllers/client/GroupFormController.java
+   Purpose:
+   - Create or edit a group.
+   Key methods:
+   - initialize(): create mode vs edit mode.
+   - handleSaveGroup(): validates and calls GroupController.
+   - loadGroupForEdit().
+
+4. src/main/java/com/pidev/Controllers/client/AddMemberController.java
+   Purpose:
+   - Search users then add them to selected group.
+   Key methods:
+   - handleSearch().
+   - renderUsers(): build result rows in VBox.
+
+5. src/main/java/com/pidev/Controllers/client/GroupController.java
+   Purpose:
+   - Orchestrator/controller for group business flows.
+   - Combines calls to GroupService + MembershipService + PostService.
+
+   Key methods:
+   - index(sort): returns grouped data for feed/index.
+   - add(group): creates group and auto-adds leader membership.
+   - edit(group): patch-like update.
+   - show(groupId, searchTerm, userIdToAdd): returns group details bundle.
+   - delete(groupId): delete group with dependencies.
+   - listPublicPosts(), listPostsForGroup() (internal filtering).
+
+6. src/main/java/com/pidev/Controllers/client/MembershipController.java
+   Purpose:
+   - Wrapper around MembershipService actions for UI usage.
+   Key methods:
+   - join(), leave(), addMemberConfirm(), kick(), setRole(),
+     listGroupMembers(), currentUserMembership(), searchUsersForGroupInvite().
+
+7. src/main/java/com/pidev/Controllers/client/BaseController.java
+   Purpose:
+   - Front-office shell.
+   - Loads views into central content area.
+   - Handles navigation menu actions.
+
+
+B) Services:
+
+1. src/main/java/com/pidev/Services/GroupService.java
+   Purpose:
+   - CRUD and helper queries for groups.
+   Key methods:
+   - findAll(), findById(), findByLeaderId()
+   - create(), update()
+   - deleteWithDependencies() (transaction)
+   - searchUsers(term)
+   - mapGroup(ResultSet)
+
+   Special logic:
+   - resolveGroupTable(): supports table name "group" or "groups".
+   - resolveColumn(): supports schema variants (leader_id_id vs leader_id).
+   - deletePostsDependencies(): deletes related rows in reactions/comments/posts.
+
+2. src/main/java/com/pidev/Services/MembershipService.java
+   Purpose:
+   - Membership CRUD and lookups.
+   Key methods:
+   - findByUser(), findByGroup(), findOne()
+   - create()
+   - addIfMissing() (idempotent add)
+   - removeById(), removeByUserAndGroup()
+   - setRole()
+   - findUserGroups(userId, groupService)
+   - mapMembership(ResultSet)
+
+   Special logic:
+   - resolveMembershipTable(): "membership" or "memberships".
+   - resolveColumn() for user/group/active/achievement schema names.
+
+3. src/main/java/com/pidev/Services/PostService.java
+   Purpose:
+   - Post CRUD + like increment.
+   Key methods:
+   - findAllNewestFirst()
+   - createPost()
+   - updatePost()
+   - deletePost()
+   - incrementLike()
+   - mapRow(ResultSet)
+
+   Special logic:
+   - resolveTableName(): supports "post" or "posts" and checks table usability.
+
+
+5) MODELS YOU SHOULD KNOW
+-------------------------
+- Group: id, name, description, creationDate, type, level, leaderId, maxMembers, ratingScore, icon
+  - src/main/java/com/pidev/models/Group.java
+
+- Membership: id, userId, groupId, role, contributionScore, achievementUnlocked, active
+  - src/main/java/com/pidev/models/Membership.java
+
+- Post: id, description, titre, status, visibility, attachedFile, createdAt, updatedAt, likesCounter, groupId, authorId
+  - src/main/java/com/pidev/models/Post.java
+
+- User: user info and account fields; used for member search display
+  - src/main/java/com/pidev/models/User.java
+
+
+6) CONTEXT/STATE CLASSES
+------------------------
+- src/main/java/com/pidev/utils/CurrentUserContext.java
+  - getCurrentUserId() currently returns hardcoded user 23 for testing.
+
+- src/main/java/com/pidev/utils/GroupViewContext.java
+  - Stores selectedGroupId and editingGroupId across screens.
+  - Used for navigation flow:
+    - Feed -> GroupShow
+    - GroupShow -> GroupForm (edit)
+
+
+7) HOW DATA FLOWS (END-TO-END EXAMPLES)
+---------------------------------------
+Example A: Create group
+1. GroupFormController.handleSaveGroup()
+2. GroupController.add()
+3. GroupService.create() INSERT group
+4. MembershipService.addIfMissing() INSERT leader membership
+5. Navigate to GroupShow page
+
+Example B: Join group
+1. GroupShowController.handleJoinOrLeave()
+2. MembershipController.join()
+3. MembershipService.addIfMissing()
+4. Reload GroupShow data
+
+Example C: Display feed posts
+1. FeedController.loadPosts()
+2. PostService.findAllNewestFirst() SELECT posts
+3. FeedController.canUserSeePost() filters visibility
+4. FeedController.renderPosts() + buildPostCard()
+5. UI nodes added into VBox postsContainer
+
+
+8) HOW ITEMS ARE SHOWN IN UI
+----------------------------
+Important:
+- This module does NOT use JavaFX TableView for posts/members/groups.
+- It also does NOT use ListView for these items.
+- It uses manual rendering:
+  - Create JavaFX nodes (VBox/HBox/Label/Button/ImageView) in controller code.
+  - Add them with getChildren().add(...) to containers like postsContainer, membersContainer, resultsContainer.
+
+This is a "card-based manual rendering" approach.
+
+
+9) JDBC METHODS/PATTERNS USED
+-----------------------------
+- Connection from DataSource.getInstance().getConnection()
+- PreparedStatement for parameterized SQL
+- ResultSet for reading rows
+- Statement.RETURN_GENERATED_KEYS for INSERT IDs
+- try-with-resources to auto-close statement/result set
+- executeQuery() for SELECT
+- executeUpdate() for INSERT/UPDATE/DELETE
+- map methods:
+  - mapGroup(ResultSet)
+  - mapMembership(ResultSet)
+  - mapRow(ResultSet)
+
+
+10) FXML + CONTROLLER BINDING
+-----------------------------
+- FXML files are in src/main/resources/Fxml/...
+- Each screen declares fx:controller
+- @FXML fields in controllers bind to FXML ids
+- @FXML methods bind to button actions
+- FXMLLoader loads screen and controller
+
+Main files:
+- /Fxml/client/base.fxml -> BaseController
+- /Fxml/client/GroupsView.fxml -> FeedController
+- /Fxml/client/GroupShowView.fxml -> GroupShowController
+- /Fxml/client/GroupFormView.fxml -> GroupFormController
+- /Fxml/client/AddMemberView.fxml -> AddMemberController
+
+
+11) PRACTICAL STUDY ORDER (RECOMMENDED)
+---------------------------------------
+1. Read Main.java + DataSource.java
+2. Read GroupService, MembershipService, PostService
+3. Read GroupController + MembershipController
+4. Read FeedController + GroupShowController
+5. Open corresponding FXML files and match fx:id with @FXML fields
+6. Trace one feature end-to-end (create post, join group, add member)
+
+
+12) QUICK SELF-TEST QUESTIONS
+-----------------------------
+1. Why is DataSource a singleton?
+2. What is the difference between GroupController and GroupService?
+3. Which method makes "join group" idempotent?
+4. Where is visibility filtering done for feed posts?
+5. Why are resolveTableName/resolveColumn methods useful?
+6. How does GroupViewContext help navigation/state?
+
+
+End of study sheet.
