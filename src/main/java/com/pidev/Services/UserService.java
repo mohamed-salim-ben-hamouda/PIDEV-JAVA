@@ -76,7 +76,7 @@ public class UserService implements ICrud<User> {
             user.setPasswd(BCrypt.hashpw(user.getPasswd(), BCrypt.gensalt()));
         }
 
-        String query = "UPDATE user SET nom = ?, prenom = ?, email = ?, passwd = ?, date_naissance = ?, type = ?, date_inscrit = ?, is_active = ?, photo = ?, ban_until = ? WHERE id = ?";
+        String query = "UPDATE user SET nom = ?, prenom = ?, email = ?, passwd = ?, date_naissance = ?, type = ?, date_inscrit = ?, is_active = ?, photo = ?, ban_until = ?, git_username = ? WHERE id = ? ";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, user.getNom());
             pst.setString(2, user.getPrenom());
@@ -97,7 +97,8 @@ public class UserService implements ICrud<User> {
             } else {
                 pst.setNull(10, Types.TIMESTAMP);
             }
-            pst.setInt(11, user.getId());
+            pst.setString(11, user.getGit_username());
+            pst.setInt(12, user.getId());
             pst.executeUpdate();
             System.out.println("User updated successfully!");
             return true;
@@ -391,6 +392,7 @@ public class UserService implements ICrud<User> {
         }
         try { user.setConnected(rs.getBoolean("is_connected")); } catch (Exception e) {}
         try { user.setPhoto(rs.getString("photo")); } catch (Exception e) {}
+        try { user.setGit_username(rs.getString("git_username")); } catch (Exception e) {}
         try {
             Timestamp banTs = rs.getTimestamp("ban_until");
             if (banTs != null) user.setBanUntil(banTs.toLocalDateTime());

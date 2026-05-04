@@ -65,6 +65,8 @@ public class BaseController implements Initializable {
     @FXML
     private Label profileLink;
     @FXML
+    private Label coursesLink;
+    @FXML
     private Button loginBtn;
 
     @FXML private HBox userInfoNav;
@@ -96,7 +98,6 @@ public class BaseController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         configureHoverMenu(challengesMenu);
         configureHoverMenu(ChallengesStudent);
-
         configureHoverMenu(CvMenu);
         updateNavbar();
 
@@ -112,9 +113,9 @@ public class BaseController implements Initializable {
         boolean isAdmin = SessionManager.getInstance().isAdmin();
         boolean isLogged = SessionManager.getInstance().isLogged();
         User user = SessionManager.getInstance().getUser();
-
         setVisibleAndManaged(dashboardLink, isAdmin);
         setVisibleAndManaged(profileLink, isLogged);
+        setVisibleAndManaged(coursesLink, true);
         setVisibleAndManaged(userInfoNav, isLogged);
         setVisibleAndManaged(notificationIconWrapper, isLogged);
 
@@ -144,6 +145,14 @@ public class BaseController implements Initializable {
                     challengesMenu.setManaged(true);
                     ChallengesStudent.setVisible(false);
                     ChallengesStudent.setManaged(false);
+                } else if(user.getRole() == User.Role.ADMIN){
+                    CvMenu.setText("Jobs & CV");
+                    cvMenuItem.setVisible(true);
+                    jobsMenuItem.setText("Jobs");
+                    challengesMenu.setVisible(false);
+                    challengesMenu.setManaged(false);
+                    ChallengesStudent.setVisible(true);
+                    ChallengesStudent.setManaged(true);
                 }
             } else {
                 ChallengesStudent.setVisible(true);
@@ -399,6 +408,7 @@ public class BaseController implements Initializable {
         }
         return true;
     }
+
     @FXML public void loadLogin() {
         if (SessionManager.getInstance().isLogged()) {
             handleLogout();

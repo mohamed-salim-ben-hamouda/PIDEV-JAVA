@@ -29,7 +29,7 @@ public class ProfileController implements Initializable {
     @FXML private TextField prenomField;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
-
+    @FXML private TextField GitField;
     private User currentUser;
     private UserService userService = new UserService();
     private String newPhotoPath = null;
@@ -45,6 +45,7 @@ public class ProfileController implements Initializable {
             nomField.setText(currentUser.getNom());
             prenomField.setText(currentUser.getPrenom());
             emailField.setText(currentUser.getEmail());
+            GitField.setText(currentUser.getGit_username());
             
             // Load existing photo or default
             loadProfileImage(currentUser.getPhoto());
@@ -155,7 +156,7 @@ public class ProfileController implements Initializable {
         String prenom = prenomField.getText().trim();
         String email = emailField.getText().trim();
         String password = passwordField.getText();
-
+        String git = GitField.getText().trim();
         if (nom.isEmpty() || email.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Le nom et l'email sont obligatoires.");
             return;
@@ -164,7 +165,7 @@ public class ProfileController implements Initializable {
         currentUser.setNom(nom);
         currentUser.setPrenom(prenom);
         currentUser.setEmail(email);
-        
+        currentUser.setGit_username(git);
         if (password != null && !password.isEmpty()) {
             currentUser.setPasswd(password);
         }
@@ -175,7 +176,6 @@ public class ProfileController implements Initializable {
 
         try {
             userService.update(currentUser);
-            // Met à jour la session avec la nouvelle instance modifiée
             SessionManager.getInstance().setUser(currentUser);
             
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Mise à jour réussie ! Les modifications ont été enregistrées.");

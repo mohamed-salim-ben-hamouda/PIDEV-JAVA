@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" stylesheets="@../../styles/home.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pidev.Controllers.client.CourseAddController"
+            styleClass="transparent-scroll">
+    <content>
+        <VBox spacing="22.0" styleClass="courses-page student-dashboard">
+            <children>
+                <VBox spacing="8.0" styleClass="courses-hero">
+                    <children>
+                        <HBox spacing="14.0" alignment="CENTER_LEFT">
+                            <children>
+                                <VBox styleClass="hero-badge">
+                                    <children>
+                                        <FontIcon iconLiteral="fas-plus" iconSize="24" styleClass="hero-badge-icon" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="3.0">
+                                    <children>
+                                        <Label styleClass="courses-hero-title" text="Add a new course" />
+                                        <Label styleClass="courses-hero-subtitle" text="Create and publish a course directly from the learning area." />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <HBox spacing="16.0" styleClass="courses-stats-row">
+                    <children>
+                        <VBox styleClass="course-stat-card stat-blue" spacing="6.0">
+                            <children>
+                                <Label text="Supervisor" styleClass="stat-value stat-value-small" />
+                                <Label fx:id="supervisorNameLabel" styleClass="stat-label" text="-" />
+                            </children>
+                        </VBox>
+                        <VBox styleClass="course-stat-card stat-green" spacing="6.0">
+                            <children>
+                                <Label text="Ready" styleClass="stat-value stat-value-small" />
+                                <Label styleClass="stat-label" text="The course will be published with your supervisor account." wrapText="true" />
+                            </children>
+                        </VBox>
+                        <VBox styleClass="course-stat-card stat-gold" spacing="6.0">
+                            <children>
+                                <Label text="Flow" styleClass="stat-value stat-value-small" />
+                                <Label styleClass="stat-label" text="Fill the form, choose a PDF, and save the course." wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox spacing="22.0" alignment="TOP_LEFT" styleClass="course-form-shell">
+                    <children>
+                        <VBox spacing="18.0" styleClass="course-form-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <FontIcon iconLiteral="fas-book-open" styleClass="section-title-icon" />
+                                        <Label styleClass="section-title" text="Course Information" />
+                                    </children>
+                                </HBox>
+                                <Label fx:id="statusMessageLabel" styleClass="course-form-helper" text="Use the same course data as before, now from the Courses menu." wrapText="true" />
+                                <Separator />
+
+                                <GridPane hgap="18.0" vgap="10.0" styleClass="course-form-grid">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="LEFT" minWidth="170.0" prefWidth="170.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Title" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="titleField" promptText="Course title" styleClass="course-form-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label fx:id="titleErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                        <Label text="Description" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="Short course description" styleClass="course-form-area" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                        <Label fx:id="descriptionErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                        <Label text="Duration" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <HBox spacing="10.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                            <children>
+                                                <Spinner fx:id="daysSpinner" editable="true" prefWidth="110.0" styleClass="course-form-spinner" />
+                                                <Spinner fx:id="hoursSpinner" editable="true" prefWidth="110.0" styleClass="course-form-spinner" />
+                                                <Spinner fx:id="minutesSpinner" editable="true" prefWidth="110.0" styleClass="course-form-spinner" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="durationErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                        <Label text="Difficulty" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <ComboBox fx:id="difficultyCombo" promptText="Difficulty" styleClass="course-form-field" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                        <Label fx:id="difficultyErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                                        <Label text="Validation Score" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                        <TextField fx:id="scoreField" promptText="0 - 100" styleClass="course-form-field" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                        <Label fx:id="scoreErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+
+                                        <Label text="Course PDF" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                                        <HBox spacing="10.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="10">
+                                            <children>
+                                                <TextField fx:id="contentPdfField" promptText="Path to the course PDF" styleClass="course-form-field" HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#onChoosePdf" text="Choose PDF" styleClass="courses-action-btn secondary" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="contentErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+
+                                        <Label text="Material" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="12" />
+                                        <TextField fx:id="materialField" promptText="Optional extra material" styleClass="course-form-field" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                                        <Label fx:id="materialErrorLabel" styleClass="course-form-error" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+
+                                        <Label text="Prerequisite Quiz" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="14" />
+                                        <ComboBox fx:id="prerequisiteQuizCombo" promptText="Optional prerequisite quiz" styleClass="course-form-field" GridPane.columnIndex="1" GridPane.rowIndex="14" />
+
+                                        <Label text="Supervisor" styleClass="course-form-label" GridPane.columnIndex="0" GridPane.rowIndex="15" />
+                                        <Label fx:id="supervisorValueLabel" styleClass="course-form-readonly" GridPane.columnIndex="1" GridPane.rowIndex="15" />
+                                    </children>
+                                </GridPane>
+
+                                <HBox spacing="12.0" alignment="CENTER_RIGHT" styleClass="course-form-actions">
+                                    <children>
+                                        <Button onAction="#onBackToCourses" text="Back to Courses" styleClass="courses-action-btn secondary" />
+                                        <Button onAction="#onReset" text="Reset" styleClass="courses-action-btn secondary" />
+                                        <Button onAction="#onSubmit" text="Publish Course" styleClass="courses-action-btn primary" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="16.0" styleClass="course-form-side-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <FontIcon iconLiteral="fas-info-circle" styleClass="section-title-icon" />
+                                        <Label styleClass="section-title" text="Publishing Notes" />
+                                    </children>
+                                </HBox>
+                                <Label styleClass="course-form-helper" text="Only connected supervisors can open this page. The saved course keeps the same creation rules as the existing add-course flow." wrapText="true" />
+                                <VBox spacing="10.0" styleClass="course-form-meta-card">
+                                    <children>
+                                        <Label text="Checklist" styleClass="course-form-meta-title" />
+                                        <Label text="Use a title between 3 and 30 characters." styleClass="course-form-meta-line" wrapText="true" />
+                                        <Label text="Set a positive duration with days, hours, or minutes." styleClass="course-form-meta-line" wrapText="true" />
+                                        <Label text="Attach a valid .pdf file for the course content." styleClass="course-form-meta-line" wrapText="true" />
+                                        <Label text="Keep the validation score between 0 and 100." styleClass="course-form-meta-line" wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <Region VBox.vgrow="ALWAYS" />
+                            </children>
+                            <padding>
+                                <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
+            </padding>
+        </VBox>
+    </content>
+</ScrollPane>

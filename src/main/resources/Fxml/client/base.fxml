@@ -37,7 +37,7 @@
                         <Label fx:id="dashboardLink" styleClass="nav-link" text="Dashboard" onMouseClicked="#loadDashboard"/>
                         <Label styleClass="nav-link" text="Home" onMouseClicked="#loadHome"/>
                         <Label fx:id="profileLink" styleClass="nav-link" text="Profile" onMouseClicked="#loadProfile" managed="false" visible="false"/>
-                        <Label styleClass="nav-link" text="Courses" onMouseClicked="#loadCourses"/>
+                        <Label fx:id="coursesLink" styleClass="nav-link" text="Courses" onMouseClicked="#loadCourses"/>
                         <Label styleClass="nav-link" text="Groups" onMouseClicked="#loadGroups"/>
                         <MenuButton fx:id="challengesMenu" text="Challenge &amp; Evaluation" styleClass="nav-menu-button">
                             <items>

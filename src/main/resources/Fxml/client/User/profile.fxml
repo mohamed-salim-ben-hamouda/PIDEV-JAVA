@@ -85,8 +85,8 @@
                     </VBox>
 
                     <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                        <Label styleClass="profile-field-label" text="Role" />
-                        <TextField promptText="Student" styleClass="profile-textfield" editable="false" />
+                        <Label styleClass="profile-field-label" text="Git UserName" />
+                        <TextField fx:id="GitField" promptText="Git UserName" styleClass="profile-textfield" />
                     </VBox>
                     <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                         <Label styleClass="profile-field-label" text="Member Since" />

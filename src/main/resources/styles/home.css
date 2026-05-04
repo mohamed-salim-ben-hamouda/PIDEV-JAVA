@@ -1204,4 +1204,129 @@
     -fx-background-color: #4f46e5;
     -fx-border-color: #4f46e5;
     -fx-text-fill: white;
-}
+}
+
+/* --- Supervisor Add Course --- */
+.course-form-shell {
+    -fx-alignment: top-left;
+}
+
+.course-form-card,
+.course-form-side-card {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 26px;
+    -fx-border-color: rgba(255, 255, 255, 0.85);
+    -fx-border-radius: 26px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 26, 0.15, 0, 12);
+    -fx-padding: 24;
+}
+
+.course-form-card {
+    -fx-min-width: 760px;
+}
+
+.course-form-side-card {
+    -fx-min-width: 290px;
+    -fx-max-width: 320px;
+}
+
+.course-form-grid {
+    -fx-padding: 6 0 0 0;
+}
+
+.course-form-label {
+    -fx-text-fill: #334155;
+    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.course-form-field,
+.course-form-area,
+.course-form-spinner {
+    -fx-background-color: #f8fbff;
+    -fx-background-radius: 16px;
+    -fx-border-color: #dbe7f7;
+    -fx-border-radius: 16px;
+    -fx-border-width: 1px;
+    -fx-padding: 12 14;
+    -fx-font-size: 13px;
+    -fx-text-fill: #0f172a;
+}
+
+.course-form-field:focused,
+.course-form-area:focused,
+.course-form-spinner:focused,
+.course-form-spinner .text-field:focused {
+    -fx-border-color: #5c89ff;
+    -fx-effect: dropshadow(gaussian, rgba(92, 137, 255, 0.18), 12, 0.15, 0, 4);
+}
+
+.course-form-area {
+    -fx-padding: 10 14;
+}
+
+.course-form-spinner {
+    -fx-padding: 0;
+}
+
+.course-form-spinner .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 12 12;
+}
+
+.course-form-spinner .increment-arrow-button,
+.course-form-spinner .decrement-arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 10;
+}
+
+.course-form-spinner .increment-arrow,
+.course-form-spinner .decrement-arrow {
+    -fx-background-color: #5c89ff;
+}
+
+.course-form-readonly {
+    -fx-background-color: #eef4ff;
+    -fx-background-radius: 16px;
+    -fx-padding: 12 14;
+    -fx-text-fill: #1e3a8a;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.course-form-helper {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2px;
+}
+
+.course-form-error {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 11px;
+    -fx-padding: -4 0 4 0;
+}
+
+.course-form-actions {
+    -fx-padding: 8 0 0 0;
+}
+
+.course-form-meta-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(238, 244, 255, 0.95), rgba(255, 248, 235, 0.95));
+    -fx-background-radius: 20px;
+    -fx-padding: 18;
+}
+
+.course-form-meta-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.course-form-meta-line {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+}
+
+.stat-value-small {
+    -fx-font-size: 24px;
+}
